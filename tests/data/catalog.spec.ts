@@ -1,0 +1,76 @@
+import { describe, expect, it } from 'vitest'
+import Ajv2020 from 'ajv/dist/2020'
+import peptideSchema from '@/data/peptides.schema.json'
+import syringeSchema from '@/data/syringes.schema.json'
+import peptidesJson from '@/data/peptides.json'
+import syringesJson from '@/data/syringes.json'
+import { catalog, syringeCatalog } from '@/data'
+import { areCompatible } from '@/domain/units'
+import { blendTotalMg } from '@/domain/blend'
+import { rateConstants } from '@/domain/pk'
+
+// strictRequired is off because if/then branches legitimately require properties declared above.
+const ajv = new Ajv2020({ allErrors: true, strict: true, strictRequired: false })
+
+describe('peptides.json', () => {
+  it('matches its JSON Schema', () => {
+    const validate = ajv.compile(peptideSchema)
+    expect(validate(peptidesJson), JSON.stringify(validate.errors, null, 2)).toBe(true)
+  })
+
+  it('has unique ids', () => {
+    const ids = catalog.peptides.map((p) => p.id)
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it.each(catalog.peptides.map((p) => [p.id, p] as const))(
+    '%s is internally consistent',
+    (_, p) => {
+      expect(areCompatible(p.vialUnit, p.defaultDoseUnit)).toBe(true)
+      expect(areCompatible(p.vialUnit, p.vialSizes.unit)).toBe(true)
+      if (p.doses) expect(areCompatible(p.vialUnit, p.doses.unit)).toBe(true)
+      if (p.kind === 'blend') {
+        expect(p.vialSizes.values).toContain(blendTotalMg(p.components ?? []))
+      }
+      if (p.pk) expect(() => rateConstants(p.pk!)).not.toThrow()
+    },
+  )
+
+  it('ships every launch peptide', () => {
+    const names = catalog.peptides.map((p) => p.name)
+    for (const name of [
+      'Semaglutide',
+      'Tirzepatide',
+      'Retatrutide',
+      'Cagrilintide',
+      'GHK-Cu',
+      'Tesamorelin',
+      'KLOW',
+      'BPC-157',
+      'TB-500',
+      'KPV',
+      'GLOW',
+    ]) {
+      expect(names).toContain(name)
+    }
+  })
+})
+
+describe('syringes.json', () => {
+  it('matches its JSON Schema', () => {
+    const validate = ajv.compile(syringeSchema)
+    expect(validate(syringesJson), JSON.stringify(validate.errors, null, 2)).toBe(true)
+  })
+
+  it('names an existing default syringe, a U-100', () => {
+    const def = syringeCatalog.syringes.find((s) => s.id === syringeCatalog.defaultSyringeId)
+    expect(def?.unitsPerMl).toBe(100)
+  })
+
+  it('has ticks that divide capacity evenly', () => {
+    for (const s of syringeCatalog.syringes) {
+      const ticks = s.capacityMl / s.tickMl
+      expect(Math.abs(ticks - Math.round(ticks))).toBeLessThan(1e-9)
+    }
+  })
+})

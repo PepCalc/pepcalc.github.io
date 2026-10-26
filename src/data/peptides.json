@@ -1,0 +1,480 @@
+{
+  "$schema": "./peptides.schema.json",
+  "version": 1,
+  "peptides": [
+    {
+      "id": "semaglutide",
+      "name": "Semaglutide",
+      "aliases": ["Sema", "GLP-1"],
+      "kind": "single",
+      "summary": "Long-acting GLP-1 receptor agonist; once-weekly in clinical use.",
+      "vialUnit": "mg",
+      "defaultDoseUnit": "mg",
+      "vialSizes": {
+        "values": [2, 3, 5, 10],
+        "unit": "mg",
+        "source": {
+          "kind": "community",
+          "citation": "Common research-vendor vial sizes"
+        }
+      },
+      "diluentMl": {
+        "values": [1, 2, 3],
+        "source": {
+          "kind": "community",
+          "citation": "Common reconstitution volumes"
+        }
+      },
+      "doses": {
+        "values": [0.25, 0.5, 1, 1.7, 2.4, 7.2],
+        "unit": "mg",
+        "source": {
+          "kind": "label",
+          "citation": "WEGOVY (semaglutide) US prescribing information: escalation doses and the 7.2 mg WEGOVY HD maintenance dose",
+          "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ee06186f-2aa3-4990-a760-757579d8f77b"
+        }
+      },
+      "pk": {
+        "halfLifeHours": 168,
+        "tmaxHours": 56,
+        "notes": "Label: half-life about 1 week, peak 1 to 3 days after a dose, subcutaneous bioavailability 89%. The model uses the single-dose median time to peak of 56 h in healthy adults.",
+        "sources": [
+          {
+            "kind": "label",
+            "citation": "WEGOVY (semaglutide) US prescribing information, section 12.3",
+            "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ee06186f-2aa3-4990-a760-757579d8f77b"
+          },
+          {
+            "kind": "trial",
+            "citation": "Clinical Pharmacokinetics of Semaglutide: A Systematic Review (2024)",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11215664/"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tirzepatide",
+      "name": "Tirzepatide",
+      "aliases": ["Tirz", "GIP/GLP-1"],
+      "kind": "single",
+      "summary": "Dual GIP and GLP-1 receptor agonist; once-weekly in clinical use.",
+      "vialUnit": "mg",
+      "defaultDoseUnit": "mg",
+      "vialSizes": {
+        "values": [5, 10, 15, 20, 30, 60],
+        "unit": "mg",
+        "source": {
+          "kind": "community",
+          "citation": "Common research-vendor vial sizes"
+        }
+      },
+      "diluentMl": {
+        "values": [1, 2, 3],
+        "source": {
+          "kind": "community",
+          "citation": "Common reconstitution volumes"
+        }
+      },
+      "doses": {
+        "values": [2.5, 5, 7.5, 10, 12.5, 15],
+        "unit": "mg",
+        "source": {
+          "kind": "label",
+          "citation": "MOUNJARO (tirzepatide) US prescribing information, dose escalation",
+          "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=d2d7da5d-ad07-4228-955f-cf7e355c8cc0"
+        }
+      },
+      "pk": {
+        "halfLifeHours": 120,
+        "tmaxHours": 24,
+        "notes": "Label: half-life about 5 days, peak 8 to 72 hours after a dose, bioavailability 80%. The label gives only a range for time to peak; 24 h is a modelling choice inside it.",
+        "sources": [
+          {
+            "kind": "label",
+            "citation": "MOUNJARO (tirzepatide) US prescribing information, section 12.3",
+            "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=d2d7da5d-ad07-4228-955f-cf7e355c8cc0"
+          },
+          {
+            "kind": "model",
+            "citation": "Time to peak chosen within the label range"
+          }
+        ]
+      }
+    },
+    {
+      "id": "retatrutide",
+      "name": "Retatrutide",
+      "aliases": ["Reta", "LY3437943"],
+      "kind": "single",
+      "summary": "Investigational GIP, GLP-1 and glucagon receptor triple agonist; not approved.",
+      "vialUnit": "mg",
+      "defaultDoseUnit": "mg",
+      "vialSizes": {
+        "values": [5, 10, 20],
+        "unit": "mg",
+        "source": {
+          "kind": "community",
+          "citation": "Common research-vendor vial sizes"
+        }
+      },
+      "diluentMl": {
+        "values": [1, 2, 3],
+        "source": {
+          "kind": "community",
+          "citation": "Common reconstitution volumes"
+        }
+      },
+      "doses": {
+        "values": [1, 2, 4, 8, 12],
+        "unit": "mg",
+        "source": {
+          "kind": "trial",
+          "citation": "Jastreboff et al., N Engl J Med 2023: phase 2 maintenance doses 1, 4, 8, 12 mg and 2 mg starting dose",
+          "url": "https://doi.org/10.1056/NEJMoa2301972"
+        }
+      },
+      "pk": {
+        "halfLifeHours": 144,
+        "tmaxHours": 24,
+        "notes": "Phase 1: geometric mean half-life 134 to 165 h (about 6 days); median time to peak 12 to 72 h across dose cohorts. The model uses 6 days and 24 h.",
+        "sources": [
+          {
+            "kind": "trial",
+            "citation": "Lilly Medical: What is retatrutide? (phase 1 half-life about 6 days)",
+            "url": "https://medical.lilly.com/us/products/answers/what-is-retatrutide-233361"
+          },
+          {
+            "kind": "trial",
+            "citation": "Pharmaceutics 2026 review of retatrutide, first-in-human PK summary",
+            "url": "https://doi.org/10.3390/pharmaceutics18101277"
+          },
+          {
+            "kind": "model",
+            "citation": "Time to peak chosen within the reported range"
+          }
+        ]
+      }
+    },
+    {
+      "id": "cagrilintide",
+      "name": "Cagrilintide",
+      "aliases": ["Cagri"],
+      "kind": "single",
+      "summary": "Investigational long-acting amylin analogue; studied once-weekly with semaglutide.",
+      "vialUnit": "mg",
+      "defaultDoseUnit": "mg",
+      "vialSizes": {
+        "values": [5, 10],
+        "unit": "mg",
+        "source": {
+          "kind": "community",
+          "citation": "Common research-vendor vial sizes"
+        }
+      },
+      "diluentMl": {
+        "values": [1, 2, 3],
+        "source": {
+          "kind": "community",
+          "citation": "Common reconstitution volumes"
+        }
+      },
+      "doses": {
+        "values": [0.16, 0.3, 0.6, 1.2, 2.4, 4.5],
+        "unit": "mg",
+        "source": {
+          "kind": "trial",
+          "citation": "Enebo et al., Lancet 2021 (phase 1b dose cohorts)",
+          "url": "https://doi.org/10.1016/S0140-6736(21)00845-X"
+        }
+      },
+      "pk": {
+        "halfLifeHours": 180,
+        "tmaxHours": 48,
+        "notes": "Phase 1b: half-life 159 to 195 h; median time to peak 24 to 72 h. The model uses 180 h (the figure in the sponsor's trial protocol) and 48 h.",
+        "sources": [
+          {
+            "kind": "trial",
+            "citation": "Enebo et al., Lancet 2021",
+            "url": "https://doi.org/10.1016/S0140-6736(21)00845-X"
+          },
+          {
+            "kind": "trial",
+            "citation": "Novo Nordisk trial protocol NCT04982575 (half-life about 180 h)",
+            "url": "https://cdn.clinicaltrials.gov/large-docs/75/NCT04982575/Prot_000.pdf"
+          },
+          {
+            "kind": "model",
+            "citation": "Time to peak chosen within the reported range"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tesamorelin",
+      "name": "Tesamorelin",
+      "aliases": ["Egrifta", "TH9507"],
+      "kind": "single",
+      "summary": "Growth-hormone-releasing hormone analogue; once-daily in clinical use.",
+      "vialUnit": "mg",
+      "defaultDoseUnit": "mg",
+      "vialSizes": {
+        "values": [2, 5, 10],
+        "unit": "mg",
+        "source": {
+          "kind": "community",
+          "citation": "Common research-vendor vial sizes"
+        }
+      },
+      "diluentMl": {
+        "values": [1, 2, 3],
+        "source": {
+          "kind": "community",
+          "citation": "Common reconstitution volumes"
+        }
+      },
+      "doses": {
+        "values": [2],
+        "unit": "mg",
+        "source": {
+          "kind": "label",
+          "citation": "EGRIFTA US prescribing information: 2 mg once daily (1 mg/vial formulation)",
+          "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/022505s020lbl.pdf"
+        }
+      },
+      "pk": {
+        "halfLifeHours": 0.183,
+        "tmaxHours": 0.15,
+        "notes": "Label: elimination half-life 11 minutes, median time to peak 0.15 h (9 minutes), absolute bioavailability under 4%. The curve rises and falls within about an hour; its effect on growth hormone lasts longer than the peptide itself.",
+        "sources": [
+          {
+            "kind": "label",
+            "citation": "EGRIFTA WR / EGRIFTA US prescribing information, section 12.3",
+            "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/022505s020lbl.pdf"
+          }
+        ]
+      }
+    },
+    {
+      "id": "bpc-157",
+      "name": "BPC-157",
+      "aliases": ["Body Protection Compound 157"],
+      "kind": "single",
+      "summary": "Synthetic gastric pentadecapeptide; studied in animals, no approved human use.",
+      "vialUnit": "mg",
+      "defaultDoseUnit": "mcg",
+      "vialSizes": {
+        "values": [5, 10],
+        "unit": "mg",
+        "source": {
+          "kind": "community",
+          "citation": "Common research-vendor vial sizes"
+        }
+      },
+      "diluentMl": {
+        "values": [1, 2, 3],
+        "source": {
+          "kind": "community",
+          "citation": "Common reconstitution volumes"
+        }
+      },
+      "doses": {
+        "values": [250, 500],
+        "unit": "mcg",
+        "source": {
+          "kind": "community",
+          "citation": "Amounts commonly cited in research communities; not clinically established"
+        }
+      },
+      "pk": null,
+      "pkUnavailableReason": "No human pharmacokinetic data. The only published PK study is in rats and dogs (elimination half-life under 30 minutes): Frontiers in Pharmacology 2022, doi:10.3389/fphar.2022.1026182. You can enter your own half-life on a shelf vial."
+    },
+    {
+      "id": "tb-500",
+      "name": "TB-500",
+      "aliases": ["Thymosin beta-4 fragment"],
+      "kind": "single",
+      "summary": "Synthetic peptide derived from thymosin beta-4; no approved human use.",
+      "vialUnit": "mg",
+      "defaultDoseUnit": "mg",
+      "vialSizes": {
+        "values": [2, 5, 10],
+        "unit": "mg",
+        "source": {
+          "kind": "community",
+          "citation": "Common research-vendor vial sizes"
+        }
+      },
+      "diluentMl": {
+        "values": [1, 2, 3],
+        "source": {
+          "kind": "community",
+          "citation": "Common reconstitution volumes"
+        }
+      },
+      "doses": {
+        "values": [2, 2.5, 5],
+        "unit": "mg",
+        "source": {
+          "kind": "community",
+          "citation": "Amounts commonly cited in research communities; not clinically established"
+        }
+      },
+      "pk": null,
+      "pkUnavailableReason": "No human pharmacokinetic data for TB-500. Human phase 1 data exist only for intravenous full-length thymosin beta-4, a different molecule and route. You can enter your own half-life on a shelf vial."
+    },
+    {
+      "id": "ghk-cu",
+      "name": "GHK-Cu",
+      "aliases": ["Copper peptide", "Copper tripeptide-1"],
+      "kind": "single",
+      "summary": "Copper-binding tripeptide; widely used topically, injectable use is unapproved.",
+      "vialUnit": "mg",
+      "defaultDoseUnit": "mg",
+      "vialSizes": {
+        "values": [50, 100],
+        "unit": "mg",
+        "source": {
+          "kind": "community",
+          "citation": "Common research-vendor vial sizes"
+        }
+      },
+      "diluentMl": {
+        "values": [2, 3, 5],
+        "source": {
+          "kind": "community",
+          "citation": "Common reconstitution volumes"
+        }
+      },
+      "doses": {
+        "values": [1, 2],
+        "unit": "mg",
+        "source": {
+          "kind": "community",
+          "citation": "Amounts commonly cited in research communities; not clinically established"
+        }
+      },
+      "pk": null,
+      "pkUnavailableReason": "No peer-reviewed human pharmacokinetic study of injected GHK-Cu. Published half-life figures come from vendor pages and disagree. You can enter your own half-life on a shelf vial."
+    },
+    {
+      "id": "kpv",
+      "name": "KPV",
+      "aliases": ["Lys-Pro-Val", "alpha-MSH C-terminal tripeptide"],
+      "kind": "single",
+      "summary": "Tripeptide fragment of alpha-MSH studied for anti-inflammatory effects in animals.",
+      "vialUnit": "mg",
+      "defaultDoseUnit": "mcg",
+      "vialSizes": {
+        "values": [5, 10],
+        "unit": "mg",
+        "source": {
+          "kind": "community",
+          "citation": "Common research-vendor vial sizes"
+        }
+      },
+      "diluentMl": {
+        "values": [1, 2, 3],
+        "source": {
+          "kind": "community",
+          "citation": "Common reconstitution volumes"
+        }
+      },
+      "doses": {
+        "values": [250, 500],
+        "unit": "mcg",
+        "source": {
+          "kind": "community",
+          "citation": "Amounts commonly cited in research communities; not clinically established"
+        }
+      },
+      "pk": null,
+      "pkUnavailableReason": "No published pharmacokinetic data for KPV in humans. You can enter your own half-life on a shelf vial."
+    },
+    {
+      "id": "glow",
+      "name": "GLOW",
+      "aliases": ["GLOW blend"],
+      "kind": "blend",
+      "summary": "Vendor blend of GHK-Cu, BPC-157 and TB-500 in one vial. Compositions vary by vendor: check your vial's label.",
+      "vialUnit": "mg",
+      "defaultDoseUnit": "mg",
+      "vialSizes": {
+        "values": [70],
+        "unit": "mg",
+        "source": {
+          "kind": "community",
+          "citation": "Common vendor composition: GHK-Cu 50 mg, BPC-157 10 mg, TB-500 10 mg"
+        }
+      },
+      "diluentMl": {
+        "values": [2, 3, 5],
+        "source": {
+          "kind": "community",
+          "citation": "Common reconstitution volumes"
+        }
+      },
+      "doses": null,
+      "components": [
+        {
+          "name": "GHK-Cu",
+          "amountMg": 50
+        },
+        {
+          "name": "BPC-157",
+          "amountMg": 10
+        },
+        {
+          "name": "TB-500",
+          "amountMg": 10
+        }
+      ],
+      "pk": null,
+      "pkUnavailableReason": "No human pharmacokinetic data for the blend or its components. You can enter your own half-life on a shelf vial."
+    },
+    {
+      "id": "klow",
+      "name": "KLOW",
+      "aliases": ["KLOW blend"],
+      "kind": "blend",
+      "summary": "Vendor blend of GHK-Cu, BPC-157, TB-500 and KPV in one vial. Compositions vary by vendor: check your vial's label.",
+      "vialUnit": "mg",
+      "defaultDoseUnit": "mg",
+      "vialSizes": {
+        "values": [80],
+        "unit": "mg",
+        "source": {
+          "kind": "community",
+          "citation": "Common vendor composition: GHK-Cu 50 mg, BPC-157 10 mg, TB-500 10 mg, KPV 10 mg"
+        }
+      },
+      "diluentMl": {
+        "values": [2, 3, 5],
+        "source": {
+          "kind": "community",
+          "citation": "Common reconstitution volumes"
+        }
+      },
+      "doses": null,
+      "components": [
+        {
+          "name": "GHK-Cu",
+          "amountMg": 50
+        },
+        {
+          "name": "BPC-157",
+          "amountMg": 10
+        },
+        {
+          "name": "TB-500",
+          "amountMg": 10
+        },
+        {
+          "name": "KPV",
+          "amountMg": 10
+        }
+      ],
+      "pk": null,
+      "pkUnavailableReason": "No human pharmacokinetic data for the blend or its components. You can enter your own half-life on a shelf vial."
+    }
+  ]
+}

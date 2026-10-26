@@ -1,0 +1,172 @@
+/*
+ * PepCalc design tokens. Palette adapted from the Cognitive Companion design system (warm
+ * paper, sage primary, terracotta accent, warm ink), plus a warm-dark variant selected by the
+ * device's colour scheme. Components read only the semantic --pc-* tokens, never primitives.
+ *
+ *   :root           primitives, fonts, radii, motion (theme-independent)
+ *   .v-theme--light surfaces, text, borders, shadows, chart colours for light
+ *   .v-theme--dark  the same names for dark
+ */
+@layer pc-tokens {
+  :root {
+    /* Stone: warm neutral scale */
+    --stone-50: #fbf8f3;
+    --stone-100: #f4ede2;
+    --stone-200: #e8ddcc;
+    --stone-300: #d6c7af;
+    --stone-400: #b3a286;
+    --stone-500: #877960;
+    --stone-600: #5f5544;
+    --stone-700: #433c30;
+    --stone-800: #2c2820;
+    --stone-850: #221e18;
+    --stone-900: #1d1a14;
+    --stone-950: #15120e;
+
+    /* Sage: primary brand green */
+    --sage-50: #edf4ee;
+    --sage-100: #d7e7db;
+    --sage-200: #b0cfb9;
+    --sage-300: #82b292;
+    --sage-400: #5a896e;
+    --sage-500: #3f6b52;
+    --sage-600: #305340;
+    --sage-700: #243f31;
+    --sage-800: #192c22;
+
+    /* Terra: terracotta accent */
+    --terra-50: #fbede5;
+    --terra-100: #f5d8c9;
+    --terra-200: #ebb59b;
+    --terra-300: #dc8d6b;
+    --terra-400: #c8704f;
+    --terra-500: #ac5a3c;
+    --terra-600: #884630;
+
+    --pc-font: 'Hanken Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --pc-font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
+    --pc-font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+    /* Vuetify 4 typography classes read these; without them they fall back to unbundled Roboto. */
+    --v-font-body: var(--pc-font);
+    --v-font-heading: var(--pc-font);
+
+    --pc-radius-xs: 6px;
+    --pc-radius-sm: 10px;
+    --pc-radius-md: 14px;
+    --pc-radius-lg: 20px;
+    --pc-radius-xl: 28px;
+    --pc-radius-pill: 999px;
+
+    --pc-dur-fast: 130ms;
+    --pc-dur-base: 220ms;
+    --pc-ease-standard: cubic-bezier(0.2, 0.6, 0.2, 1);
+
+    --pc-focus-ring: var(--terra-300);
+    --pc-shadow-focus: 0 0 0 3px var(--pc-focus-ring);
+    --pc-field-label-band: 24px;
+
+    /* Minimum comfortable touch target (Apple HIG 44pt, Material 48dp). */
+    --pc-touch: 48px;
+  }
+
+  .v-theme--light {
+    color-scheme: light;
+
+    --pc-bg: #fbf8f3;
+    --pc-surface: #fffdf9;
+    --pc-surface-2: #f4ede2;
+    --pc-surface-sunk: #efe6d8;
+
+    --pc-text-1: #1d1a14;
+    --pc-text-2: #5f5544;
+    --pc-text-3: #7a6c54;
+
+    --pc-brand: #3f6b52;
+    --pc-brand-strong: #305340;
+    --pc-brand-soft: rgba(63, 107, 82, 0.12);
+    --pc-brand-softer: rgba(63, 107, 82, 0.06);
+    --pc-accent: #9a4f33;
+    --pc-accent-soft: #fbede5;
+    --pc-accent-line: #f5d8c9;
+
+    --pc-divider: #e8ddcc;
+    --pc-divider-strong: #d6c7af;
+
+    --pc-good-fg: #1f6b41;
+    --pc-good-bg: #e2f0e7;
+    --pc-notice-fg: #8a5c12;
+    --pc-notice-bg: #fbefd7;
+    --pc-alert-fg: #8e3a28;
+    --pc-alert-bg: #fae1da;
+    --pc-info-fg: #2f5663;
+    --pc-info-bg: #e0edf1;
+
+    --pc-shadow-sm: 0 1px 2px rgba(45, 38, 26, 0.06), 0 2px 6px rgba(45, 38, 26, 0.05);
+    --pc-shadow-md: 0 2px 4px rgba(45, 38, 26, 0.05), 0 8px 20px rgba(45, 38, 26, 0.08);
+    --pc-shadow-lg: 0 4px 8px rgba(45, 38, 26, 0.06), 0 18px 40px rgba(45, 38, 26, 0.12);
+    --pc-shadow-inset: inset 0 1px 2px rgba(45, 38, 26, 0.05);
+
+    /* Syringe drawing */
+    --pc-syringe-barrel: #fffdf9;
+    --pc-syringe-ink: #433c30;
+    --pc-syringe-fill: #dc8d6b;
+    --pc-syringe-plunger: #877960;
+
+    /* Chart: validated with the dataviz palette checker against --pc-surface. */
+    --pc-chart-logged: #1a7046;
+    --pc-chart-preview: #d4824f;
+    --pc-chart-grid: #e8ddcc;
+    --pc-chart-axis: #7a6c54;
+    --pc-chart-now: #877960;
+  }
+
+  .v-theme--dark {
+    color-scheme: dark;
+
+    --pc-bg: #15120e;
+    --pc-surface: #221e18;
+    --pc-surface-2: #2c2820;
+    --pc-surface-sunk: #1b1813;
+
+    --pc-text-1: #f4ede2;
+    --pc-text-2: #d6c7af;
+    --pc-text-3: #b3a286;
+
+    --pc-brand: #82b292;
+    --pc-brand-strong: #b0cfb9;
+    --pc-brand-soft: rgba(130, 178, 146, 0.16);
+    --pc-brand-softer: rgba(130, 178, 146, 0.08);
+    --pc-accent: #ebb59b;
+    --pc-accent-soft: #3a2a21;
+    --pc-accent-line: #5b3b2c;
+
+    --pc-divider: #3a342a;
+    --pc-divider-strong: #4d4537;
+
+    --pc-good-fg: #9fd4b2;
+    --pc-good-bg: #1d3226;
+    --pc-notice-fg: #f0c987;
+    --pc-notice-bg: #3a2d16;
+    --pc-alert-fg: #f2a896;
+    --pc-alert-bg: #3d221b;
+    --pc-info-fg: #a9cbd8;
+    --pc-info-bg: #1d2e35;
+
+    --pc-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --pc-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.35), 0 8px 20px rgba(0, 0, 0, 0.35);
+    --pc-shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.4), 0 18px 40px rgba(0, 0, 0, 0.5);
+    --pc-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+
+    --pc-syringe-barrel: #2c2820;
+    --pc-syringe-ink: #e8ddcc;
+    --pc-syringe-fill: #c8704f;
+    --pc-syringe-plunger: #877960;
+
+    --pc-chart-logged: #4fa274;
+    --pc-chart-preview: #d4734c;
+    --pc-chart-grid: #3a342a;
+    --pc-chart-axis: #b3a286;
+    --pc-chart-now: #b3a286;
+  }
+}

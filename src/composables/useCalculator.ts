@@ -1,0 +1,213 @@
+import { computed, reactive, watch } from 'vue'
+import { catalog, findPeptide, findSyringe, syringeCatalog } from '@/data'
+import type { CatalogPeptide } from '@/domain/catalog'
+import { blendTotalMg, splitBlendDose, type BlendComponent } from '@/domain/blend'
+import { InvalidInputError, planDraw, type DrawPlan } from '@/domain/reconstitution'
+import {
+  readSyringe,
+  suggestSyringe,
+  TICK_ERROR_WARNING,
+  type SyringeReading,
+} from '@/domain/syringe'
+import {
+  areCompatible,
+  convert,
+  doseUnitsFor,
+  IncompatibleUnitsError,
+  roundTo,
+  type AmountUnit,
+  type Quantity,
+} from '@/domain/units'
+
+export const CUSTOM_PEPTIDE = 'custom'
+
+export interface CalculatorInput {
+  peptideId: string
+  customName: string
+  vialAmount: number | null
+  vialUnit: AmountUnit
+  diluentMl: number | null
+  doseValue: number | null
+  doseUnit: AmountUnit
+  syringeId: string
+  components: BlendComponent[]
+}
+
+export interface CalculatorWarning {
+  tone: 'notice' | 'alert'
+  text: string
+}
+
+function defaultsFor(peptide: CatalogPeptide | undefined): Partial<CalculatorInput> {
+  if (!peptide) return { vialUnit: 'mg', doseUnit: 'mg', components: [] }
+  return {
+    vialUnit: peptide.vialUnit,
+    vialAmount: peptide.vialSizes.values[0] ?? null,
+    diluentMl: peptide.diluentMl.values.includes(2) ? 2 : (peptide.diluentMl.values[0] ?? null),
+    doseUnit: peptide.doses?.unit ?? peptide.defaultDoseUnit,
+    doseValue: peptide.doses?.values[0] ?? null,
+    components: peptide.components?.map((c) => ({ ...c })) ?? [],
+  }
+}
+
+/**
+ * Calculator state and every derived figure. Pure arithmetic lives in domain/; this composable
+ * only wires inputs to it and turns domain errors into user-facing messages.
+ */
+export function useCalculator(initial: Partial<CalculatorInput> = {}) {
+  const firstPeptide = initial.peptideId ?? catalog.peptides[0]?.id ?? CUSTOM_PEPTIDE
+  const state = reactive<CalculatorInput>({
+    peptideId: firstPeptide,
+    customName: '',
+    vialAmount: null,
+    vialUnit: 'mg',
+    diluentMl: null,
+    doseValue: null,
+    doseUnit: 'mg',
+    syringeId: syringeCatalog.defaultSyringeId,
+    components: [],
+    ...defaultsFor(findPeptide(firstPeptide)),
+    ...initial,
+  })
+
+  const peptide = computed(() => findPeptide(state.peptideId))
+  const isBlend = computed(() => peptide.value?.kind === 'blend' || state.components.length > 1)
+  const doseUnits = computed(() => doseUnitsFor(state.vialUnit))
+  const syringe = computed(() => findSyringe(state.syringeId))
+
+  /**
+   * The user switched between mg and mcg: convert the number so the dose itself never changes
+   * by 1000x. Programmatic unit changes (switching peptide) set value and unit together instead.
+   */
+  function setDoseUnit(to: AmountUnit) {
+    const from = state.doseUnit
+    if (state.doseValue !== null && from !== to && areCompatible(from, to)) {
+      state.doseValue = roundTo(convert({ value: state.doseValue, unit: from }, to).value, 6)
+    }
+    state.doseUnit = to
+  }
+
+  function selectPeptide(id: string) {
+    state.peptideId = id
+    Object.assign(state, defaultsFor(findPeptide(id)))
+    if (id === CUSTOM_PEPTIDE) {
+      state.vialAmount = null
+      state.doseValue = null
+    }
+  }
+
+  // A blend's vial amount is the sum of its components, so editing composition updates it.
+  watch(
+    () => state.components.map((c) => c.amountMg),
+    () => {
+      if (state.components.length > 1) state.vialAmount = blendTotalMg(state.components)
+    },
+  )
+
+  // Keep the dose unit valid when the vial unit changes between mass and IU.
+  watch(
+    () => state.vialUnit,
+    () => {
+      if (!doseUnits.value.includes(state.doseUnit)) state.doseUnit = doseUnits.value[0]!
+    },
+  )
+
+  const vial = computed<Quantity | null>(() =>
+    state.vialAmount ? { value: state.vialAmount, unit: state.vialUnit } : null,
+  )
+  const dose = computed<Quantity | null>(() =>
+    state.doseValue ? { value: state.doseValue, unit: state.doseUnit } : null,
+  )
+
+  const result = computed<{ plan: DrawPlan } | { error: string } | null>(() => {
+    if (!vial.value || !state.diluentMl || !dose.value) return null
+    try {
+      return { plan: planDraw(vial.value, state.diluentMl, dose.value) }
+    } catch (e) {
+      if (e instanceof InvalidInputError || e instanceof IncompatibleUnitsError) {
+        return { error: e.message }
+      }
+      throw e
+    }
+  })
+
+  const plan = computed(() => (result.value && 'plan' in result.value ? result.value.plan : null))
+  const error = computed(() =>
+    result.value && 'error' in result.value ? result.value.error : null,
+  )
+
+  const reading = computed<SyringeReading | null>(() =>
+    plan.value ? readSyringe(plan.value.volumeMl, syringe.value) : null,
+  )
+
+  const allReadings = computed<SyringeReading[]>(() =>
+    plan.value ? syringeCatalog.syringes.map((s) => readSyringe(plan.value!.volumeMl, s)) : [],
+  )
+
+  /** A finer syringe of the same scale (U-100, U-40, mL) when one measures this draw better. */
+  const betterSyringe = computed(() => {
+    if (!plan.value) return null
+    const family = syringeCatalog.syringes.filter((s) => s.unitsPerMl === syringe.value.unitsPerMl)
+    const best = suggestSyringe(plan.value.volumeMl, family)
+    return best && best.id !== syringe.value.id && best.capacityMl < syringe.value.capacityMl
+      ? best
+      : null
+  })
+
+  const componentDoses = computed(() =>
+    isBlend.value && dose.value && state.vialUnit !== 'iu'
+      ? splitBlendDose(dose.value, state.components, 'mcg')
+      : [],
+  )
+
+  const warnings = computed<CalculatorWarning[]>(() => {
+    const list: CalculatorWarning[] = []
+    const r = reading.value
+    const p = plan.value
+    if (!r || !p) return list
+    if (p.volumeMl > (state.diluentMl ?? 0) + 1e-9) {
+      list.push({ tone: 'alert', text: 'This dose is more than the whole vial contains.' })
+    }
+    if (!r.fits) {
+      list.push({
+        tone: 'alert',
+        text: `Too much for this syringe: it needs ${r.fillsNeeded} full draws. Use a larger syringe or less water.`,
+      })
+    } else if (r.belowResolution) {
+      list.push({
+        tone: 'alert',
+        text: 'Smaller than one mark on this syringe, so it cannot be measured. Use a finer syringe or more water.',
+      })
+    } else if (r.tickRoundingError > TICK_ERROR_WARNING) {
+      list.push({
+        tone: 'notice',
+        text: `Falls between marks: the nearest mark is ${Math.round(r.tickRoundingError * 100)}% off. Adjusting water volume gives a cleaner reading.`,
+      })
+    }
+    if (r.syringe.unitsPerMl === 40) {
+      list.push({
+        tone: 'notice',
+        text: 'U-40 units are not U-100 units. Check the syringe label before drawing.',
+      })
+    }
+    return list
+  })
+
+  return {
+    state,
+    peptide,
+    isBlend,
+    doseUnits,
+    syringe,
+    vial,
+    dose,
+    plan,
+    error,
+    reading,
+    allReadings,
+    betterSyringe,
+    componentDoses,
+    warnings,
+    actions: { selectPeptide, setDoseUnit },
+  }
+}

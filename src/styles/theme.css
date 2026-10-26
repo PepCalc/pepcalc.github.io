@@ -1,0 +1,368 @@
+/*
+ * Global element styles and Vuetify component overrides. Everything here sits in the
+ * `pc-theme` layer (see layers.css), so it beats Vuetify's component styles without
+ * `!important` and still loses to utility classes. Components must not restyle what this file
+ * owns: app bar, navigation, cards, dialogs, fields, buttons.
+ */
+@layer pc-theme {
+  html,
+  body {
+    font-family: var(--pc-font);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.005em;
+    /* Stop iOS inflating text in landscape. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--pc-bg);
+    color: var(--pc-text-1);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  p {
+    margin: 0;
+  }
+
+  code,
+  kbd,
+  pre {
+    font-family: var(--pc-font-mono);
+  }
+
+  ::selection {
+    background: var(--pc-brand-soft);
+  }
+
+  :where(a, [tabindex], button):focus-visible {
+    outline: none;
+    box-shadow: var(--pc-shadow-focus);
+    border-radius: var(--pc-radius-xs);
+  }
+
+  a {
+    color: var(--pc-brand);
+  }
+
+  .v-application {
+    font-family: var(--pc-font);
+    background-color: var(--pc-bg);
+    color: var(--pc-text-1);
+  }
+
+  /* App bar: solid warm surface with a hairline; respects the iOS notch in standalone mode. */
+  .v-app-bar.v-toolbar {
+    background-color: var(--pc-surface);
+    color: var(--pc-text-1);
+    border-bottom: 1px solid var(--pc-divider);
+    box-shadow: none;
+  }
+
+  .v-bottom-navigation {
+    background-color: var(--pc-surface);
+    border-top: 1px solid var(--pc-divider);
+    box-shadow: none;
+  }
+
+  .v-bottom-navigation .v-btn--active {
+    color: var(--pc-brand);
+  }
+
+  .v-navigation-drawer {
+    background-color: var(--pc-surface);
+    border-right: 1px solid var(--pc-divider);
+  }
+
+  .v-list-item--active {
+    background-color: var(--pc-brand-softer);
+    color: var(--pc-brand);
+  }
+
+  /* Cards: warm paper, hairline border, soft daylight shadow. */
+  .v-card:not(
+    .v-card--variant-outlined,
+    .v-card--variant-tonal,
+    .v-card--variant-flat,
+    .v-card--variant-text,
+    .v-card--variant-plain
+  ) {
+    background-color: var(--pc-surface);
+    color: var(--pc-text-1);
+    border: 1px solid var(--pc-divider);
+    border-radius: var(--pc-radius-lg);
+    box-shadow: var(--pc-shadow-sm);
+  }
+
+  .v-card.v-card--variant-outlined {
+    border-color: var(--pc-divider);
+    border-radius: var(--pc-radius-lg);
+  }
+
+  .v-card.v-card--variant-tonal {
+    background-color: var(--pc-surface-2);
+    border-radius: var(--pc-radius-lg);
+  }
+
+  .v-card-title {
+    font-family: var(--pc-font-display);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .v-dialog > .v-overlay__content > .v-card {
+    border-radius: var(--pc-radius-xl);
+    box-shadow: var(--pc-shadow-lg);
+    border: 1px solid var(--pc-divider-strong);
+  }
+
+  .v-overlay__scrim {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .v-menu > .v-overlay__content > .v-list,
+  .v-menu > .v-overlay__content > .v-card {
+    border-radius: var(--pc-radius-sm);
+    background-color: var(--pc-surface);
+    border: 1px solid var(--pc-divider);
+    box-shadow: var(--pc-shadow-md);
+  }
+
+  /* Buttons: warm pill, calm press. */
+  .v-btn {
+    letter-spacing: -0.005em;
+    font-weight: 600;
+    border-radius: var(--pc-radius-pill);
+    transition:
+      background var(--pc-dur-fast) var(--pc-ease-standard),
+      transform var(--pc-dur-fast) var(--pc-ease-standard);
+  }
+
+  .v-btn--icon {
+    border-radius: 50%;
+  }
+
+  .v-btn:focus-visible {
+    box-shadow: var(--pc-shadow-focus);
+  }
+
+  .v-chip {
+    font-weight: 600;
+    letter-spacing: -0.003em;
+  }
+
+  /* Fields: warm surface, soft inset, sage focus border plus terracotta ring. */
+  .v-field--variant-outlined {
+    background-color: var(--pc-surface);
+    border-radius: var(--pc-radius-md);
+    box-shadow: var(--pc-shadow-inset);
+  }
+
+  .v-field--variant-outlined.v-field--disabled {
+    background-color: var(--pc-surface-2);
+  }
+
+  .v-field--variant-outlined .v-field__outline {
+    --v-field-border-opacity: 1;
+    color: var(--pc-divider-strong);
+  }
+
+  .v-field--focused.v-field--variant-outlined .v-field__outline {
+    color: var(--pc-brand);
+  }
+
+  .v-field--focused.v-field--variant-outlined {
+    box-shadow: var(--pc-shadow-focus);
+  }
+
+  .v-field--error.v-field--variant-outlined .v-field__outline {
+    color: rgb(var(--v-theme-error));
+  }
+
+  /*
+   * Labels sit as static text above the field instead of floating in the border, so the
+   * border stays solid. The band is reserved as padding on the input so it never overlaps the
+   * row above. Fields without a label are untouched.
+   */
+  .v-input:is(.v-text-field, .v-select, .v-textarea, .v-autocomplete, .v-combobox):has(
+      .v-field__field > .v-field-label
+    ) {
+    padding-top: var(--pc-field-label-band);
+  }
+
+  .v-field--variant-outlined,
+  .v-field--variant-outlined .v-field__field {
+    overflow: visible;
+  }
+
+  .v-field--variant-outlined .v-field__field > .v-field-label {
+    position: absolute;
+    top: auto;
+    bottom: calc(100% + 6px);
+    left: 2px;
+    transform: none;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    color: var(--pc-text-2);
+    opacity: 1;
+    visibility: visible;
+    max-width: 100%;
+    white-space: nowrap;
+  }
+
+  .v-field--variant-outlined .v-field__outline__notch .v-field-label {
+    display: none;
+  }
+
+  .v-field--variant-outlined .v-field__outline__notch {
+    max-width: 0;
+  }
+
+  /* iOS zooms the page when a focused input's font is under 16px. */
+  .v-field input,
+  .v-field textarea,
+  .v-field .v-select__selection-text {
+    font-size: 16px;
+  }
+
+  .v-snackbar__wrapper {
+    border-radius: var(--pc-radius-md);
+    background-color: var(--pc-surface);
+    color: var(--pc-text-1);
+    border: 1px solid var(--pc-divider);
+    box-shadow: var(--pc-shadow-lg);
+  }
+
+  .v-alert {
+    border-radius: var(--pc-radius-md);
+  }
+}
+
+@layer pc-utilities {
+  /* Small-caps tracked label in terracotta: the warm accent above section titles. */
+  .pc-eyebrow {
+    font-family: var(--pc-font);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--pc-accent);
+  }
+
+  .pc-display {
+    font-family: var(--pc-font-display);
+    font-weight: 500;
+    letter-spacing: -0.014em;
+  }
+
+  .pc-muted {
+    color: var(--pc-text-2);
+  }
+
+  .pc-faint {
+    color: var(--pc-text-3);
+  }
+
+  .pc-mono {
+    font-family: var(--pc-font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pc-num {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Inset panel for grouped content inside a card. */
+  .pc-inset {
+    background-color: var(--pc-surface-2);
+    border: 1px solid var(--pc-divider);
+    border-radius: var(--pc-radius-md);
+  }
+
+  .pc-card-soft {
+    background-color: var(--pc-brand-softer);
+    border-color: var(--pc-brand-soft);
+  }
+
+  .pc-card-accent {
+    background-color: var(--pc-accent-soft);
+    border-color: var(--pc-accent-line);
+  }
+
+  /*
+   * Calm pill status label.
+   *   <span class="pc-badge pc-badge--good"><span class="pc-badge__dot" />Human data</span>
+   */
+  .pc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1;
+    white-space: nowrap;
+    padding: 5px 10px;
+    border-radius: var(--pc-radius-pill);
+    background: var(--pc-surface-2);
+    color: var(--pc-text-2);
+  }
+
+  .pc-badge__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: var(--pc-radius-pill);
+    background: currentColor;
+    flex: none;
+  }
+
+  .pc-badge--brand {
+    background: var(--pc-brand-soft);
+    color: var(--pc-brand-strong);
+  }
+  .pc-badge--good {
+    background: var(--pc-good-bg);
+    color: var(--pc-good-fg);
+  }
+  .pc-badge--notice {
+    background: var(--pc-notice-bg);
+    color: var(--pc-notice-fg);
+  }
+  .pc-badge--alert {
+    background: var(--pc-alert-bg);
+    color: var(--pc-alert-fg);
+  }
+  .pc-badge--info {
+    background: var(--pc-info-bg);
+    color: var(--pc-info-fg);
+  }
+
+  .pc-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 16px 32px;
+  }
+
+  @media (min-width: 840px) {
+    .pc-page {
+      padding: 24px 24px 40px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pepcalc/syringes.schema.json",
+  "title": "PepCalc syringe catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "defaultSyringeId", "syringes"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "integer", "minimum": 1 },
+    "defaultSyringeId": { "type": "string" },
+    "syringes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "kind",
+          "unitsPerMl",
+          "capacityMl",
+          "tickMl",
+          "labelEveryTicks",
+          "description"
+        ],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9.]+(-[a-z0-9.]+)*$" },
+          "label": { "type": "string", "minLength": 3 },
+          "kind": { "enum": ["insulin", "luer"] },
+          "unitsPerMl": {
+            "oneOf": [{ "type": "null" }, { "type": "number", "exclusiveMinimum": 0 }]
+          },
+          "capacityMl": { "type": "number", "exclusiveMinimum": 0 },
+          "tickMl": { "type": "number", "exclusiveMinimum": 0 },
+          "labelEveryTicks": { "type": "integer", "minimum": 1 },
+          "description": { "type": "string", "minLength": 3 }
+        }
+      }
+    }
+  }
+}

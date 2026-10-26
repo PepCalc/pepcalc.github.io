@@ -1,0 +1,228 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+import { readSyringe, toScale, type SyringeSpec } from '@/domain/syringe'
+import { roundTo } from '@/domain/units'
+
+const props = defineProps<{
+  syringe: SyringeSpec
+  volumeMl: number
+}>()
+
+// Drawing geometry in viewBox units; the SVG scales to its container width.
+const VIEW_W = 640
+const VIEW_H = 150
+const BARREL_X = 78
+const BARREL_W = 470
+const BARREL_Y = 38
+const BARREL_H = 52
+const MID_Y = BARREL_Y + BARREL_H / 2
+
+const reading = computed(() => readSyringe(props.volumeMl, props.syringe))
+const fillFraction = computed(() => Math.min(1, props.volumeMl / props.syringe.capacityMl))
+const fillX = computed(() => BARREL_X + BARREL_W * fillFraction.value)
+
+const ticks = computed(() => {
+  const s = props.syringe
+  const count = Math.round(s.capacityMl / s.tickMl)
+  const tickScale = toScale(s.tickMl, s)
+  return Array.from({ length: count + 1 }, (_, i) => {
+    const major = i % s.labelEveryTicks === 0
+    const half = !major && s.labelEveryTicks % 2 === 0 && i % (s.labelEveryTicks / 2) === 0
+    return {
+      x: BARREL_X + (BARREL_W * i) / count,
+      length: major ? 20 : half ? 14 : 8,
+      label: major ? String(roundTo(i * tickScale, 3)) : null,
+    }
+  })
+})
+
+const scaleName = computed(() => (props.syringe.unitsPerMl === null ? 'mL' : 'units'))
+
+const readingText = computed(() => {
+  const r = reading.value
+  return `${roundTo(r.scaleValue, 2)} ${scaleName.value}`
+})
+
+const ariaLabel = computed(() => {
+  const r = reading.value
+  const capacity = roundTo(toScale(props.syringe.capacityMl, props.syringe), 3)
+  const base = `${props.syringe.label}, filled to ${readingText.value} of ${capacity} ${scaleName.value}`
+  return r.fits ? base : `${base}. The draw exceeds this syringe's capacity.`
+})
+
+/** Keep the reading flag inside the drawing when the fill is near either end. */
+const flagX = computed(() =>
+  Math.min(Math.max(fillX.value, BARREL_X + 40), BARREL_X + BARREL_W - 40),
+)
+</script>
+
+<template>
+  <figure class="syringe">
+    <svg
+      :viewBox="`0 0 ${VIEW_W} ${VIEW_H}`"
+      role="img"
+      :aria-label="ariaLabel"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <!-- Needle and hub -->
+      <line class="syringe__needle" x1="8" :y1="MID_Y" :x2="BARREL_X - 16" :y2="MID_Y" />
+      <rect class="syringe__hub" :x="BARREL_X - 18" :y="MID_Y - 9" width="18" height="18" rx="3" />
+
+      <!-- Barrel, liquid, and plunger -->
+      <rect
+        class="syringe__barrel"
+        :x="BARREL_X"
+        :y="BARREL_Y"
+        :width="BARREL_W"
+        :height="BARREL_H"
+        rx="6"
+      />
+      <rect
+        class="syringe__fill"
+        :x="BARREL_X + 1"
+        :y="BARREL_Y + 1"
+        :width="Math.max(0, fillX - BARREL_X - 1)"
+        :height="BARREL_H - 2"
+        rx="5"
+      />
+      <rect
+        class="syringe__stopper"
+        :x="fillX"
+        :y="BARREL_Y + 2"
+        width="10"
+        :height="BARREL_H - 4"
+        rx="2"
+      />
+      <rect
+        class="syringe__rod"
+        :x="fillX + 10"
+        :y="MID_Y - 5"
+        :width="Math.max(0, BARREL_X + BARREL_W + 52 - fillX - 10)"
+        height="10"
+      />
+      <rect
+        class="syringe__thumb"
+        :x="BARREL_X + BARREL_W + 52"
+        :y="BARREL_Y - 6"
+        width="10"
+        :height="BARREL_H + 12"
+        rx="3"
+      />
+      <rect
+        class="syringe__flange"
+        :x="BARREL_X + BARREL_W - 2"
+        :y="BARREL_Y - 12"
+        width="8"
+        :height="BARREL_H + 24"
+        rx="3"
+      />
+
+      <!-- Graduations along the top edge of the barrel, numbers below -->
+      <g class="syringe__ticks">
+        <line
+          v-for="(t, i) in ticks"
+          :key="i"
+          :x1="t.x"
+          :y1="BARREL_Y"
+          :x2="t.x"
+          :y2="BARREL_Y + t.length"
+        />
+      </g>
+      <g class="syringe__labels">
+        <template v-for="(t, i) in ticks" :key="`l${i}`">
+          <text v-if="t.label !== null" :x="t.x" :y="BARREL_Y + BARREL_H + 20" text-anchor="middle">
+            {{ t.label }}
+          </text>
+        </template>
+      </g>
+
+      <!-- Reading flag at the draw line -->
+      <line
+        class="syringe__target"
+        :x1="fillX"
+        :y1="BARREL_Y - 6"
+        :x2="fillX"
+        :y2="BARREL_Y + BARREL_H + 4"
+      />
+      <text class="syringe__reading" :x="flagX" :y="BARREL_Y - 12" text-anchor="middle">
+        {{
+          reading.fits
+            ? readingText
+            : `exceeds ${roundTo(toScale(syringe.capacityMl, syringe), 3)} ${scaleName}`
+        }}
+      </text>
+    </svg>
+    <figcaption class="pc-faint">{{ syringe.label }}</figcaption>
+  </figure>
+</template>
+
+<style scoped>
+.syringe {
+  margin: 0;
+}
+
+.syringe svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 180px;
+}
+
+.syringe figcaption {
+  font-size: 0.8125rem;
+  text-align: center;
+  margin-top: 2px;
+}
+
+.syringe__needle {
+  stroke: var(--pc-syringe-plunger);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.syringe__hub,
+.syringe__thumb,
+.syringe__flange,
+.syringe__rod {
+  fill: var(--pc-syringe-plunger);
+}
+
+.syringe__barrel {
+  fill: var(--pc-syringe-barrel);
+  stroke: var(--pc-syringe-ink);
+  stroke-width: 2;
+}
+
+.syringe__fill {
+  fill: var(--pc-syringe-fill);
+  opacity: 0.85;
+}
+
+.syringe__stopper {
+  fill: var(--pc-syringe-ink);
+}
+
+.syringe__ticks line {
+  stroke: var(--pc-syringe-ink);
+  stroke-width: 1.5;
+}
+
+.syringe__labels text {
+  fill: var(--pc-text-2);
+  font-family: var(--pc-font-mono);
+  font-size: 15px;
+}
+
+.syringe__target {
+  stroke: var(--pc-text-1);
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+}
+
+.syringe__reading {
+  fill: var(--pc-text-1);
+  font-family: var(--pc-font);
+  font-weight: 700;
+  font-size: 18px;
+}
+</style>

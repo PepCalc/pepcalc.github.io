@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pepcalc/peptides.schema.json",
+  "title": "PepCalc peptide catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "peptides"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "integer", "minimum": 1 },
+    "peptides": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/peptide" } }
+  },
+  "$defs": {
+    "unit": { "enum": ["mg", "mcg", "iu"] },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "citation"],
+      "properties": {
+        "kind": { "enum": ["label", "trial", "preclinical", "community", "model"] },
+        "citation": { "type": "string", "minLength": 3 },
+        "url": { "type": "string", "pattern": "^https://" }
+      }
+    },
+    "positiveList": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "number", "exclusiveMinimum": 0 }
+    },
+    "presetList": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["values", "unit", "source"],
+      "properties": {
+        "values": { "$ref": "#/$defs/positiveList" },
+        "unit": { "$ref": "#/$defs/unit" },
+        "source": { "$ref": "#/$defs/source" }
+      }
+    },
+    "pk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["halfLifeHours", "tmaxHours", "notes", "sources"],
+      "properties": {
+        "halfLifeHours": { "type": "number", "exclusiveMinimum": 0 },
+        "tmaxHours": { "type": "number", "exclusiveMinimum": 0 },
+        "notes": { "type": "string", "minLength": 10 },
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/source" },
+          "contains": {
+            "type": "object",
+            "properties": { "kind": { "enum": ["label", "trial"] } }
+          }
+        }
+      }
+    },
+    "peptide": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "aliases",
+        "kind",
+        "summary",
+        "vialUnit",
+        "defaultDoseUnit",
+        "vialSizes",
+        "diluentMl",
+        "doses",
+        "pk"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+        "name": { "type": "string", "minLength": 1 },
+        "aliases": { "type": "array", "items": { "type": "string" } },
+        "kind": { "enum": ["single", "blend"] },
+        "summary": { "type": "string", "minLength": 10 },
+        "vialUnit": { "$ref": "#/$defs/unit" },
+        "defaultDoseUnit": { "$ref": "#/$defs/unit" },
+        "vialSizes": { "$ref": "#/$defs/presetList" },
+        "diluentMl": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["values", "source"],
+          "properties": {
+            "values": { "$ref": "#/$defs/positiveList" },
+            "source": { "$ref": "#/$defs/source" }
+          }
+        },
+        "doses": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/presetList" }] },
+        "components": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "amountMg"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "amountMg": { "type": "number", "exclusiveMinimum": 0 }
+            }
+          }
+        },
+        "pk": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/pk" }] },
+        "pkUnavailableReason": { "type": "string", "minLength": 10 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "blend" } } },
+          "then": { "required": ["components"], "properties": { "vialUnit": { "const": "mg" } } }
+        },
+        {
+          "if": { "properties": { "pk": { "type": "null" } } },
+          "then": { "required": ["pkUnavailableReason"] }
+        }
+      ]
+    }
+  }
+}

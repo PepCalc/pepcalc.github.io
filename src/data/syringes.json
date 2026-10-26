@@ -1,0 +1,77 @@
+{
+  "$schema": "./syringes.schema.json",
+  "version": 1,
+  "defaultSyringeId": "u100-1ml",
+  "syringes": [
+    {
+      "id": "u100-1ml",
+      "label": "U-100 insulin, 1 mL (100 units)",
+      "kind": "insulin",
+      "unitsPerMl": 100,
+      "capacityMl": 1,
+      "tickMl": 0.02,
+      "labelEveryTicks": 5,
+      "description": "Most common insulin syringe. Marks every 2 units, numbered every 10."
+    },
+    {
+      "id": "u100-0.5ml",
+      "label": "U-100 insulin, 0.5 mL (50 units)",
+      "kind": "insulin",
+      "unitsPerMl": 100,
+      "capacityMl": 0.5,
+      "tickMl": 0.01,
+      "labelEveryTicks": 5,
+      "description": "Marks every unit, numbered every 5."
+    },
+    {
+      "id": "u100-0.3ml",
+      "label": "U-100 insulin, 0.3 mL (30 units)",
+      "kind": "insulin",
+      "unitsPerMl": 100,
+      "capacityMl": 0.3,
+      "tickMl": 0.01,
+      "labelEveryTicks": 5,
+      "description": "Marks every unit, numbered every 5. Best for small draws."
+    },
+    {
+      "id": "u100-0.3ml-half",
+      "label": "U-100 insulin, 0.3 mL, half-unit marks",
+      "kind": "insulin",
+      "unitsPerMl": 100,
+      "capacityMl": 0.3,
+      "tickMl": 0.005,
+      "labelEveryTicks": 10,
+      "description": "Half-unit marks, numbered every 5 units. Check your syringe: not all 0.3 mL syringes have them."
+    },
+    {
+      "id": "u40-1ml",
+      "label": "U-40 insulin, 1 mL (40 units)",
+      "kind": "insulin",
+      "unitsPerMl": 40,
+      "capacityMl": 1,
+      "tickMl": 0.025,
+      "labelEveryTicks": 5,
+      "description": "Veterinary insulin syringe; 40 units per mL. Units are NOT interchangeable with U-100."
+    },
+    {
+      "id": "luer-1ml",
+      "label": "1 mL tuberculin (mL marks)",
+      "kind": "luer",
+      "unitsPerMl": null,
+      "capacityMl": 1,
+      "tickMl": 0.01,
+      "labelEveryTicks": 10,
+      "description": "Graduated in mL: marks every 0.01 mL, numbered every 0.1 mL."
+    },
+    {
+      "id": "luer-3ml",
+      "label": "3 mL syringe (mL marks)",
+      "kind": "luer",
+      "unitsPerMl": null,
+      "capacityMl": 3,
+      "tickMl": 0.1,
+      "labelEveryTicks": 5,
+      "description": "Graduated in mL: marks every 0.1 mL, numbered every 0.5 mL. Mostly for adding water to a vial."
+    }
+  ]
+}
