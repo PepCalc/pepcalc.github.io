@@ -87,6 +87,19 @@ function relevanceHorizonHours(k: RateConstants): number {
   return Math.log(100) / slowest + tmaxFor(k.ka, k.ke)
 }
 
+/**
+ * True while at least one dose is still within its relevance horizon at `now` (or lies in the
+ * future), i.e. the curve has something left to show.
+ */
+export function anyDoseInEffect(
+  doses: readonly DoseEvent[],
+  params: PkParameters,
+  now: number,
+): boolean {
+  const horizon = relevanceHorizonHours(rateConstants(params)) * MS_PER_HOUR
+  return doses.some((d) => d.at + horizon >= now)
+}
+
 export interface SimulationWindow {
   start: number
   end: number

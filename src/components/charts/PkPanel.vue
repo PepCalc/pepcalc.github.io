@@ -14,6 +14,10 @@ const props = defineProps<{
   preview: DoseEvent | null
   unitLabel: string
   now: number
+  /** Card title; defaults to a generic one when the page already names the peptide. */
+  title?: string
+  /** One line under the badges, such as which vials the doses came from. */
+  caption?: string
 }>()
 
 const params = computed<PkParameters | null>(() => props.override ?? props.peptide?.pk ?? null)
@@ -29,7 +33,7 @@ const lookbackHours = computed(() =>
   <v-card>
     <v-card-item>
       <p class="pc-eyebrow">Estimated levels</p>
-      <v-card-title class="text-wrap">Amount in the body over time</v-card-title>
+      <v-card-title class="text-wrap">{{ title ?? 'Amount in the body over time' }}</v-card-title>
     </v-card-item>
     <v-card-text>
       <template v-if="params">
@@ -44,6 +48,7 @@ const lookbackHours = computed(() =>
             <span class="pc-badge__dot" />User-supplied values
           </span>
         </div>
+        <p v-if="caption" class="text-body-small pc-muted mb-3">{{ caption }}</p>
         <PkChart
           :params="params"
           :doses="doses"

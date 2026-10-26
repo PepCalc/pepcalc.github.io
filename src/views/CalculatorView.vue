@@ -7,9 +7,9 @@ import { useNow } from '@/composables/useNow'
 import { useSettingsStore } from '@/stores/settings'
 import { useShelfStore } from '@/stores/shelf'
 import { useNotifyStore } from '@/stores/notify'
-import { convert, roundTo, unitLabel } from '@/domain/units'
+import { roundTo, unitLabel } from '@/domain/units'
 import type { DoseEvent } from '@/domain/pk'
-import { nowIso, toEpochMs } from '@/services/time'
+import { nowIso } from '@/services/time'
 import PresetPicker from '@/components/common/PresetPicker.vue'
 import SourceBadge from '@/components/common/SourceBadge.vue'
 import DrawResult from '@/components/calculator/DrawResult.vue'
@@ -74,14 +74,17 @@ const doseHint = computed(() => {
 
 const balance = computed(() => (shelfVial.value ? shelf.balanceOf(shelfVial.value) : null))
 
-/** Logged doses for the PK chart, converted to the dose unit being entered. */
-const loggedDoses = computed<DoseEvent[]>(() => {
-  const vial = shelfVial.value
-  if (!vial) return []
-  return shelf
-    .drawsFor(vial.id)
-    .map((d) => ({ at: toEpochMs(d.takenAt), amount: convert(d.dose, state.doseUnit).value }))
-})
+/** Logged doses of this peptide from every vial, in the dose unit being entered. */
+const pooled = computed(() =>
+  shelfVial.value
+    ? shelf.pooledDosesFor(shelfVial.value, state.doseUnit)
+    : { doses: [], vialCount: 0 },
+)
+const pooledCaption = computed(() =>
+  pooled.value.vialCount > 1
+    ? `Includes doses from ${pooled.value.vialCount} vials of this peptide.`
+    : undefined,
+)
 
 const previewDose = computed<DoseEvent | null>(() =>
   calc.dose.value ? { at: now.value, amount: calc.dose.value.value } : null,
@@ -351,10 +354,11 @@ function clearShelfVial() {
           v-if="calc.dose.value"
           :peptide="calc.peptide.value"
           :override="shelfVial?.pkOverride ?? null"
-          :doses="loggedDoses"
+          :doses="pooled.doses"
           :preview="previewDose"
           :unit-label="unitLabel(state.doseUnit)"
           :now="now"
+          :caption="pooledCaption"
         />
       </section>
     </div>

@@ -117,6 +117,28 @@ const formatMb = (bytes: number | null) =>
     <div class="settings-grid">
       <v-card>
         <v-card-item>
+          <p class="pc-eyebrow">Display</p>
+          <v-card-title>Appearance and defaults</v-card-title>
+        </v-card-item>
+        <v-card-text>
+          <p class="text-label-large mb-2">Theme</p>
+          <v-btn-toggle v-model="themeModel" mandatory density="comfortable" aria-label="Theme">
+            <v-btn value="system">System</v-btn>
+            <v-btn value="light">Light</v-btn>
+            <v-btn value="dark">Dark</v-btn>
+          </v-btn-toggle>
+          <v-select
+            v-model="syringeModel"
+            :items="syringeCatalog.syringes.map((s) => ({ title: s.label, value: s.id }))"
+            label="Default syringe"
+            class="mt-4"
+            hide-details
+          />
+        </v-card-text>
+      </v-card>
+
+      <v-card>
+        <v-card-item>
           <p class="pc-eyebrow">Your data</p>
           <v-card-title>Backup and restore</v-card-title>
         </v-card-item>
@@ -202,28 +224,6 @@ const formatMb = (bytes: number | null) =>
               </template>
             </ol>
           </template>
-        </v-card-text>
-      </v-card>
-
-      <v-card>
-        <v-card-item>
-          <p class="pc-eyebrow">Display</p>
-          <v-card-title>Appearance and defaults</v-card-title>
-        </v-card-item>
-        <v-card-text>
-          <p class="text-label-large mb-2">Theme</p>
-          <v-btn-toggle v-model="themeModel" mandatory density="comfortable" aria-label="Theme">
-            <v-btn value="system">System</v-btn>
-            <v-btn value="light">Light</v-btn>
-            <v-btn value="dark">Dark</v-btn>
-          </v-btn-toggle>
-          <v-select
-            v-model="syringeModel"
-            :items="syringeCatalog.syringes.map((s) => ({ title: s.label, value: s.id }))"
-            label="Default syringe"
-            class="mt-4"
-            hide-details
-          />
         </v-card-text>
       </v-card>
 

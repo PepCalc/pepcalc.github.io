@@ -126,6 +126,12 @@
   .v-theme--dark {
     color-scheme: dark;
 
+    /*
+     * Greens on a dark warm surface read greyer than the same chroma on paper, so the dark
+     * greens carry more chroma than the light ones (OKLCH C ~0.1 at hue 157) to look equally
+     * alive. The light block stays on the sage primitives.
+     */
+
     --pc-bg: #15120e;
     --pc-surface: #221e18;
     --pc-surface-2: #2c2820;
@@ -135,10 +141,10 @@
     --pc-text-2: #d6c7af;
     --pc-text-3: #b3a286;
 
-    --pc-brand: #82b292;
-    --pc-brand-strong: #b0cfb9;
-    --pc-brand-soft: rgba(130, 178, 146, 0.16);
-    --pc-brand-softer: rgba(130, 178, 146, 0.08);
+    --pc-brand: #77c798;
+    --pc-brand-strong: #a2e2bb;
+    --pc-brand-soft: rgba(119, 199, 152, 0.18);
+    --pc-brand-softer: rgba(119, 199, 152, 0.09);
     --pc-accent: #ebb59b;
     --pc-accent-soft: #3a2a21;
     --pc-accent-line: #5b3b2c;
@@ -146,8 +152,8 @@
     --pc-divider: #3a342a;
     --pc-divider-strong: #4d4537;
 
-    --pc-good-fg: #9fd4b2;
-    --pc-good-bg: #1d3226;
+    --pc-good-fg: #95e2b4;
+    --pc-good-bg: #153925;
     --pc-notice-fg: #f0c987;
     --pc-notice-bg: #3a2d16;
     --pc-alert-fg: #f2a896;
@@ -167,8 +173,8 @@
     --pc-syringe-glint: rgba(255, 240, 225, 0.22);
     --pc-syringe-plunger: #877960;
 
-    --pc-chart-logged: #4fa274;
-    --pc-chart-preview: #d4734c;
+    --pc-chart-logged: #3fab73;
+    --pc-chart-preview: #bd592f;
     --pc-chart-grid: #3a342a;
     --pc-chart-axis: #b3a286;
     --pc-chart-now: #b3a286;

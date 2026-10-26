@@ -10,15 +10,8 @@ import { findPeptide } from '@/data'
 import type { DrawRow } from '@/db/database'
 import type { NewDraw, NewVial } from '@/db/repository'
 import { concentrationOf } from '@/domain/reconstitution'
-import { convert, roundTo, unitLabel } from '@/domain/units'
-import type { DoseEvent } from '@/domain/pk'
-import {
-  daysBetween,
-  formatDateTime,
-  formatRelativeDays,
-  systemClock,
-  toEpochMs,
-} from '@/services/time'
+import { roundTo, unitLabel } from '@/domain/units'
+import { daysBetween, formatDateTime, formatRelativeDays, systemClock } from '@/services/time'
 import PkPanel from '@/components/charts/PkPanel.vue'
 import DrawList from '@/components/shelf/DrawList.vue'
 import VialFormDialog from '@/components/shelf/VialFormDialog.vue'
@@ -52,11 +45,14 @@ const balance = computed(() => (vial.value ? shelf.balanceOf(vial.value) : null)
 const chartUnit = computed(
   () => vial.value?.typicalDose?.unit ?? draws.value[0]?.dose.unit ?? vial.value?.unit ?? 'mg',
 )
-const doseEvents = computed<DoseEvent[]>(() =>
-  draws.value.map((d) => ({
-    at: toEpochMs(d.takenAt),
-    amount: convert(d.dose, chartUnit.value).value,
-  })),
+/** Doses of this peptide from every vial, so the curve matches History. */
+const pooled = computed(() =>
+  vial.value ? shelf.pooledDosesFor(vial.value, chartUnit.value) : { doses: [], vialCount: 0 },
+)
+const pooledCaption = computed(() =>
+  pooled.value.vialCount > 1
+    ? `Includes doses from ${pooled.value.vialCount} vials of this peptide.`
+    : undefined,
 )
 
 const concentrationText = computed(() => {
@@ -232,10 +228,11 @@ async function deleteVial() {
         <PkPanel
           :peptide="peptide"
           :override="vial.pkOverride"
-          :doses="doseEvents"
+          :doses="pooled.doses"
           :preview="null"
           :unit-label="unitLabel(chartUnit)"
           :now="now"
+          :caption="pooledCaption"
         />
       </div>
 

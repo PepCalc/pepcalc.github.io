@@ -5,7 +5,17 @@ import type { DrawRow, VialRow } from '@/db/database'
 import type { NewDraw, NewVial } from '@/db/repository'
 import { vialBalance, type VialBalance } from '@/domain/inventory'
 import { findPeptide } from '@/data'
+import {
+  groupLevelsByPeptide,
+  levelKey,
+  pooledDoses,
+  type LevelDraw,
+  type LevelVial,
+  type PeptideLevels,
+} from '@/domain/levels'
 import type { PkParameters } from '@/domain/pk'
+import type { AmountUnit } from '@/domain/units'
+import { toEpochMs } from '@/services/time'
 
 /**
  * The shelf (vials) and the draw log. The whole dataset is small enough to hold in memory,
@@ -56,6 +66,31 @@ export const useShelfStore = defineStore('shelf', () => {
     return pk ? { params: pk, userSupplied: false } : null
   }
 
+  const levelVials = computed<LevelVial[]>(() =>
+    vials.value.map((v) => ({
+      id: v.id,
+      peptideId: v.peptideId,
+      label: findPeptide(v.peptideId)?.name ?? v.name,
+      pk: pkFor(v),
+    })),
+  )
+  const levelDraws = computed<LevelDraw[]>(() =>
+    draws.value.map((d) => ({ vialId: d.vialId, at: toEpochMs(d.takenAt), dose: d.dose })),
+  )
+
+  /** Every draw pooled per peptide across vials, newest group first (see groupLevelsByPeptide). */
+  const levelGroups = computed<PeptideLevels[]>(() =>
+    groupLevelsByPeptide(levelVials.value, levelDraws.value),
+  )
+
+  /**
+   * Doses of the vial's peptide from all of its vials, in `unit`: the body does not know which
+   * vial a dose came from. Doses that cannot be expressed in `unit` (IU and mass) are left out.
+   */
+  function pooledDosesFor(vial: VialRow, unit: AmountUnit) {
+    return pooledDoses(levelVials.value, levelDraws.value, levelKey(vial), unit)
+  }
+
   async function addVial(input: NewVial): Promise<VialRow> {
     const row = await repository.addVial(input)
     await load()
@@ -94,6 +129,8 @@ export const useShelfStore = defineStore('shelf', () => {
     drawsFor,
     balanceOf,
     pkFor,
+    levelGroups,
+    pooledDosesFor,
     addVial,
     updateVial,
     deleteVial,
