@@ -40,7 +40,9 @@
     background: var(--pc-brand-soft);
   }
 
-  :where(a, [tabindex], button):focus-visible {
+  /* tabindex="-1" marks programmatic focus targets (Vuetify focuses the dialog container on
+     open); they are not keyboard stops, so a ring there frames the whole dialog. */
+  :where(a, [tabindex]:not([tabindex='-1']), button):focus-visible {
     outline: none;
     box-shadow: var(--pc-shadow-focus);
     border-radius: var(--pc-radius-xs);

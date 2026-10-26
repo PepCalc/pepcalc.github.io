@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#3f6b52"/>
+  <g transform="translate(-26 -16)">
+    <!-- syringe drawn with the needle tip at the origin, then tilted into the stopper -->
+    <g transform="translate(256 226) rotate(35)" stroke="#fbf8f3" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <path d="M0 0v-40" stroke-width="10"/>
+      <rect x="-22" y="-150" width="44" height="110" rx="8" stroke-width="18"/>
+      <path d="M-10 -66h12M-10 -90h12M-10 -114h12" stroke-width="8"/>
+      <path d="M-32 -150h64" stroke-width="22"/>
+      <path d="M0 -150v-36" stroke-width="22"/>
+      <path d="M-18 -186h36" stroke-width="22"/>
+    </g>
+    <!-- vial -->
+    <g fill="none" stroke="#fbf8f3" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M204 238h104"/>
+      <path d="M220 238v46M292 238v46"/>
+      <path d="M196 284h120a16 16 0 0 1 16 16v138a36 36 0 0 1-36 36h-80a36 36 0 0 1-36-36V300a16 16 0 0 1 16-16z"/>
+    </g>
+    <path d="M204 372h104v60a20 20 0 0 1-20 20h-64a20 20 0 0 1-20-20z" fill="#dc8d6b"/>
+    <path d="M228 328h30" stroke="#fbf8f3" stroke-width="14" stroke-linecap="round"/>
+  </g>
+</svg>
