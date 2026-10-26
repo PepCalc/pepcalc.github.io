@@ -123,6 +123,17 @@
     border: 1px solid var(--pc-divider-strong);
   }
 
+  /*
+   * Vuetify's scroll block only locks elements that are scrollable when a dialog opens. The
+   * disclaimer opens before the first view has laid out, so the page was left scrollable
+   * behind it. Locking the root for as long as any dialog is active does not depend on timing.
+   */
+  html:has(.v-dialog.v-overlay--active),
+  html:has(.v-dialog.v-overlay--active) body {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
   .v-overlay__scrim {
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);

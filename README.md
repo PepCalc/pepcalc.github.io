@@ -4,6 +4,17 @@ A private, offline peptide reconstitution and draw calculator for researchers. I
 from the browser to your phone or tablet's home screen; it then works with no connection.
 Everything you enter stays on your device.
 
+<p align="center">
+  <img src=".github/feature-peptide-calculator.png" alt="The draw calculator: a peptide, vial size and water volume chosen from sourced presets" width="300">
+  &nbsp;&nbsp;
+  <img src=".github/feature-estimated-level-over-time.png" alt="The level chart: estimated amount in the body over time from logged doses" width="300">
+</p>
+
+Pick a peptide, the amount in your vial and the water you added, and PepCalc tells you how far
+to draw the syringe, with a drawing of the barrel to check against. Save vials to a shelf, log
+each draw, and for peptides with published human data see an estimate of how much remains in
+the body over time. It runs entirely on your device: no account, no server, no tracking.
+
 > PepCalc does arithmetic and shows sourced reference values. It does not recommend doses and
 > is not medical advice. Several listed peptides are investigational or not approved for human
 > use.
@@ -45,11 +56,14 @@ GLOW, and KLOW. Adding more is a data change: see [docs/adding-a-peptide.md](doc
 
 ## Installing on a device
 
-| Device                  | Steps                                                  |
-| ----------------------- | ------------------------------------------------------ |
-| Android, Chrome or Edge | Open the site, then tap Install (or menu, Install app) |
-| Android, Firefox        | Menu, Install (or Add to Home screen)                  |
-| iPhone or iPad          | Share button, Add to Home Screen                       |
+Settings shows the steps for the browser you are using, with a screenshot.
+
+| Device                  | Steps                                                     |
+| ----------------------- | --------------------------------------------------------- |
+| Android, Chrome or Edge | Menu, Install and create shortcut (or Add to Home screen) |
+| Android, Firefox        | Menu, Add app to Home screen                              |
+| iPhone or iPad, Safari  | Share, Add to Home Screen                                 |
+| iPhone or iPad, Chrome  | Share (in the address bar), Add to Home Screen            |
 
 On iPhone and iPad, Safari and the installed app keep separate data; use a backup to move it.
 Make regular backups (Settings): browsers can clear site data under storage pressure.

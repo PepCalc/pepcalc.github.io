@@ -113,3 +113,34 @@ test('makes no third-party requests', async ({ page }) => {
   await page.goto('./#/shelf')
   expect(foreign).toEqual([])
 })
+
+test('the disclaimer blocks scrolling the page behind it until accepted', async ({ page }) => {
+  await page.goto('./')
+  await expect(page.getByRole('button', { name: 'I understand' })).toBeVisible()
+  await expect(page.locator('html')).toHaveCSS('overflow-y', 'hidden')
+  await page.mouse.move(20, 400)
+  await page.mouse.wheel(0, 600)
+  expect(await page.evaluate(() => window.scrollY)).toBe(0)
+
+  await acceptDisclaimer(page)
+  await expect(page.locator('html')).not.toHaveCSS('overflow-y', 'hidden')
+})
+
+test.describe('install guide on iOS Chrome', () => {
+  test.use({
+    userAgent:
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/140.0 Mobile/15E148 Safari/604.1',
+  })
+
+  test('shows the Chrome steps with a screenshot', async ({ page }) => {
+    await page.goto('./')
+    await acceptDisclaimer(page)
+    await page.getByRole('link', { name: 'Settings' }).first().click()
+    await expect(page.getByText('Share button in the address bar')).toBeVisible()
+    const shot = page.getByRole('img', { name: /Chrome's Share menu on iPhone/ })
+    await shot.scrollIntoViewIfNeeded()
+    await expect
+      .poll(() => shot.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth))
+      .toBeGreaterThan(0)
+  })
+})

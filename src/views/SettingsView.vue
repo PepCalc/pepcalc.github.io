@@ -15,7 +15,11 @@ import { useShelfStore } from '@/stores/shelf'
 import { useNotifyStore } from '@/stores/notify'
 import { useConfirmStore } from '@/stores/confirm'
 import { useStoragePersistence } from '@/composables/useStoragePersistence'
-import { useInstallPrompt } from '@/composables/useInstallPrompt'
+import { useInstallPrompt, type InstallPlatform } from '@/composables/useInstallPrompt'
+import androidChromeShot from '@/assets/install/android-chrome.webp'
+import androidFirefoxShot from '@/assets/install/android-firefox.webp'
+import iosChromeShot from '@/assets/install/ios-chrome.webp'
+import iosSafariShot from '@/assets/install/ios-safari.webp'
 import { saveFile } from '@/services/fileTransfer'
 import { daysBetween, formatDateTime, systemClock } from '@/services/time'
 import {
@@ -98,6 +102,42 @@ async function importData(event: Event) {
     notify.show(e instanceof BackupFormatError ? e.message : 'Could not read that file.', 'error')
   }
 }
+
+interface InstallScreenshot {
+  src: string
+  width: number
+  height: number
+  alt: string
+}
+
+const INSTALL_SCREENSHOTS: Partial<Record<InstallPlatform, InstallScreenshot>> = {
+  'ios-safari': {
+    src: iosSafariShot,
+    width: 480,
+    height: 666,
+    alt: "Safari's Share menu with Add to Home Screen at the bottom of the list",
+  },
+  'ios-chrome': {
+    src: iosChromeShot,
+    width: 480,
+    height: 842,
+    alt: "Chrome's Share menu on iPhone with Add to Home Screen at the bottom of the list",
+  },
+  'android-chrome': {
+    src: androidChromeShot,
+    width: 480,
+    height: 996,
+    alt: "Chrome's menu on Android with Install and create shortcut highlighted",
+  },
+  'android-firefox': {
+    src: androidFirefoxShot,
+    width: 480,
+    height: 999,
+    alt: "Firefox's menu on Android with Add app to Home screen highlighted",
+  },
+}
+
+const installShot = computed(() => INSTALL_SCREENSHOTS[install.state.platform])
 
 async function promptInstall() {
   if (await install.actions.promptInstall()) notify.show('PepCalc installed', 'success')
@@ -208,21 +248,50 @@ const formatMb = (bytes: number | null) =>
             >
               Install PepCalc
             </v-btn>
-            <ol v-else class="install-steps">
-              <template v-if="install.state.platform === 'ios'">
-                <li>Open this page in Safari (or another browser's share menu on iOS 16.4+).</li>
-                <li>Tap the <strong>Share</strong> button.</li>
-                <li>Choose <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</li>
-              </template>
-              <template v-else-if="install.state.platform === 'android-firefox'">
-                <li>Open the Firefox menu (<strong>⋮</strong>).</li>
-                <li>Choose <strong>Install</strong> or <strong>Add to Home screen</strong>.</li>
-              </template>
-              <template v-else>
-                <li>Open the browser menu (<strong>⋮</strong>).</li>
-                <li>Choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.</li>
-              </template>
-            </ol>
+            <template v-else>
+              <!-- Step wording matches the menu labels in each screenshot. -->
+              <ol class="install-steps">
+                <template v-if="install.state.platform === 'ios-safari'">
+                  <li>Tap the <strong>Share</strong> button.</li>
+                  <li>
+                    Tap <strong>View More</strong> if needed, then choose
+                    <strong>Add to Home Screen</strong>.
+                  </li>
+                  <li>Tap <strong>Add</strong>.</li>
+                </template>
+                <template v-else-if="install.state.platform === 'ios-chrome'">
+                  <li>Tap the <strong>Share</strong> button in the address bar.</li>
+                  <li>Scroll down and choose <strong>Add to Home Screen</strong>.</li>
+                  <li>Tap <strong>Add</strong>.</li>
+                </template>
+                <template v-else-if="install.state.platform === 'android-firefox'">
+                  <li>Open the Firefox menu (<strong>⋮</strong>).</li>
+                  <li>Choose <strong>Add app to Home screen</strong>, then confirm.</li>
+                </template>
+                <template v-else-if="install.state.platform === 'android-chrome'">
+                  <li>Open the Chrome menu (<strong>⋮</strong>).</li>
+                  <li>
+                    Choose <strong>Install and create shortcut</strong> (or
+                    <strong>Add to Home screen</strong>), then confirm.
+                  </li>
+                </template>
+                <template v-else>
+                  <li>Open the browser menu.</li>
+                  <li>
+                    Choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.
+                  </li>
+                </template>
+              </ol>
+              <img
+                v-if="installShot"
+                class="install-shot"
+                :src="installShot.src"
+                :width="installShot.width"
+                :height="installShot.height"
+                :alt="installShot.alt"
+                loading="lazy"
+              />
+            </template>
           </template>
         </v-card-text>
       </v-card>
@@ -292,6 +361,16 @@ const formatMb = (bytes: number | null) =>
 
 .install-steps li + li {
   margin-top: 4px;
+}
+
+.install-shot {
+  display: block;
+  width: 100%;
+  max-width: 240px;
+  height: auto;
+  margin: 16px auto 0;
+  border: 1px solid var(--pc-divider-strong);
+  border-radius: var(--pc-radius-lg);
 }
 
 .privacy-list {
