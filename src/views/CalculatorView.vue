@@ -250,6 +250,18 @@ function clearShelfVial() {
               hint="More water makes small doses easier to measure, but each dose is a larger volume."
             />
           </v-card-text>
+          <v-card-actions class="calc-save">
+            <v-btn
+              color="primary"
+              variant="tonal"
+              :prepend-icon="mdiBookshelf"
+              :disabled="!calc.vial.value || !state.diluentMl"
+              @click="saveToShelf"
+            >
+              Save vial to shelf
+            </v-btn>
+            <span class="text-body-small pc-faint">Remembers this vial so you can log draws.</span>
+          </v-card-actions>
         </v-card>
 
         <v-card>
@@ -323,9 +335,8 @@ function clearShelfVial() {
           </v-card-text>
         </v-card>
 
-        <div v-if="calc.plan.value" class="d-flex flex-wrap ga-2">
+        <div v-if="calc.plan.value && shelfVial" class="d-flex flex-wrap ga-2">
           <v-btn
-            v-if="shelfVial"
             color="primary"
             variant="flat"
             size="large"
@@ -333,16 +344,6 @@ function clearShelfVial() {
             @click="logDraw"
           >
             Log this draw now
-          </v-btn>
-          <v-btn
-            v-else
-            color="primary"
-            variant="flat"
-            size="large"
-            :prepend-icon="mdiBookshelf"
-            @click="saveToShelf"
-          >
-            Save vial to shelf
           </v-btn>
         </div>
 
@@ -380,6 +381,12 @@ function clearShelfVial() {
     grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
     align-items: start;
   }
+}
+
+.calc-save {
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  padding: 0 16px 16px;
 }
 
 .calc-component-amount {

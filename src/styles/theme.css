@@ -148,6 +148,11 @@
     border-radius: 50%;
   }
 
+  /* Pill buttons in a toggle would otherwise touch edge to edge. */
+  .v-btn-toggle {
+    gap: 8px;
+  }
+
   .v-btn:focus-visible {
     box-shadow: var(--pc-shadow-focus);
   }

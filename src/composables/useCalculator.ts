@@ -43,7 +43,7 @@ function defaultsFor(peptide: CatalogPeptide | undefined): Partial<CalculatorInp
   return {
     vialUnit: peptide.vialUnit,
     vialAmount: peptide.vialSizes.values[0] ?? null,
-    diluentMl: peptide.diluentMl.values.includes(2) ? 2 : (peptide.diluentMl.values[0] ?? null),
+    diluentMl: peptide.diluentMl.values.includes(3) ? 3 : (peptide.diluentMl.values[0] ?? null),
     doseUnit: peptide.doses?.unit ?? peptide.defaultDoseUnit,
     doseValue: peptide.doses?.values[0] ?? null,
     components: peptide.components?.map((c) => ({ ...c })) ?? [],

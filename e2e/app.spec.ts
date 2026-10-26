@@ -40,8 +40,8 @@ test('calculates the standard check: 5 mg in 2 mL, 250 mcg is 10 units', async (
 test('saves a vial, logs a draw and tracks the balance', async ({ page }) => {
   await page.goto('./')
   await acceptDisclaimer(page)
-  // Semaglutide defaults: 2 mg vial, 2 mL water, 0.25 mg dose.
-  await expect(page.getByTestId('draw-headline')).toHaveText('25')
+  // Semaglutide defaults: 2 mg vial, 3 mL water, 0.25 mg dose.
+  await expect(page.getByTestId('draw-headline')).toHaveText('37.5')
   await page.getByRole('button', { name: 'Save vial to shelf' }).click()
   await expect(page.getByText('From your shelf')).toBeVisible()
   await page.getByRole('button', { name: 'Log this draw now' }).click()
@@ -76,7 +76,7 @@ test('works offline after the first visit, including stored data', async ({
 
   // The calculator chunk (with the chart library) must also come from the precache.
   await page.goto('./#/')
-  await expect(page.getByTestId('draw-headline')).toHaveText('25')
+  await expect(page.getByTestId('draw-headline')).toHaveText('37.5')
   await context.setOffline(false)
 })
 

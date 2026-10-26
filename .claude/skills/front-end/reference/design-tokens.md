@@ -25,7 +25,7 @@ adds a warm-dark variant.
 | Lines        | `--pc-divider`, `--pc-divider-strong`                                                                                            |
 | Status pairs | `--pc-{good,notice,alert,info}-{fg,bg}`                                                                                          |
 | Shadows      | `--pc-shadow-{sm,md,lg,inset}`                                                                                                   |
-| Syringe      | `--pc-syringe-{barrel,ink,fill,plunger}`                                                                                         |
+| Syringe      | `--pc-syringe-{barrel,ink,fill,fill-deep,glint,plunger}`                                                                         |
 | Chart        | `--pc-chart-{logged,preview,grid,axis,now}`                                                                                      |
 
 Theme-independent: `--pc-font`, `--pc-font-display`, `--pc-font-mono`, `--pc-radius-*`,

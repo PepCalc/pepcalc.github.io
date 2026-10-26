@@ -111,6 +111,8 @@
     --pc-syringe-barrel: #fffdf9;
     --pc-syringe-ink: #433c30;
     --pc-syringe-fill: #dc8d6b;
+    --pc-syringe-fill-deep: #b8613f;
+    --pc-syringe-glint: rgba(255, 255, 255, 0.6);
     --pc-syringe-plunger: #877960;
 
     /* Chart: validated with the dataviz palette checker against --pc-surface. */
@@ -161,6 +163,8 @@
     --pc-syringe-barrel: #2c2820;
     --pc-syringe-ink: #e8ddcc;
     --pc-syringe-fill: #c8704f;
+    --pc-syringe-fill-deep: #94492e;
+    --pc-syringe-glint: rgba(255, 240, 225, 0.22);
     --pc-syringe-plunger: #877960;
 
     --pc-chart-logged: #4fa274;
