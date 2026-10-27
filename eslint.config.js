@@ -9,7 +9,17 @@ import globals from 'globals'
  * this file with a comment explaining why; never with an inline eslint-disable.
  */
 export default defineConfigWithVueTs(
-  { ignores: ['dist/**', 'dev-dist/**', 'coverage/**', 'playwright-report/**', 'test-results/**'] },
+  {
+    ignores: [
+      'dist/**',
+      'dist-android/**',
+      'android/**',
+      'dev-dist/**',
+      'coverage/**',
+      'playwright-report/**',
+      'test-results/**',
+    ],
+  },
   js.configs.recommended,
   pluginVue.configs['flat/recommended'],
   vueTsConfigs.recommended,

@@ -11,7 +11,10 @@ Part of the `engineering-standards` skill.
 
 CI (`.github/workflows/ci.yml`) runs the full gate on pull requests. Deployment
 (`.github/workflows/deploy.yml`) runs `npm run check` and publishes `dist/` to GitHub Pages on
-every push to `main`.
+every push to `main`. `.github/workflows/android.yml` builds a debug APK from
+`npm run build:android` (Capacitor, base `/`, no service worker, `__NATIVE__` true) and fails
+if the merged manifest requests a network permission. The e2e suite covers only the web build,
+so native-only paths (`src/services/nativeFileTransfer.ts`) need a check on a device.
 
 ## Tests
 

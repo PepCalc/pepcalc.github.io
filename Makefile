@@ -2,7 +2,7 @@
 SHELL := /bin/bash
 NODE := source $$HOME/.nvm/nvm.sh >/dev/null 2>&1 && nvm use >/dev/null 2>&1; 
 
-.PHONY: install dev check check-all test e2e build preview icons
+.PHONY: install dev check check-all test e2e build preview icons android
 
 install:
 	$(NODE) npm ci
@@ -33,3 +33,7 @@ preview: build
 ## Regenerate PWA icons from public/favicon.svg.
 icons:
 	$(NODE) npm run icons
+
+## Build the Android bundle and sync it into android/ (then open android/ in Android Studio).
+android:
+	$(NODE) npm run build:android

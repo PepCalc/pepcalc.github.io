@@ -5,15 +5,17 @@ import vue from '@vitejs/plugin-vue'
 import vuetify from 'vite-plugin-vuetify'
 import { VitePWA } from 'vite-plugin-pwa'
 
-/*
- * The site is served from a sub-path on GitHub Pages (https://<user>.github.io/<repo>/).
- * PEPCALC_BASE overrides it, e.g. "/" for a custom domain. Always starts and ends with "/".
- */
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as {
   version: string
 }
 
-const base = normalizeBase(process.env.PEPCALC_BASE ?? '/pepcalc/')
+/*
+ * The site is served from a sub-path on GitHub Pages (https://<user>.github.io/<repo>/).
+ * PEPCALC_BASE overrides it, e.g. "/" for a custom domain. Always starts and ends with "/".
+ */
+function webBase(): string {
+  return normalizeBase(process.env.PEPCALC_BASE ?? '/pepcalc/')
+}
 
 function normalizeBase(value: string): string {
   const trimmed = value.replace(/^\/+|\/+$/g, '')
@@ -53,68 +55,80 @@ function contentSecurityPolicy(): Plugin {
   }
 }
 
-export default defineConfig({
-  base,
-  define: { __APP_VERSION__: JSON.stringify(pkg.version) },
-  plugins: [
-    vue(),
-    vuetify({ autoImport: true }),
-    contentSecurityPolicy(),
-    VitePWA({
-      registerType: 'prompt',
-      injectRegister: false,
-      includeAssets: ['favicon.svg', 'favicon.ico', 'apple-touch-icon-180x180.png', 'layers.css'],
-      manifest: {
-        id: base,
-        name: 'PepCalc: Peptide Calculator',
-        short_name: 'PepCalc',
-        description:
-          'Private, offline peptide reconstitution and draw calculator. All data stays on this device.',
-        lang: 'en',
-        start_url: base,
-        scope: base,
-        display: 'standalone',
-        orientation: 'any',
-        background_color: '#fbf8f3',
-        theme_color: '#3f6b52',
-        categories: ['medical', 'utilities'],
-        icons: [
-          { src: 'pwa-64x64.png', sizes: '64x64', type: 'image/png' },
-          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
-          {
-            src: 'maskable-icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable',
-          },
-        ],
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2,webmanifest}'],
-        navigateFallback: 'index.html',
-        cleanupOutdatedCaches: true,
-        // ECharts is one large chunk; it must be precached for the PK chart to work offline.
-        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
-      },
-      devOptions: { enabled: false },
-    }),
-  ],
-  resolve: {
-    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
-  },
-  optimizeDeps: {
-    // Vuetify 4: keep overlay modules in one pre-bundle so nested overlays stack in dev.
-    include: [
-      'vuetify/components/VOverlay',
-      'vuetify/components/VDialog',
-      'vuetify/components/VMenu',
-      'vuetify/components/VSelect',
-      'vuetify/components/VTooltip',
+/*
+ * `vite build --mode android` builds the Capacitor bundle: served from the app's own origin
+ * at "/", with no service worker (the APK already holds every asset, and a worker would keep
+ * serving the previous version's files after an app update). It writes to its own directory
+ * so it never mixes with the Pages build.
+ */
+export default defineConfig(({ mode }) => {
+  const native = mode === 'android'
+  const base = native ? '/' : webBase()
+  return {
+    base,
+    define: { __APP_VERSION__: JSON.stringify(pkg.version), __NATIVE__: JSON.stringify(native) },
+    plugins: [
+      vue(),
+      vuetify({ autoImport: true }),
+      contentSecurityPolicy(),
+      VitePWA({
+        disable: native,
+        registerType: 'prompt',
+        injectRegister: false,
+        includeAssets: ['favicon.svg', 'favicon.ico', 'apple-touch-icon-180x180.png', 'layers.css'],
+        manifest: {
+          id: base,
+          name: 'PepCalc: Peptide Calculator',
+          short_name: 'PepCalc',
+          description:
+            'Private, offline peptide reconstitution and draw calculator. All data stays on this device.',
+          lang: 'en',
+          start_url: base,
+          scope: base,
+          display: 'standalone',
+          orientation: 'any',
+          background_color: '#fbf8f3',
+          theme_color: '#3f6b52',
+          categories: ['medical', 'utilities'],
+          icons: [
+            { src: 'pwa-64x64.png', sizes: '64x64', type: 'image/png' },
+            { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+            { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+            {
+              src: 'maskable-icon-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable',
+            },
+          ],
+        },
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2,webmanifest}'],
+          navigateFallback: 'index.html',
+          cleanupOutdatedCaches: true,
+          // ECharts is one large chunk; it must be precached for the PK chart to work offline.
+          maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
+        },
+        devOptions: { enabled: false },
+      }),
     ],
-  },
-  build: {
-    target: 'es2022',
-    chunkSizeWarningLimit: 900,
-  },
+    resolve: {
+      alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
+    },
+    optimizeDeps: {
+      // Vuetify 4: keep overlay modules in one pre-bundle so nested overlays stack in dev.
+      include: [
+        'vuetify/components/VOverlay',
+        'vuetify/components/VDialog',
+        'vuetify/components/VMenu',
+        'vuetify/components/VSelect',
+        'vuetify/components/VTooltip',
+      ],
+    },
+    build: {
+      target: 'es2022',
+      outDir: native ? 'dist-android' : 'dist',
+      chunkSizeWarningLimit: 900,
+    },
+  }
 })

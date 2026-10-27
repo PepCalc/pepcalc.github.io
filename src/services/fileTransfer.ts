@@ -1,12 +1,17 @@
 /**
  * Hand a file to the user without any network: the share sheet on phones (save to Files,
- * AirDrop, email to yourself) and a plain download elsewhere.
+ * AirDrop, email to yourself) and a plain download elsewhere. The Android app's WebView
+ * supports neither Web Share with files nor blob downloads, so it uses the native share sheet.
  */
 export async function saveFile(
   name: string,
   text: string,
   mime = 'application/json',
 ): Promise<'shared' | 'downloaded' | 'cancelled'> {
+  if (__NATIVE__) {
+    const { shareNative } = await import('./nativeFileTransfer')
+    return shareNative(name, text)
+  }
   const file = new File([text], name, { type: mime })
   if (navigator.canShare?.({ files: [file] })) {
     try {

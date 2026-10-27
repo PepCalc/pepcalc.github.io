@@ -22,12 +22,18 @@
     "check:md": "node scripts/check-markdown.mjs",
     "check:tokens": "node scripts/check-tokens.mjs",
     "icons": "pwa-assets-generator",
+    "icons:android": "node scripts/android-icons.mjs",
+    "build:android": "vite build --mode android && cap sync android",
     "check:contrast": "node scripts/check-contrast.mjs",
     "check:static": "npm run lint && npm run format:check && npm run typecheck && npm run check:tokens && npm run check:contrast && npm run check:md && npm run knip",
     "check": "npm run check:static && npm run test && npm run build",
     "check:all": "npm run check && npm run test:e2e && npm audit --audit-level=high"
   },
   "dependencies": {
+    "@capacitor/android": "8.5.3",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/filesystem": "8.1.5",
+    "@capacitor/share": "8.0.3",
     "@fontsource/hanken-grotesk": "5.3.0",
     "@fontsource/ibm-plex-mono": "5.3.0",
     "@fontsource/newsreader": "5.3.0",
@@ -42,6 +48,7 @@
     "vuetify": "4.3.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "8.5.3",
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.64.1",
     "@types/node": "24.19.2",
@@ -59,6 +66,7 @@
     "happy-dom": "21.0.4",
     "knip": "6.43.0",
     "prettier": "3.9.10",
+    "sharp": "0.35.5",
     "typescript": "6.0.3",
     "vite": "8.3.5",
     "vite-plugin-pwa": "2.0.0",

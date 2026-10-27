@@ -31,6 +31,6 @@ const color = computed(() => (notify.current?.tone === 'error' ? 'error' : undef
 <style scoped>
 /* Clear the bottom navigation and the iOS home indicator. */
 .app-snackbar {
-  margin-bottom: calc(64px + env(safe-area-inset-bottom));
+  margin-bottom: calc(64px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom)));
 }
 </style>

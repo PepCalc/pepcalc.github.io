@@ -5,7 +5,7 @@ import vuetify from 'vite-plugin-vuetify'
 
 export default defineConfig({
   plugins: [vue(), vuetify({ autoImport: true })],
-  define: { __APP_VERSION__: JSON.stringify('test') },
+  define: { __APP_VERSION__: JSON.stringify('test'), __NATIVE__: 'false' },
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },

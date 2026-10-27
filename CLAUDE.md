@@ -15,6 +15,7 @@ All commands run on the Node version in `.nvmrc` (`nvm use`); never system Node.
 | `make check`     | Fast gate: lint, format, typecheck, token and contrast checks, markdown, knip, unit tests, build |
 | `make check-all` | Full gate before declaring done: adds Playwright e2e (offline, PWA) and `npm audit`              |
 | `make preview`   | Serve the production build at `http://localhost:4173/pepcalc/`                                   |
+| `make android`   | Build the Capacitor bundle (`dist-android/`) and sync it into `android/`                         |
 
 ## Skills and rules
 

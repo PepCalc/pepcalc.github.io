@@ -31,7 +31,9 @@ export function detectPlatform(ua: string, maxTouchPoints: number): InstallPlatf
 export function useInstallPrompt() {
   const state = reactive({
     platform: detectPlatform(navigator.userAgent, navigator.maxTouchPoints ?? 0),
+    // The Android app is already installed; its WebView reports display-mode "browser".
     standalone:
+      __NATIVE__ ||
       window.matchMedia?.('(display-mode: standalone)').matches ||
       (navigator as Navigator & { standalone?: boolean }).standalone === true,
     deferred: null as BeforeInstallPromptEvent | null,

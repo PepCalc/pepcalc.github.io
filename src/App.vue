@@ -116,16 +116,20 @@ onMounted(async () => {
   text-decoration: none;
 }
 
-/* Keep content clear of the notch and rounded corners when installed (viewport-fit=cover). */
+/*
+ * Keep content clear of the notch and rounded corners when installed (viewport-fit=cover). The
+ * Android app's WebView reports zero env() insets on older versions; Capacitor sets the
+ * --safe-area-inset-* properties instead, so those win when present.
+ */
 .app-bar {
-  padding-top: env(safe-area-inset-top);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
+  padding-top: var(--safe-area-inset-top, env(safe-area-inset-top));
+  padding-left: var(--safe-area-inset-left, env(safe-area-inset-left));
+  padding-right: var(--safe-area-inset-right, env(safe-area-inset-right));
 }
 
 .bottom-nav {
-  padding-bottom: env(safe-area-inset-bottom);
-  height: calc(64px + env(safe-area-inset-bottom)) !important;
+  padding-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom));
+  height: calc(64px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom))) !important;
 }
 
 .rail-item {

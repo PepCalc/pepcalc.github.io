@@ -38,6 +38,9 @@ const confirm = useConfirmStore()
 const theme = useTheme()
 const storage = useStoragePersistence()
 const install = useInstallPrompt()
+// Android file providers often label a .json backup as a generic type, which would grey it out
+// in the native picker; parseBackup rejects anything that is not a backup.
+const backupAccept = __NATIVE__ ? undefined : 'application/json,.json'
 const fileInput = ref<HTMLInputElement | null>(null)
 const busy = ref(false)
 
@@ -214,7 +217,7 @@ const formatMb = (bytes: number | null) =>
             <input
               ref="fileInput"
               type="file"
-              accept="application/json,.json"
+              :accept="backupAccept"
               class="d-none"
               aria-label="Backup file"
               @change="importData"

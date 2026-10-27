@@ -101,3 +101,27 @@ Project conventions for contributors and coding agents are in [CLAUDE.md](CLAUDE
 
 For a custom domain or a user site served from the root, set the repository variable
 `PEPCALC_BASE` to `/`. Locally, `PEPCALC_BASE=/ npm run build` does the same.
+
+## Android app
+
+The Android app is a [Capacitor](https://capacitorjs.com) shell around the same web build,
+bundled into the APK so it works offline from first launch. It requests no network permission;
+CI fails if the merged manifest ever asks for one. Cloud backup is off, so data leaves the
+device only as a backup file the user exports.
+
+```bash
+make android      # build dist-android/ and sync it into android/
+cd android && ./gradlew assembleDebug    # needs JDK 21 and the Android SDK
+```
+
+`.github/workflows/android.yml` builds a debug APK on every push and uploads it as a workflow
+artifact. A release build is signed when `PEPCALC_KEYSTORE`, `PEPCALC_KEYSTORE_PASSWORD`,
+`PEPCALC_KEY_ALIAS` and `PEPCALC_KEY_PASSWORD` are set; keep the keystore out of the
+repository and backed up, because a lost key means the app can never be updated. The version
+comes from `package.json` (`versionCode` is `major * 10000 + minor * 100 + patch`).
+
+The app id `io.github.pepcalc`, and the WebView origin `https://localhost` that holds the
+app's IndexedDB, must never change after release. Data in the browser-installed PWA does not
+carry over to the Android app (and vice versa); move it with a backup file.
+
+`npm run icons:android` regenerates the launcher icons from `public/favicon.svg`.
