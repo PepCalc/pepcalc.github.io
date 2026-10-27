@@ -19,6 +19,8 @@ import DrawList from '@/components/shelf/DrawList.vue'
 import VialFormDialog from '@/components/shelf/VialFormDialog.vue'
 import LogDrawDialog from '@/components/shelf/LogDrawDialog.vue'
 import VialAgePanel from '@/components/shelf/VialAgePanel.vue'
+import VialAgeBadge from '@/components/shelf/VialAgeBadge.vue'
+import { useVialAge } from '@/composables/useVialAge'
 import ListPager from '@/components/common/ListPager.vue'
 import SortToggle from '@/components/common/SortToggle.vue'
 import {
@@ -45,6 +47,8 @@ const vial = computed(() => shelf.vialById(props.id))
 const peptide = computed(() => findPeptide(vial.value?.peptideId))
 const draws = computed(() => (vial.value ? shelf.drawsFor(vial.value.id) : []))
 const balance = computed(() => (vial.value ? shelf.balanceOf(vial.value) : null))
+/* The age panel sits low on the page, so a vial nearing or past its limit also says so up top. */
+const { age } = useVialAge(vial, now)
 
 const direction = ref<SortDirection>('desc')
 const sortedDraws = computed(() =>
@@ -135,6 +139,7 @@ async function deleteVial() {
               · mixed {{ formatRelativeDays(daysBetween(vial.reconstitutedAt, now)) }}
             </template>
           </p>
+          <div v-if="age && age.tier !== 'fresh'" class="mt-2"><VialAgeBadge :age="age" /></div>
         </div>
         <v-btn :prepend-icon="mdiPencilOutline" variant="outlined" @click="editing = true"
           >Edit</v-btn
@@ -198,8 +203,6 @@ async function deleteVial() {
             </v-card-actions>
           </v-card>
 
-          <VialAgePanel :vial="vial" :now="now" @edit="editing = true" />
-
           <v-card>
             <v-card-item>
               <p class="pc-eyebrow">History</p>
@@ -218,15 +221,18 @@ async function deleteVial() {
           </v-card>
         </div>
 
-        <PkPanel
-          :peptide="peptide"
-          :override="vial.pkOverride"
-          :doses="pooled.doses"
-          :preview="null"
-          :unit-label="unitLabel(chartUnit)"
-          :now="now"
-          :caption="pooledCaption"
-        />
+        <div class="d-flex flex-column ga-4">
+          <PkPanel
+            :peptide="peptide"
+            :override="vial.pkOverride"
+            :doses="pooled.doses"
+            :preview="null"
+            :unit-label="unitLabel(chartUnit)"
+            :now="now"
+            :caption="pooledCaption"
+          />
+          <VialAgePanel :vial="vial" :now="now" @edit="editing = true" />
+        </div>
       </div>
 
       <footer class="vial-manage" aria-label="Manage vial">

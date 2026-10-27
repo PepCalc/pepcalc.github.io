@@ -22,6 +22,11 @@ const { age } = useVialAge(
 const applied = computed(() => inUseLimitFor(props.vial.peptideId, props.vial.components))
 const limit = computed(() => applied.value.limit)
 const peptideRule = computed(() => applied.value.setBy !== null)
+const sources = computed(() =>
+  peptideRule.value
+    ? limit.value.sources
+    : [...limit.value.sources, ...catalog.storage.adviceSources],
+)
 </script>
 
 <template>
@@ -36,28 +41,26 @@ const peptideRule = computed(() => applied.value.setBy !== null)
     <v-card-text class="pc-stack">
       <div v-if="age" class="pc-stack pc-stack--tight">
         <div><VialAgeBadge :age="age" /></div>
-        <p v-if="age.custom" class="text-body-medium">
-          Using your own thresholds from Settings: use soon from day {{ age.limits.nearingDays }},
-          past from day {{ age.limits.pastDays }}. The cited limit for this vial is
-          {{ limit.days }} days.
+        <p v-if="age.custom" class="text-body-small pc-muted pc-num">
+          Your thresholds from Settings: use soon from day {{ age.limits.nearingDays }}, past from
+          day {{ age.limits.pastDays }}.
         </p>
       </div>
-      <p v-else class="text-body-medium">
-        Add the date you mixed this vial to track how long it has been in use.
-        <v-btn variant="text" density="comfortable" @click="$emit('edit')">Add date</v-btn>
-      </p>
+      <div v-else>
+        <v-btn variant="tonal" density="comfortable" @click="$emit('edit')">Add mixing date</v-btn>
+      </div>
 
       <div class="pc-stack pc-stack--tight">
-        <p class="pc-label">{{ limit.days }}-day limit after mixing</p>
+        <p class="pc-label">{{ limit.days }}-day limit</p>
         <p class="text-body-medium">{{ limit.note }}</p>
-        <SourceList :sources="limit.sources" />
       </div>
 
       <div v-if="!peptideRule" class="pc-stack pc-stack--tight">
-        <p class="pc-label">Storing a mixed vial</p>
+        <p class="pc-label">Storage</p>
         <p class="text-body-medium">{{ catalog.storage.advice }}</p>
-        <SourceList :sources="catalog.storage.adviceSources" />
       </div>
+
+      <SourceList :sources="sources" />
     </v-card-text>
   </v-card>
 </template>

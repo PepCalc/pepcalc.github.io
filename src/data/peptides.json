@@ -4,7 +4,7 @@
   "storage": {
     "inUse": {
       "days": 28,
-      "note": "Bacteriostatic water is a multiple-dose diluent: its preservative is tested for 28 days, so a punctured vial is discarded 28 days after first entry. This is a sterility limit, not a measure of peptide potency; no published data covers how long research-grade peptides stay potent once mixed.",
+      "note": "Discard 28 days after the first puncture, the period bacteriostatic water's preservative is tested for. This limit is about sterility; how long a mixed peptide stays potent is unknown.",
       "sources": [
         {
           "kind": "standard",
@@ -18,7 +18,7 @@
         }
       ]
     },
-    "advice": "Keep a mixed vial in the refrigerator at 2 to 8 °C, away from light, and never in the freezer. Labels for injectable peptides say not to freeze them and not to use one that has been frozen. No label covers research-grade vials, so follow your vial's own instructions where they differ.",
+    "advice": "Refrigerate at 2 to 8 °C, away from light. Never freeze, and don't use a vial that has frozen. Your vial's own instructions take precedence.",
     "adviceSources": [
       {
         "kind": "label",
@@ -284,7 +284,7 @@
       },
       "inUse": {
         "days": 7,
-        "note": "The EGRIFTA WR label (tesamorelin mixed with bacteriostatic water) says to keep the mixed vial at room temperature, 20 to 25 °C, not in the refrigerator or freezer, and to discard unused solution 7 days after mixing. Research-grade vials are a different formulation with no label of their own.",
+        "note": "Keep at room temperature, 20 to 25 °C; don't refrigerate or freeze. Discard 7 days after mixing. From the EGRIFTA WR label; research-grade tesamorelin has no label.",
         "sources": [
           {
             "kind": "label",

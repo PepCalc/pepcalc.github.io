@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import type { CatalogPeptide } from '@/domain/catalog'
 import type { DoseEvent, PkParameters } from '@/domain/pk'
 import { formatHours } from '@/services/time'
-import SourceBadge from '@/components/common/SourceBadge.vue'
+import SourceList from '@/components/common/SourceList.vue'
 import PkChart from './PkChart.vue'
 
 const props = defineProps<{
@@ -58,21 +58,13 @@ const lookbackHours = computed(() =>
           :lookback-hours="lookbackHours"
         />
         <p class="text-body-small pc-muted">
-          One-compartment model (first-order absorption and elimination) fitted to the half-life and
-          time to peak, assuming no further doses. It estimates drug remaining in the body, not
-          blood concentration, and ignores bioavailability and individual variation.
+          Estimated drug left in the body (not blood levels), assuming no further doses. A
+          one-compartment model fitted to the half-life and peak time; it ignores bioavailability
+          and individual variation.
         </p>
         <div v-if="!userSupplied && peptide?.pk" class="pc-stack pc-stack--tight">
           <p class="text-body-small pc-muted">{{ peptide.pk.notes }}</p>
-          <ul class="pk-sources">
-            <li v-for="source in peptide.pk.sources" :key="source.citation" class="text-body-small">
-              <SourceBadge :kind="source.kind" />
-              <a v-if="source.url" :href="source.url" target="_blank" rel="noopener noreferrer">{{
-                source.citation
-              }}</a>
-              <span v-else>{{ source.citation }}</span>
-            </li>
-          </ul>
+          <SourceList :sources="peptide.pk.sources" />
         </div>
       </template>
       <template v-else>
@@ -86,20 +78,3 @@ const lookbackHours = computed(() =>
     </v-card-text>
   </v-card>
 </template>
-
-<style scoped>
-.pk-sources {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 6px;
-}
-
-.pk-sources li {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-</style>
