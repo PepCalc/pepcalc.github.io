@@ -22,6 +22,9 @@ The catalog is data: adding a peptide needs no code. The step-by-step guide is
    or `doses: null` when nothing defensible exists (as for the blends).
 6. Blends: `kind: "blend"`, `vialUnit: "mg"`, `components` in mg per vial, and a vial size equal
    to the component total.
-7. Units: `vialUnit`, `defaultDoseUnit`, and preset units must be compatible (mass with mass, IU
+7. Injection site: `injectionSite` holds a `note` and `sources`; add `maxMgPerMl` (the
+   strength users report as tolerable) only with a `community` source, only on mass vials, and
+   never on a blend. Blends inherit it through each component's `peptideId`.
+8. Units: `vialUnit`, `defaultDoseUnit`, and preset units must be compatible (mass with mass, IU
    with IU).
-8. Gate: `npx vitest run tests/data`, then `make check`.
+9. Gate: `npx vitest run tests/data`, then `make check`.

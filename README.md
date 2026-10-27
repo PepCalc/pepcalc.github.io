@@ -26,6 +26,12 @@ the body over time. It runs entirely on your device: no account, no server, no t
   and the reading on your syringe, with a drawing of the barrel. U-100 (1, 0.5, 0.3 mL,
   half-unit), U-40, and mL syringes are supported, with warnings for draws over capacity,
   below one mark, or between marks.
+- **Mixing advisor.** Not sure how much water to add? Enter the doses you plan to draw (a
+  range if you titrate) and the size of your vial, and PepCalc ranks water volumes so every
+  dose fits one syringe and lands on a mark. Peptides users report as stinging (GHK-Cu, and
+  blends that contain it) are diluted as far as the vial allows. When the vial is too small for
+  a gentle mix, PepCalc says how far to top up the syringe with water after drawing each dose,
+  both in the advisor and on every draw.
 - **Presets with sources.** Common vial sizes, water volumes, and doses for each peptide. Each
   preset shows whether it comes from a prescribing label, a clinical trial, or community
   reports.
@@ -50,6 +56,9 @@ GLOW, and KLOW. Adding more is a data change: see [docs/adding-a-peptide.md](doc
 - Concentration = amount in vial / water added.
 - Volume to draw = dose / concentration.
 - Syringe reading = volume x units per mL (100 for U-100, 40 for U-40), or mL directly.
+- Mixing advisor: tries water in 0.5 mL steps up to 10 mL, keeps volumes where the largest
+  dose fits one syringe and the smallest is at least one mark, then ranks by fitting the vial,
+  meeting any comfort cap (mg/mL), landing on marks, and most water.
 - Level chart: a one-compartment model with first-order absorption and elimination, fitted to
   the published half-life and time to peak and summed over doses. It estimates drug remaining
   in the body, not blood concentration.

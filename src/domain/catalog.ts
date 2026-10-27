@@ -29,6 +29,14 @@ interface CatalogPk extends PkParameters {
   sources: SourceRef[]
 }
 
+/** How injections of a peptide are reported to feel, and the strength users find tolerable. */
+export interface InjectionSiteNote {
+  note: string
+  /** Concentration at or below which users report injections as tolerable; mass vials only. */
+  maxMgPerMl?: number
+  sources: SourceRef[]
+}
+
 export interface CatalogPeptide {
   id: string
   name: string
@@ -44,6 +52,7 @@ export interface CatalogPeptide {
   doses: PresetList | null
   /** Blend contents per vial; required when kind is 'blend'. */
   components?: BlendComponent[]
+  injectionSite?: InjectionSiteNote
   /** Human pharmacokinetics, or null when no reliable human data exists. */
   pk: CatalogPk | null
   /** Shown when pk is null: what is (and is not) known. */

@@ -24,8 +24,9 @@ const showArchived = ref(false)
       <v-card-text>
         <p class="mb-2"><strong>No vials yet.</strong></p>
         <p class="pc-muted">
-          Work out a draw in the calculator, then choose <em>Save vial to shelf</em>. PepCalc will
-          remember the concentration and track what is left as you log draws.
+          Work out a draw in the calculator (<em>Help me choose</em> suggests how much water to
+          add), then choose <em>Save vial to shelf</em>. PepCalc will remember the concentration and
+          track what is left as you log draws.
         </p>
       </v-card-text>
     </v-card>

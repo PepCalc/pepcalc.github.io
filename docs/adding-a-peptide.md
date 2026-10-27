@@ -13,6 +13,9 @@ PepCalc's peptides live in `src/data/peptides.json`, validated by
 
 If there is no human pharmacokinetic data, do not use animal or vendor figures for `pk`.
 
+Injection-site reports (stinging, redness, welts) come from the label's warnings section where
+one exists, otherwise from community reports tagged `community`.
+
 ## 2. Add the entry
 
 ```json
@@ -55,6 +58,22 @@ With human data, replace `pk` with:
   ]
 }
 ```
+
+If users report that injections sting, add an `injectionSite` block before `pk`. The mixing
+advisor uses `maxMgPerMl` to prefer more water; leave it out when the source gives no strength.
+
+```json
+"injectionSite": {
+  "note": "What users or the label report, and what helps.",
+  "maxMgPerMl": 10,
+  "sources": [
+    { "kind": "community", "citation": "Where the reports come from", "url": "https://..." }
+  ]
+}
+```
+
+Blend components name the catalog peptide they contain, so its notes apply to the blend:
+`{ "name": "GHK-Cu", "amountMg": 50, "peptideId": "ghk-cu" }`.
 
 ## 3. Check
 

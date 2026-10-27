@@ -19,7 +19,7 @@ interface Form {
   reconstitutedAt: string
   typicalDose: string
   typicalDoseUnit: AmountUnit
-  components: { name: string; amountMg: string }[]
+  components: { name: string; amountMg: string; peptideId: string | null }[]
   useCustomPk: boolean
   halfLifeHours: string
   tmaxHours: string
@@ -59,7 +59,7 @@ watch(
       reconstitutedAt: v.reconstitutedAt ? toLocalInputValue(v.reconstitutedAt) : '',
       typicalDose: v.typicalDose ? String(v.typicalDose.value) : '',
       typicalDoseUnit: v.typicalDose?.unit ?? doseUnitsFor(v.unit)[0]!,
-      components: (v.components ?? []).map((c) => ({ name: c.name, amountMg: String(c.amountMg) })),
+      components: (v.components ?? []).map((c) => ({ ...c, amountMg: String(c.amountMg) })),
       useCustomPk: v.pkOverride !== null,
       halfLifeHours: v.pkOverride ? String(v.pkOverride.halfLifeHours) : '',
       tmaxHours: v.pkOverride ? String(v.pkOverride.tmaxHours) : '',
@@ -94,14 +94,18 @@ const valid = computed(() => {
 
 const blendTotal = computed(() =>
   blendTotalMg(
-    form.components.map((c) => ({ name: c.name, amountMg: Number.parseFloat(c.amountMg) || 0 })),
+    form.components.map((c) => ({ ...c, amountMg: Number.parseFloat(c.amountMg) || 0 })),
   ),
 )
 
 function save() {
   if (!valid.value) return
   const components = isBlend.value
-    ? form.components.map((c) => ({ name: c.name.trim(), amountMg: Number.parseFloat(c.amountMg) }))
+    ? form.components.map((c) => ({
+        name: c.name.trim(),
+        amountMg: Number.parseFloat(c.amountMg),
+        peptideId: c.peptideId,
+      }))
     : null
   emit('save', {
     name: form.name.trim(),

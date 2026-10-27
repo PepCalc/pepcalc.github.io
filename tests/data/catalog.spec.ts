@@ -4,7 +4,7 @@ import peptideSchema from '@/data/peptides.schema.json'
 import syringeSchema from '@/data/syringes.schema.json'
 import peptidesJson from '@/data/peptides.json'
 import syringesJson from '@/data/syringes.json'
-import { catalog, syringeCatalog } from '@/data'
+import { catalog, findPeptide, syringeCatalog } from '@/data'
 import { areCompatible } from '@/domain/units'
 import { blendTotalMg } from '@/domain/blend'
 import { rateConstants } from '@/domain/pk'
@@ -33,6 +33,14 @@ describe('peptides.json', () => {
         expect(p.vialSizes.values).toContain(blendTotalMg(p.components ?? []))
       }
       if (p.pk) expect(() => rateConstants(p.pk!)).not.toThrow()
+      for (const c of p.components ?? []) {
+        expect(findPeptide(c.peptideId)?.kind, `${p.id}: ${c.name}`).toBe('single')
+      }
+      // A blend's comfort comes from its components; a mg/mL cap needs a mass vial.
+      if (p.injectionSite?.maxMgPerMl) {
+        expect(p.kind).toBe('single')
+        expect(areCompatible(p.vialUnit, 'mg')).toBe(true)
+      }
     },
   )
 

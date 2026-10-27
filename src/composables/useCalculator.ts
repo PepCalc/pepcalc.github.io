@@ -1,14 +1,24 @@
 import { computed, reactive, watch } from 'vue'
-import { catalog, findPeptide, findSyringe, syringeCatalog } from '@/data'
+import {
+  catalog,
+  comfortCaps,
+  findPeptide,
+  findSyringe,
+  injectionSiteConcerns,
+  syringeCatalog,
+} from '@/data'
 import type { CatalogPeptide } from '@/domain/catalog'
 import { blendTotalMg, splitBlendDose, type BlendComponent } from '@/domain/blend'
 import { InvalidInputError, planDraw, type DrawPlan } from '@/domain/reconstitution'
 import {
   readSyringe,
+  scaleLabel,
   suggestSyringe,
   TICK_ERROR_WARNING,
   type SyringeReading,
+  type SyringeSpec,
 } from '@/domain/syringe'
+import { gentleWaterMl, syringeTopUp } from '@/domain/diluent'
 import {
   areCompatible,
   convert,
@@ -160,6 +170,26 @@ export function useCalculator(initial: Partial<CalculatorInput> = {}) {
       : [],
   )
 
+  /**
+   * The strongest capped ingredient decides whether this mix may sting. When it does, say how
+   * to dilute the dose in the syringe, which works without remixing the vial.
+   */
+  function comfortWarning(drawMl: number, syringe: SyringeSpec): CalculatorWarning | null {
+    const caps = comfortCaps(injectionSiteConcerns(peptide.value, state.components, vial.value))
+    const gentleMinMl = gentleWaterMl(caps)
+    const waterMl = state.diluentMl
+    if (gentleMinMl === null || !waterMl || waterMl >= gentleMinMl - 1e-9) return null
+    const cap = caps.find((c) => c.amountMg / c.maxMgPerMl >= gentleMinMl - 1e-9)!
+    const topUp = syringeTopUp(drawMl, waterMl, gentleMinMl, syringe)
+    const remedy = topUp
+      ? `To inject it gentler, draw the dose, then pull bacteriostatic water into the same syringe up to ${scaleLabel(topUp)}.`
+      : 'More water may sting less.'
+    return {
+      tone: 'notice',
+      text: `${cap.name} at ${roundTo(cap.amountMg / waterMl, 1)} mg/mL is stronger than PepCalc's ${cap.maxMgPerMl} mg/mL guide, set from user reports of stinging. ${remedy}`,
+    }
+  }
+
   const warnings = computed<CalculatorWarning[]>(() => {
     const list: CalculatorWarning[] = []
     const r = reading.value
@@ -184,6 +214,8 @@ export function useCalculator(initial: Partial<CalculatorInput> = {}) {
         text: `Falls between marks: the nearest mark is ${Math.round(r.tickRoundingError * 100)}% off. Adjusting water volume gives a cleaner reading.`,
       })
     }
+    const comfort = comfortWarning(p.volumeMl, r.syringe)
+    if (comfort) list.push(comfort)
     if (r.syringe.unitsPerMl === 40) {
       list.push({
         tone: 'notice',

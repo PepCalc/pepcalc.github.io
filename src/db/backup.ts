@@ -8,7 +8,7 @@ import { nowIso, systemClock, type Clock } from '@/services/time'
  * inspect exactly what it contains.
  */
 const BACKUP_FORMAT = 'pepcalc-backup'
-const BACKUP_VERSION = 1
+const BACKUP_VERSION = 2
 
 export interface BackupFile {
   format: typeof BACKUP_FORMAT
@@ -74,6 +74,19 @@ function isPkOverride(value: unknown): boolean {
   )
 }
 
+function isBlendComponents(value: unknown): boolean {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (c) =>
+        isRecord(c) &&
+        typeof c.name === 'string' &&
+        isPositive(c.amountMg) &&
+        (c.peptideId === null || typeof c.peptideId === 'string'),
+    )
+  )
+}
+
 /*
  * Restore must never write rows the app cannot compute with: a draw in mg against an IU vial,
  * or a non-positive half-life, would throw while rendering the shelf or the chart.
@@ -87,6 +100,7 @@ function checkVial(v: unknown, i: number): asserts v is VialRow {
     AMOUNT_UNITS.includes(v.unit as never) &&
     isPositive(v.amount) &&
     isPositive(v.diluentMl) &&
+    (v.components === null || isBlendComponents(v.components)) &&
     (v.status === 'active' || v.status === 'archived') &&
     isIso(v.createdAt) &&
     (v.typicalDose == null || isCompatibleQuantity(v.typicalDose, v.unit as AmountUnit)) &&
@@ -113,6 +127,13 @@ function checkDraw(
   if (!ok) throw new BackupFormatError(`Draw ${i + 1} is invalid or refers to a missing vial.`)
 }
 
+/** Version 1 blend components had no catalog id; they restore as unlinked (null). */
+function addComponentIds(v: unknown): void {
+  if (isRecord(v) && Array.isArray(v.components)) {
+    for (const c of v.components) if (isRecord(c)) c.peptideId ??= null
+  }
+}
+
 /** Validate untrusted JSON before anything touches the database. */
 export function parseBackup(text: string): BackupFile {
   let data: unknown
@@ -133,6 +154,7 @@ export function parseBackup(text: string): BackupFile {
   if (!Array.isArray(vials) || !Array.isArray(draws) || !Array.isArray(settings)) {
     throw new BackupFormatError('The backup is incomplete.')
   }
+  if (data.version < 2) vials.forEach(addComponentIds)
   vials.forEach(checkVial)
   const vialUnits = new Map((vials as VialRow[]).map((v) => [v.id, v.unit]))
   draws.forEach((d, i) => checkDraw(d, i, vialUnits))

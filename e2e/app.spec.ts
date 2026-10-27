@@ -37,6 +37,28 @@ test('calculates the standard check: 5 mg in 2 mL, 250 mcg is 10 units', async (
   ).toBeVisible()
 })
 
+test('the mixing advisor dilutes GHK-Cu and fills in the water', async ({ page }) => {
+  await page.goto('./')
+  await acceptDisclaimer(page)
+  await page.locator('.v-select').first().click()
+  await page.getByRole('option', { name: /GHK-Cu/ }).click()
+  await choose(page, 'Peptide in vial', '50 mg')
+  await choose(page, 'Bacteriostatic water added', '3 mL')
+  await choose(page, 'Dose', '1 mg')
+  await expect(page.getByText(/16\.7 mg\/mL is stronger/)).toBeVisible()
+  await expect(page.getByText(/same syringe up to 10 units/)).toBeVisible()
+
+  await page.getByRole('button', { name: 'Help me choose' }).click()
+  await expect(page.getByTestId('advisor-water')).toHaveText('3')
+  await expect(page.getByTestId('advisor-top-up')).toContainText('10 units')
+  await choose(page, 'Vial size', '10 mL')
+  await expect(page.getByTestId('advisor-water')).toHaveText('10')
+  await page.getByRole('button', { name: 'Use 10 mL' }).click()
+
+  await expect(page.getByTestId('draw-headline')).toHaveText('20')
+  await expect(page.getByText(/is stronger than/)).toBeHidden()
+})
+
 test('saves a vial, logs a draw and tracks the balance', async ({ page }) => {
   await page.goto('./')
   await acceptDisclaimer(page)
@@ -114,13 +136,20 @@ test('makes no third-party requests', async ({ page }) => {
   expect(foreign).toEqual([])
 })
 
-test('the disclaimer blocks scrolling the page behind it until accepted', async ({ page }) => {
+test('the disclaimer blocks scrolling the page behind it until accepted', async ({
+  page,
+  browserName,
+  isMobile,
+}) => {
   await page.goto('./')
   await expect(page.getByRole('button', { name: 'I understand' })).toBeVisible()
   await expect(page.locator('html')).toHaveCSS('overflow-y', 'hidden')
-  await page.mouse.move(20, 400)
-  await page.mouse.wheel(0, 600)
-  expect(await page.evaluate(() => window.scrollY)).toBe(0)
+  // Playwright cannot wheel or swipe in mobile WebKit; there the root lock above is the check.
+  if (!(browserName === 'webkit' && isMobile)) {
+    await page.mouse.move(20, 400)
+    await page.mouse.wheel(0, 600)
+    expect(await page.evaluate(() => window.scrollY)).toBe(0)
+  }
 
   await acceptDisclaimer(page)
   await expect(page.locator('html')).not.toHaveCSS('overflow-y', 'hidden')

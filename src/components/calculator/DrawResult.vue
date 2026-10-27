@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { syringeCatalog } from '@/data'
 import type { ComponentDose } from '@/domain/blend'
 import type { DrawPlan } from '@/domain/reconstitution'
-import type { SyringeReading, SyringeSpec } from '@/domain/syringe'
+import { scaleLabel, type SyringeReading, type SyringeSpec } from '@/domain/syringe'
 import { roundTo, unitLabel, type Quantity } from '@/domain/units'
 import type { CalculatorWarning } from '@/composables/useCalculator'
 import SyringeGraphic from './SyringeGraphic.vue'
@@ -19,9 +19,6 @@ const props = defineProps<{
 }>()
 
 const syringeId = defineModel<string>('syringeId', { required: true })
-
-const scaleText = (r: SyringeReading) =>
-  r.scaleUnit === 'units' ? `${roundTo(r.scaleValue, 2)} units` : `${roundTo(r.scaleValue, 3)} mL`
 
 const headline = computed(() => {
   const r = props.reading
@@ -122,7 +119,7 @@ const syringeItems = syringeCatalog.syringes.map((s) => ({ title: s.label, value
               <td class="text-end pc-num">
                 <template v-if="!r.fits">over capacity</template>
                 <template v-else-if="r.belowResolution">below one mark</template>
-                <template v-else>{{ scaleText(r) }}</template>
+                <template v-else>{{ scaleLabel(r) }}</template>
               </td>
             </tr>
           </tbody>
