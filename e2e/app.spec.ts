@@ -136,13 +136,20 @@ test('makes no third-party requests', async ({ page }) => {
   expect(foreign).toEqual([])
 })
 
-test('the disclaimer blocks scrolling the page behind it until accepted', async ({ page }) => {
+test('the disclaimer blocks scrolling the page behind it until accepted', async ({
+  page,
+  browserName,
+  isMobile,
+}) => {
   await page.goto('./')
   await expect(page.getByRole('button', { name: 'I understand' })).toBeVisible()
   await expect(page.locator('html')).toHaveCSS('overflow-y', 'hidden')
-  await page.mouse.move(20, 400)
-  await page.mouse.wheel(0, 600)
-  expect(await page.evaluate(() => window.scrollY)).toBe(0)
+  // Playwright cannot wheel or swipe in mobile WebKit; there the root lock above is the check.
+  if (!(browserName === 'webkit' && isMobile)) {
+    await page.mouse.move(20, 400)
+    await page.mouse.wheel(0, 600)
+    expect(await page.evaluate(() => window.scrollY)).toBe(0)
+  }
 
   await acceptDisclaimer(page)
   await expect(page.locator('html')).not.toHaveCSS('overflow-y', 'hidden')
