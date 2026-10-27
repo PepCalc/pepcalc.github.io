@@ -1,3 +1,5 @@
+import { roundTo } from './units'
+
 /**
  * Syringe geometry and how a volume reads on its barrel. Insulin syringes are graduated in
  * units (U-100: 100 units per mL; U-40: 40 units per mL); luer syringes in mL.
@@ -78,4 +80,11 @@ export function suggestSyringe(
     .filter((s) => volumeMl <= s.capacityMl + 1e-9 && volumeMl >= s.tickMl - 1e-9)
     .sort((a, b) => a.capacityMl - b.capacityMl || b.tickMl - a.tickMl)
   return fitting[0] ?? null
+}
+
+/** A reading as printed on the barrel: "12.5 units" on insulin syringes, "0.125 mL" on luer. */
+export function scaleLabel(reading: SyringeReading): string {
+  return reading.scaleUnit === 'units'
+    ? `${roundTo(reading.scaleValue, 2)} units`
+    : `${roundTo(reading.scaleValue, 3)} mL`
 }

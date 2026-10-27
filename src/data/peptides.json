@@ -1,6 +1,6 @@
 {
   "$schema": "./peptides.schema.json",
-  "version": 1,
+  "version": 2,
   "peptides": [
     {
       "id": "semaglutide",
@@ -241,6 +241,16 @@
           "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/022505s020lbl.pdf"
         }
       },
+      "injectionSite": {
+        "note": "Injection-site reactions (redness, itching, pain) in 25% of patients versus 14% on placebo over 26 weeks. The label advises rotating sites.",
+        "sources": [
+          {
+            "kind": "label",
+            "citation": "EGRIFTA WR US prescribing information, section 5.6",
+            "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/022505s020lbl.pdf"
+          }
+        ]
+      },
       "pk": {
         "halfLifeHours": 0.183,
         "tmaxHours": 0.15,
@@ -339,10 +349,10 @@
         }
       },
       "diluentMl": {
-        "values": [2, 3, 5],
+        "values": [3, 5, 10],
         "source": {
           "kind": "community",
-          "citation": "Common reconstitution volumes"
+          "citation": "Common reconstitution volumes; users dilute GHK-Cu further to reduce stinging"
         }
       },
       "doses": {
@@ -352,6 +362,46 @@
           "kind": "community",
           "citation": "Amounts commonly cited in research communities; not clinically established"
         }
+      },
+      "injectionSite": {
+        "note": "Often reported to sting, burn or leave itchy welts for hours or days, more so when concentrated; some users react at any strength. Users report relief from more water, a room-temperature dose, slower injection and the upper glute. With 3 mL vials, users move the mix to a larger sterile vial.",
+        "maxMgPerMl": 10,
+        "sources": [
+          {
+            "kind": "community",
+            "citation": "r/Peptides, GHK-cu OUCH!!: pain at 20 mg/mL (50 mg in 2.5 mL); less with 50 mg in 4 mL or 5 mL",
+            "url": "https://www.reddit.com/r/Peptides/comments/14z1q3c/ghkcu_ouch/"
+          },
+          {
+            "kind": "community",
+            "citation": "r/Biohacking, Beautiful reconstitution: no sting with 100 mg in 10 mL; stinging and swelling with 100 mg in 3 mL",
+            "url": "https://www.reddit.com/r/Biohacking/comments/1u4zz40/beautiful_reconstitution/"
+          },
+          {
+            "kind": "community",
+            "citation": "r/Peptides, GHK-Cu upper glute injection and BAC water question: 100 mg in 10 mL (1 mg = 10 units) got users past injection pain",
+            "url": "https://www.reddit.com/r/Peptides/comments/1odck6u/ghkcu_upper_glute_injection_and_bac_water_question/"
+          },
+          {
+            "kind": "community",
+            "citation": "r/Peptides, Glow stack, copper question: no pain over 14 doses at 50 mg in 10 mL; 3 mL vials need a transfer to a larger sterile vial",
+            "url": "https://www.reddit.com/r/Peptides/comments/1p7bjp5/glow_stack_copper_question/"
+          },
+          {
+            "kind": "community",
+            "citation": "r/Peptides, GHK-CU injection site reaction: welts at 25 mg/mL and when diluted, for some users",
+            "url": "https://www.reddit.com/r/Peptides/comments/1u0z01t/ghkcu_injection_site_reaction/"
+          },
+          {
+            "kind": "community",
+            "citation": "peptide-db.com GHK-Cu user log: burning at 25 mg/mL stopped after diluting to 12.5 mg/mL",
+            "url": "https://peptide-db.com/peptides/ghk-cu/discussion"
+          },
+          {
+            "kind": "model",
+            "citation": "PepCalc uses 10 mg/mL: users repeatedly report little or no stinging at or below it, and frequent stinging at 16.7 mg/mL and stronger"
+          }
+        ]
       },
       "pk": null,
       "pkUnavailableReason": "No peer-reviewed human pharmacokinetic study of injected GHK-Cu. Published half-life figures come from vendor pages and disagree. You can enter your own half-life on a shelf vial."
@@ -407,25 +457,28 @@
         }
       },
       "diluentMl": {
-        "values": [2, 3, 5],
+        "values": [3, 5, 10],
         "source": {
           "kind": "community",
-          "citation": "Common reconstitution volumes"
+          "citation": "Common reconstitution volumes; blends with GHK-Cu are often diluted further"
         }
       },
       "doses": null,
       "components": [
         {
           "name": "GHK-Cu",
-          "amountMg": 50
+          "amountMg": 50,
+          "peptideId": "ghk-cu"
         },
         {
           "name": "BPC-157",
-          "amountMg": 10
+          "amountMg": 10,
+          "peptideId": "bpc-157"
         },
         {
           "name": "TB-500",
-          "amountMg": 10
+          "amountMg": 10,
+          "peptideId": "tb-500"
         }
       ],
       "pk": null,
@@ -448,29 +501,33 @@
         }
       },
       "diluentMl": {
-        "values": [2, 3, 5],
+        "values": [3, 5, 10],
         "source": {
           "kind": "community",
-          "citation": "Common reconstitution volumes"
+          "citation": "Common reconstitution volumes; blends with GHK-Cu are often diluted further"
         }
       },
       "doses": null,
       "components": [
         {
           "name": "GHK-Cu",
-          "amountMg": 50
+          "amountMg": 50,
+          "peptideId": "ghk-cu"
         },
         {
           "name": "BPC-157",
-          "amountMg": 10
+          "amountMg": 10,
+          "peptideId": "bpc-157"
         },
         {
           "name": "TB-500",
-          "amountMg": 10
+          "amountMg": 10,
+          "peptideId": "tb-500"
         },
         {
           "name": "KPV",
-          "amountMg": 10
+          "amountMg": 10,
+          "peptideId": "kpv"
         }
       ],
       "pk": null,

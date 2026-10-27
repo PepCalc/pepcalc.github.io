@@ -21,4 +21,5 @@ export {
   mdiNeedle,
   mdiCellphoneArrowDown,
   mdiRefresh,
+  mdiWaterPlusOutline,
 } from '@mdi/js'

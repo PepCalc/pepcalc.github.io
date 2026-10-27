@@ -32,10 +32,10 @@ describe('vial balance', () => {
 
 describe('blends', () => {
   const klow = [
-    { name: 'GHK-Cu', amountMg: 50 },
-    { name: 'BPC-157', amountMg: 10 },
-    { name: 'TB-500', amountMg: 10 },
-    { name: 'KPV', amountMg: 10 },
+    { name: 'GHK-Cu', amountMg: 50, peptideId: 'ghk-cu' },
+    { name: 'BPC-157', amountMg: 10, peptideId: 'bpc-157' },
+    { name: 'TB-500', amountMg: 10, peptideId: 'tb-500' },
+    { name: 'KPV', amountMg: 10, peptideId: 'kpv' },
   ]
 
   it('totals the components', () => {

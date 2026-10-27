@@ -4,6 +4,8 @@ import { convert, type MassUnit, type Quantity } from './units'
 export interface BlendComponent {
   name: string
   amountMg: number
+  /** Catalog id of the component, so its own catalog facts (such as injection-site notes) apply. */
+  peptideId: string | null
 }
 
 export function blendTotalMg(components: readonly BlendComponent[]): number {

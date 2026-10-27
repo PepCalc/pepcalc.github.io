@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { catalog } from '@/data'
 import { CUSTOM_PEPTIDE, useCalculator } from '@/composables/useCalculator'
@@ -13,8 +13,10 @@ import { nowIso } from '@/services/time'
 import PresetPicker from '@/components/common/PresetPicker.vue'
 import SourceBadge from '@/components/common/SourceBadge.vue'
 import DrawResult from '@/components/calculator/DrawResult.vue'
+import DiluentAdvisor from '@/components/calculator/DiluentAdvisor.vue'
+import type { MixContext } from '@/composables/useDiluentAdvisor'
 import PkPanel from '@/components/charts/PkPanel.vue'
-import { mdiBookshelf, mdiNeedle } from '@/plugins/icons'
+import { mdiBookshelf, mdiNeedle, mdiWaterPlusOutline } from '@/plugins/icons'
 
 const route = useRoute()
 const router = useRouter()
@@ -65,6 +67,14 @@ watch(
     state.syringeId = id
   },
 )
+
+const advising = ref(false)
+const mixContext = computed<MixContext>(() => ({
+  peptide: calc.peptide.value,
+  components: state.components,
+  vial: calc.vial.value,
+  syringe: calc.syringe.value,
+}))
 
 const doseHint = computed(() => {
   const doses = calc.peptide.value?.doses
@@ -252,6 +262,15 @@ function clearShelfVial() {
               unit-label="mL"
               hint="More water makes small doses easier to measure, but each dose is a larger volume."
             />
+            <v-btn
+              variant="tonal"
+              :prepend-icon="mdiWaterPlusOutline"
+              :disabled="!calc.vial.value"
+              class="align-self-start"
+              @click="advising = true"
+            >
+              Help me choose
+            </v-btn>
           </v-card-text>
           <v-card-actions class="calc-save">
             <v-btn
@@ -362,6 +381,13 @@ function clearShelfVial() {
         />
       </section>
     </div>
+
+    <DiluentAdvisor
+      v-model="advising"
+      :context="mixContext"
+      :dose="calc.dose.value"
+      @choose="state.diluentMl = $event"
+    />
   </div>
 </template>
 

@@ -174,4 +174,48 @@ describe('backup', () => {
     }
     expect(() => parseBackup(JSON.stringify(backup))).toThrow(BackupFormatError)
   })
+
+  it('restores version 1 blend components as unlinked', () => {
+    const backup = {
+      format: 'pepcalc-backup',
+      version: 1,
+      vials: [
+        {
+          ...vialInput,
+          id: 'v1',
+          kind: 'blend',
+          createdAt: '2026-10-20T08:00:00.000Z',
+          components: [{ name: 'GHK-Cu', amountMg: 50 }],
+        },
+      ],
+      draws: [],
+      settings: [],
+    }
+    expect(parseBackup(JSON.stringify(backup)).vials[0]!.components).toEqual([
+      { name: 'GHK-Cu', amountMg: 50, peptideId: null },
+    ])
+  })
+
+  it('rejects blend components without a catalog id field', () => {
+    const blendVial = (components: unknown) => ({
+      format: 'pepcalc-backup',
+      version: 2,
+      vials: [
+        {
+          ...vialInput,
+          id: 'v1',
+          kind: 'blend',
+          createdAt: '2026-10-20T08:00:00.000Z',
+          components,
+        },
+      ],
+      draws: [],
+      settings: [],
+    })
+    const ghk = { name: 'GHK-Cu', amountMg: 50 }
+    expect(() => parseBackup(JSON.stringify(blendVial([ghk])))).toThrow(BackupFormatError)
+    expect(
+      parseBackup(JSON.stringify(blendVial([{ ...ghk, peptideId: 'ghk-cu' }]))).vials,
+    ).toHaveLength(1)
+  })
 })

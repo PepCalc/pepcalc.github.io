@@ -37,6 +37,28 @@ test('calculates the standard check: 5 mg in 2 mL, 250 mcg is 10 units', async (
   ).toBeVisible()
 })
 
+test('the mixing advisor dilutes GHK-Cu and fills in the water', async ({ page }) => {
+  await page.goto('./')
+  await acceptDisclaimer(page)
+  await page.locator('.v-select').first().click()
+  await page.getByRole('option', { name: /GHK-Cu/ }).click()
+  await choose(page, 'Peptide in vial', '50 mg')
+  await choose(page, 'Bacteriostatic water added', '3 mL')
+  await choose(page, 'Dose', '1 mg')
+  await expect(page.getByText(/16\.7 mg\/mL is stronger/)).toBeVisible()
+  await expect(page.getByText(/same syringe up to 10 units/)).toBeVisible()
+
+  await page.getByRole('button', { name: 'Help me choose' }).click()
+  await expect(page.getByTestId('advisor-water')).toHaveText('3')
+  await expect(page.getByTestId('advisor-top-up')).toContainText('10 units')
+  await choose(page, 'Vial size', '10 mL')
+  await expect(page.getByTestId('advisor-water')).toHaveText('10')
+  await page.getByRole('button', { name: 'Use 10 mL' }).click()
+
+  await expect(page.getByTestId('draw-headline')).toHaveText('20')
+  await expect(page.getByText(/is stronger than/)).toBeHidden()
+})
+
 test('saves a vial, logs a draw and tracks the balance', async ({ page }) => {
   await page.goto('./')
   await acceptDisclaimer(page)
