@@ -7,11 +7,12 @@ Part of the `engineering-standards` skill.
 ```
 src/
   domain/        pure logic: units, reconstitution, diluent advice, syringe, pk, inventory, blend,
-                 catalog types
+                 listing (paging, ordering, vial numbers), vial age, catalog types
   data/          peptides.json, syringes.json, their JSON Schemas, typed loader (index.ts)
   db/            Dexie database (schema history), repository, backup export/restore
   stores/        Pinia: shelf (vials + draws), settings, notify, confirm
-  composables/   useCalculator, useDiluentAdvisor, useChartColors, useInstallPrompt, useStoragePersistence, useNow
+  composables/   useCalculator, useDiluentAdvisor, useChartColors, useInstallPrompt, useStoragePersistence, useNow,
+                 usePaging, useVialAge
   services/      time.ts (the only clock and date formatter), fileTransfer.ts (share/download)
   components/    calculator/, charts/, shelf/, common/
   views/         one per route: Calculator, Shelf, Vial, History, Settings

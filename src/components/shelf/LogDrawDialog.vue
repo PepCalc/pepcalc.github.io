@@ -7,10 +7,12 @@ import { concentrationOf, drawVolumeMl } from '@/domain/reconstitution'
 import { readSyringe } from '@/domain/syringe'
 import { doseUnitsFor, roundTo, unitLabel, type AmountUnit } from '@/domain/units'
 import { fromLocalInputValue, nowIso, toLocalInputValue } from '@/services/time'
+import { useShelfStore } from '@/stores/shelf'
 
 const props = defineProps<{ vial: VialRow; defaultSyringeId: string }>()
 const open = defineModel<boolean>({ required: true })
 const emit = defineEmits<{ save: [draw: NewDraw] }>()
+const shelf = useShelfStore()
 
 const form = reactive({
   dose: '',
@@ -68,11 +70,11 @@ function save() {
     <v-card>
       <v-card-item>
         <v-card-title>Log a draw</v-card-title>
-        <v-card-subtitle>{{ vial.name }}</v-card-subtitle>
+        <v-card-subtitle>{{ shelf.displayName(vial) }}</v-card-subtitle>
       </v-card-item>
       <v-card-text>
-        <v-form @submit.prevent="save">
-          <div class="d-flex ga-3 align-center">
+        <v-form class="pc-stack" @submit.prevent="save">
+          <div class="d-flex ga-3 align-start">
             <v-text-field
               v-model="form.dose"
               label="Dose"

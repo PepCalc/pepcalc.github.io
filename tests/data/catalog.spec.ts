@@ -4,7 +4,7 @@ import peptideSchema from '@/data/peptides.schema.json'
 import syringeSchema from '@/data/syringes.schema.json'
 import peptidesJson from '@/data/peptides.json'
 import syringesJson from '@/data/syringes.json'
-import { catalog, findPeptide, syringeCatalog } from '@/data'
+import { catalog, findPeptide, inUseLimitFor, syringeCatalog } from '@/data'
 import { areCompatible } from '@/domain/units'
 import { blendTotalMg } from '@/domain/blend'
 import { rateConstants } from '@/domain/pk'
@@ -36,6 +36,8 @@ describe('peptides.json', () => {
       for (const c of p.components ?? []) {
         expect(findPeptide(c.peptideId)?.kind, `${p.id}: ${c.name}`).toBe('single')
       }
+      // The 28-day multiple-dose limit caps every vial mixed with bacteriostatic water.
+      if (p.inUse) expect(p.inUse.days).toBeLessThan(catalog.storage.inUse.days)
       // A blend's comfort comes from its components; a mg/mL cap needs a mass vial.
       if (p.injectionSite?.maxMgPerMl) {
         expect(p.kind).toBe('single')
@@ -61,6 +63,28 @@ describe('peptides.json', () => {
     ]) {
       expect(names).toContain(name)
     }
+  })
+})
+
+describe('inUseLimitFor', () => {
+  it('uses the 28-day multiple-dose limit by default and for custom peptides', () => {
+    expect(inUseLimitFor('bpc-157', null)).toMatchObject({ limit: { days: 28 }, setBy: null })
+    expect(inUseLimitFor(null, null).limit.days).toBe(28)
+  })
+
+  it("uses a peptide's shorter label limit", () => {
+    expect(inUseLimitFor('tesamorelin', null)).toMatchObject({
+      limit: { days: 7 },
+      setBy: 'Tesamorelin',
+    })
+  })
+
+  it('takes the shortest limit among blend components', () => {
+    const components = [
+      { name: 'BPC-157', amountMg: 5, peptideId: 'bpc-157' },
+      { name: 'Tesamorelin', amountMg: 5, peptideId: 'tesamorelin' },
+    ]
+    expect(inUseLimitFor(null, components).limit.days).toBe(7)
   })
 })
 

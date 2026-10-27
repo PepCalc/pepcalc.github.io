@@ -1,24 +1,28 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useShelfStore } from '@/stores/shelf'
 import { useConfirmStore } from '@/stores/confirm'
 import { useNotifyStore } from '@/stores/notify'
 import { useNow } from '@/composables/useNow'
+import { usePaging } from '@/composables/usePaging'
 import { findPeptide } from '@/data'
 import type { DrawRow } from '@/db/database'
 import type { PeptideLevels } from '@/domain/levels'
+import { sortByTime, type SortDirection } from '@/domain/listing'
 import { anyDoseInEffect } from '@/domain/pk'
 import { roundTo, unitLabel } from '@/domain/units'
-import { formatDate, formatDateTime } from '@/services/time'
+import { formatDate, formatDateTime, toEpochMs } from '@/services/time'
 import DrawList from '@/components/shelf/DrawList.vue'
 import PkPanel from '@/components/charts/PkPanel.vue'
+import ListPager from '@/components/common/ListPager.vue'
+import SortToggle from '@/components/common/SortToggle.vue'
 
 const shelf = useShelfStore()
 const confirm = useConfirmStore()
 const notify = useNotifyStore()
 const now = useNow()
 
-const vialNames = computed(() => new Map(shelf.vials.map((v) => [v.id, v.name])))
+const vialNames = computed(() => new Map(shelf.vials.map((v) => [v.id, shelf.displayName(v)])))
 
 const levelGroups = computed(() => shelf.levelGroups)
 
@@ -41,10 +45,20 @@ function captionFor(g: PeptideLevels): string {
   return text
 }
 
-/** Draws grouped by local calendar day, newest first. */
+const direction = ref<SortDirection>('desc')
+const sortedDraws = computed(() =>
+  sortByTime(shelf.draws, (d) => toEpochMs(d.takenAt), direction.value),
+)
+const { state: paging, current: drawPage, reset } = usePaging(sortedDraws)
+watch(direction, reset)
+
+/**
+ * The visible page of draws grouped by local calendar day, in the chosen order. The level charts
+ * above use every draw, not just this page.
+ */
 const groups = computed(() => {
   const map = new Map<string, DrawRow[]>()
-  for (const d of shelf.draws) {
+  for (const d of drawPage.value.items) {
     const day = formatDate(d.takenAt)
     const list = map.get(day) ?? []
     list.push(d)
@@ -94,13 +108,13 @@ async function deleteDraw(draw: DrawRow) {
           :caption="captionFor(g)"
         />
         <v-card v-if="withoutPk.length || cleared.length" variant="tonal">
-          <v-card-text class="text-body-medium">
+          <v-card-text class="text-body-medium pc-stack pc-stack--tight">
             <p v-if="withoutPk.length">
               <strong>No curve for {{ withoutPk.join(', ') }}:</strong> no reliable human
               pharmacokinetic data. Enter your own half-life and time to peak on the vial to see
               one.
             </p>
-            <p v-if="cleared.length" :class="{ 'mt-2': withoutPk.length }">
+            <p v-if="cleared.length">
               <strong>Cleared:</strong> {{ cleared.join(', ') }}. Logged doses are estimated to have
               left the body.
             </p>
@@ -109,7 +123,10 @@ async function deleteDraw(draw: DrawRow) {
       </div>
     </section>
 
-    <h2 v-if="groups.length" class="pc-display text-title-large mb-3">Draws</h2>
+    <div v-if="groups.length" class="d-flex align-center flex-wrap ga-3 mb-3">
+      <h2 class="pc-display text-title-large flex-grow-1">Draws</h2>
+      <SortToggle v-model="direction" label="Order of draws" />
+    </div>
     <v-card v-for="group in groups" :key="group.day" class="mb-4">
       <v-card-item>
         <v-card-title class="text-title-large">{{ group.day }}</v-card-title>
@@ -118,6 +135,7 @@ async function deleteDraw(draw: DrawRow) {
         <DrawList :draws="group.draws" :vial-names="vialNames" @delete="deleteDraw" />
       </v-card-text>
     </v-card>
+    <ListPager v-model="paging.page" :current="drawPage" noun="draws" />
   </div>
 </template>
 

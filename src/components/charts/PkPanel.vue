@@ -35,9 +35,9 @@ const lookbackHours = computed(() =>
       <p class="pc-eyebrow">Estimated levels</p>
       <v-card-title class="text-wrap">{{ title ?? 'Amount in the body over time' }}</v-card-title>
     </v-card-item>
-    <v-card-text>
+    <v-card-text class="pc-stack">
       <template v-if="params">
-        <div class="d-flex flex-wrap ga-2 mb-3 align-center">
+        <div class="d-flex flex-wrap ga-2 align-center">
           <span class="pc-badge pc-badge--brand pc-num"
             >t½ {{ formatHours(params.halfLifeHours) }}</span
           >
@@ -48,7 +48,7 @@ const lookbackHours = computed(() =>
             <span class="pc-badge__dot" />User-supplied values
           </span>
         </div>
-        <p v-if="caption" class="text-body-small pc-muted mb-3">{{ caption }}</p>
+        <p v-if="caption" class="text-body-small pc-muted">{{ caption }}</p>
         <PkChart
           :params="params"
           :doses="doses"
@@ -57,14 +57,14 @@ const lookbackHours = computed(() =>
           :now="now"
           :lookback-hours="lookbackHours"
         />
-        <p class="text-body-small pc-muted mt-3">
+        <p class="text-body-small pc-muted">
           One-compartment model (first-order absorption and elimination) fitted to the half-life and
           time to peak, assuming no further doses. It estimates drug remaining in the body, not
           blood concentration, and ignores bioavailability and individual variation.
         </p>
-        <div v-if="!userSupplied && peptide?.pk" class="mt-3">
+        <div v-if="!userSupplied && peptide?.pk" class="pc-stack pc-stack--tight">
           <p class="text-body-small pc-muted">{{ peptide.pk.notes }}</p>
-          <ul class="pk-sources mt-2">
+          <ul class="pk-sources">
             <li v-for="source in peptide.pk.sources" :key="source.citation" class="text-body-small">
               <SourceBadge :kind="source.kind" />
               <a v-if="source.url" :href="source.url" target="_blank" rel="noopener noreferrer">{{

@@ -1,21 +1,26 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useShelfStore } from '@/stores/shelf'
 import { useSettingsStore } from '@/stores/settings'
 import { useNotifyStore } from '@/stores/notify'
 import { useConfirmStore } from '@/stores/confirm'
 import { useNow } from '@/composables/useNow'
+import { usePaging } from '@/composables/usePaging'
 import { findPeptide } from '@/data'
 import type { DrawRow } from '@/db/database'
 import type { NewDraw, NewVial } from '@/db/repository'
+import { sortByTime, type SortDirection } from '@/domain/listing'
 import { concentrationOf } from '@/domain/reconstitution'
 import { roundTo, unitLabel } from '@/domain/units'
-import { daysBetween, formatDateTime, formatRelativeDays, systemClock } from '@/services/time'
+import { daysBetween, formatDateTime, formatRelativeDays, toEpochMs } from '@/services/time'
 import PkPanel from '@/components/charts/PkPanel.vue'
 import DrawList from '@/components/shelf/DrawList.vue'
 import VialFormDialog from '@/components/shelf/VialFormDialog.vue'
 import LogDrawDialog from '@/components/shelf/LogDrawDialog.vue'
+import VialAgePanel from '@/components/shelf/VialAgePanel.vue'
+import ListPager from '@/components/common/ListPager.vue'
+import SortToggle from '@/components/common/SortToggle.vue'
 import {
   mdiArchiveArrowDownOutline,
   mdiArchiveArrowUpOutline,
@@ -40,6 +45,13 @@ const vial = computed(() => shelf.vialById(props.id))
 const peptide = computed(() => findPeptide(vial.value?.peptideId))
 const draws = computed(() => (vial.value ? shelf.drawsFor(vial.value.id) : []))
 const balance = computed(() => (vial.value ? shelf.balanceOf(vial.value) : null))
+
+const direction = ref<SortDirection>('desc')
+const sortedDraws = computed(() =>
+  sortByTime(draws.value, (d) => toEpochMs(d.takenAt), direction.value),
+)
+const { state: paging, current: drawPage, reset } = usePaging(sortedDraws)
+watch(direction, reset)
 
 /** Chart unit: the usual dose unit, else the unit of the latest draw, else the vial's unit. */
 const chartUnit = computed(
@@ -97,7 +109,7 @@ async function toggleArchive() {
 async function deleteVial() {
   if (!vial.value) return
   const ok = await confirm.ask({
-    title: `Delete ${vial.value.name}?`,
+    title: `Delete ${shelf.displayName(vial.value)}?`,
     text: `The vial and its ${draws.value.length} logged draws will be permanently removed from this device. Archive it instead to keep the history.`,
     confirmText: 'Delete vial',
     destructive: true,
@@ -115,12 +127,12 @@ async function deleteVial() {
       <header class="d-flex align-start flex-wrap ga-3 mb-4">
         <div class="flex-grow-1">
           <p class="pc-eyebrow">{{ vial.status === 'archived' ? 'Archived vial' : 'Vial' }}</p>
-          <h1 class="pc-display text-headline-large">{{ vial.name }}</h1>
+          <h1 class="pc-display text-headline-large">{{ shelf.displayName(vial) }}</h1>
           <p class="pc-muted pc-num">
             {{ vial.amount }} {{ unitLabel(vial.unit) }} in {{ vial.diluentMl }} mL ·
             {{ concentrationText }}
             <template v-if="vial.reconstitutedAt">
-              · mixed {{ formatRelativeDays(daysBetween(vial.reconstitutedAt, systemClock())) }}
+              · mixed {{ formatRelativeDays(daysBetween(vial.reconstitutedAt, now)) }}
             </template>
           </p>
         </div>
@@ -135,18 +147,20 @@ async function deleteVial() {
             <v-card-item>
               <p class="pc-eyebrow">Remaining</p>
             </v-card-item>
-            <v-card-text>
-              <p class="vial-remaining pc-num">
-                {{ roundTo(balance.remainingAmount, 3) }}
-                <span class="text-title-large">{{ unitLabel(vial.unit) }}</span>
-              </p>
-              <p class="pc-muted pc-num">
-                {{ roundTo(balance.remainingMl, 2) }} mL of liquid
-                <template v-if="balance.dosesLeft !== null">
-                  · about {{ balance.dosesLeft }} doses of {{ vial.typicalDose?.value }}
-                  {{ unitLabel(vial.typicalDose?.unit ?? vial.unit) }}
-                </template>
-              </p>
+            <v-card-text class="pc-stack">
+              <div>
+                <p class="vial-remaining pc-num">
+                  {{ roundTo(balance.remainingAmount, 3) }}
+                  <span class="text-title-large">{{ unitLabel(vial.unit) }}</span>
+                </p>
+                <p class="pc-muted pc-num">
+                  {{ roundTo(balance.remainingMl, 2) }} mL of liquid
+                  <template v-if="balance.dosesLeft !== null">
+                    · about {{ balance.dosesLeft }} doses of {{ vial.typicalDose?.value }}
+                    {{ unitLabel(vial.typicalDose?.unit ?? vial.unit) }}
+                  </template>
+                </p>
+              </div>
               <v-progress-linear
                 :model-value="(1 - balance.usedFraction) * 100"
                 color="primary"
@@ -154,25 +168,18 @@ async function deleteVial() {
                 bg-opacity="1"
                 height="10"
                 rounded
-                class="mt-3"
                 aria-label="Share of vial remaining"
               />
-              <v-alert
-                v-if="balance.overdrawn"
-                type="warning"
-                variant="tonal"
-                density="compact"
-                class="mt-3"
-              >
+              <v-alert v-if="balance.overdrawn" type="warning" variant="tonal" density="compact">
                 Logged draws add up to more than the vial held. Check the vial amount or delete a
                 mistaken entry.
               </v-alert>
-              <p v-if="vial.components" class="text-body-small pc-muted mt-3">
+              <p v-if="vial.components" class="text-body-small pc-muted">
                 Blend: {{ vial.components.map((c) => `${c.name} ${c.amountMg} mg`).join(', ') }}
               </p>
-              <p v-if="vial.notes" class="text-body-medium mt-3">{{ vial.notes }}</p>
+              <p v-if="vial.notes" class="text-body-medium">{{ vial.notes }}</p>
             </v-card-text>
-            <v-card-actions class="flex-wrap">
+            <v-card-actions>
               <v-btn
                 color="primary"
                 variant="flat"
@@ -191,6 +198,8 @@ async function deleteVial() {
             </v-card-actions>
           </v-card>
 
+          <VialAgePanel :vial="vial" :now="now" @edit="editing = true" />
+
           <v-card>
             <v-card-item>
               <p class="pc-eyebrow">History</p>
@@ -198,31 +207,15 @@ async function deleteVial() {
                 >{{ draws.length }} draw{{ draws.length === 1 ? '' : 's' }}</v-card-title
               >
             </v-card-item>
-            <v-card-text>
+            <v-card-text class="pc-stack">
               <p v-if="!draws.length" class="pc-muted">No draws logged yet.</p>
-              <DrawList v-else :draws="draws" @delete="deleteDraw" />
+              <template v-else>
+                <SortToggle v-if="draws.length > 1" v-model="direction" label="Order of draws" />
+                <DrawList :draws="drawPage.items" @delete="deleteDraw" />
+                <ListPager v-model="paging.page" :current="drawPage" noun="draws" />
+              </template>
             </v-card-text>
           </v-card>
-
-          <div class="d-flex flex-wrap ga-2">
-            <v-btn
-              variant="text"
-              :prepend-icon="
-                vial.status === 'archived' ? mdiArchiveArrowUpOutline : mdiArchiveArrowDownOutline
-              "
-              @click="toggleArchive"
-            >
-              {{ vial.status === 'archived' ? 'Restore to shelf' : 'Archive' }}
-            </v-btn>
-            <v-btn
-              variant="text"
-              color="error"
-              :prepend-icon="mdiDeleteOutline"
-              @click="deleteVial"
-            >
-              Delete
-            </v-btn>
-          </div>
         </div>
 
         <PkPanel
@@ -235,6 +228,21 @@ async function deleteVial() {
           :caption="pooledCaption"
         />
       </div>
+
+      <footer class="vial-manage" aria-label="Manage vial">
+        <v-btn
+          variant="text"
+          :prepend-icon="
+            vial.status === 'archived' ? mdiArchiveArrowUpOutline : mdiArchiveArrowDownOutline
+          "
+          @click="toggleArchive"
+        >
+          {{ vial.status === 'archived' ? 'Restore to shelf' : 'Archive' }}
+        </v-btn>
+        <v-btn variant="text" color="error" :prepend-icon="mdiDeleteOutline" @click="deleteVial">
+          Delete
+        </v-btn>
+      </footer>
 
       <VialFormDialog v-model="editing" :vial="vial" @save="saveVial" />
       <LogDrawDialog
@@ -265,6 +273,16 @@ async function deleteVial() {
     grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
     align-items: start;
   }
+}
+
+/* Archive and delete close the page, apart from the everyday actions. */
+.vial-manage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--pc-divider);
 }
 
 .vial-remaining {

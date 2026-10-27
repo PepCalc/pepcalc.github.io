@@ -74,7 +74,7 @@ const customError = computed(() => {
 
 <template>
   <fieldset class="preset-picker">
-    <legend class="preset-picker__label pc-muted">{{ label }}</legend>
+    <legend class="pc-label">{{ label }}</legend>
     <v-chip-group :model-value="selected" color="primary" column @update:model-value="choose">
       <v-chip
         v-for="value in presets"
@@ -119,13 +119,6 @@ const customError = computed(() => {
   margin: 0;
   padding: 0;
   min-width: 0;
-}
-
-.preset-picker__label {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  margin-bottom: 4px;
 }
 
 .preset-picker__custom {

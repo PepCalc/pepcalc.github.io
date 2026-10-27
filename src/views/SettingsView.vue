@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { useTheme } from 'vuetify'
 import { db } from '@/db'
 import {
@@ -9,8 +9,14 @@ import {
   parseBackup,
   restoreBackup,
 } from '@/db/backup'
-import { syringeCatalog } from '@/data'
-import { useSettingsStore, type ThemePreference } from '@/stores/settings'
+import { catalog, syringeCatalog } from '@/data'
+import { areValidLimits } from '@/domain/vialAge'
+import {
+  DEFAULT_CUSTOM_AGE_LIMITS,
+  useSettingsStore,
+  type ThemePreference,
+  type VialAgeMode,
+} from '@/stores/settings'
 import { useShelfStore } from '@/stores/shelf'
 import { useNotifyStore } from '@/stores/notify'
 import { useConfirmStore } from '@/stores/confirm'
@@ -58,6 +64,39 @@ const syringeModel = computed({
   get: () => settings.defaultSyringeId,
   set: (id: string) => void settings.setDefaultSyringe(id),
 })
+
+const ageModeModel = computed({
+  get: () => settings.vialAgeMode,
+  set: (mode: VialAgeMode) => void settings.setVialAgeMode(mode),
+})
+
+// Text fields hold what the user is typing; only a valid pair reaches the store.
+const ageForm = reactive({ nearing: '', past: '' })
+watch(
+  () => settings.customAgeLimits,
+  (limits) => {
+    ageForm.nearing = String(limits.nearingDays)
+    ageForm.past = String(limits.pastDays)
+  },
+  { immediate: true },
+)
+const typedLimits = computed(() => ({
+  nearingDays: Number(ageForm.nearing),
+  pastDays: Number(ageForm.past),
+}))
+const ageFormError = computed(() =>
+  areValidLimits(typedLimits.value)
+    ? undefined
+    : 'Use whole days, with "use soon" earlier than "past".',
+)
+watch(typedLimits, (typed) => {
+  const saved = settings.customAgeLimits
+  if (typed.nearingDays === saved.nearingDays && typed.pastDays === saved.pastDays) return
+  void settings.setCustomAgeLimits(typed)
+})
+function resetAgeLimits() {
+  void settings.setCustomAgeLimits(DEFAULT_CUSTOM_AGE_LIMITS)
+}
 
 const backupAge = computed(() =>
   settings.lastBackupAt ? daysBetween(settings.lastBackupAt, systemClock()) : null,
@@ -163,20 +202,79 @@ const formatMb = (bytes: number | null) =>
           <p class="pc-eyebrow">Display</p>
           <v-card-title>Appearance and defaults</v-card-title>
         </v-card-item>
-        <v-card-text>
-          <p class="text-label-large mb-2">Theme</p>
-          <v-btn-toggle v-model="themeModel" mandatory density="comfortable" aria-label="Theme">
-            <v-btn value="system">System</v-btn>
-            <v-btn value="light">Light</v-btn>
-            <v-btn value="dark">Dark</v-btn>
-          </v-btn-toggle>
+        <v-card-text class="pc-stack">
+          <div>
+            <p id="theme-label" class="pc-label">Theme</p>
+            <v-btn-toggle
+              v-model="themeModel"
+              mandatory
+              density="comfortable"
+              aria-labelledby="theme-label"
+            >
+              <v-btn value="system">System</v-btn>
+              <v-btn value="light">Light</v-btn>
+              <v-btn value="dark">Dark</v-btn>
+            </v-btn-toggle>
+          </div>
           <v-select
             v-model="syringeModel"
             :items="syringeCatalog.syringes.map((s) => ({ title: s.label, value: s.id }))"
             label="Default syringe"
-            class="mt-4"
-            hide-details
           />
+        </v-card-text>
+      </v-card>
+
+      <v-card>
+        <v-card-item>
+          <p class="pc-eyebrow">Shelf</p>
+          <v-card-title>Vial age alerts</v-card-title>
+        </v-card-item>
+        <v-card-text class="pc-stack">
+          <div>
+            <p id="age-mode-label" class="pc-label">Mark a mixed vial by</p>
+            <v-btn-toggle
+              v-model="ageModeModel"
+              mandatory
+              density="comfortable"
+              aria-labelledby="age-mode-label"
+            >
+              <v-btn value="sourced">Cited limit</v-btn>
+              <v-btn value="custom">My own days</v-btn>
+            </v-btn-toggle>
+          </div>
+          <p v-if="settings.vialAgeMode === 'sourced'" class="text-body-medium pc-muted">
+            Each vial counts against its cited limit ({{ catalog.storage.inUse.days }} days for
+            bacteriostatic water, shorter where a peptide's label says so) and is marked
+            <em>use soon</em> in its last quarter.
+          </p>
+          <template v-else>
+            <div class="d-flex ga-3 align-start">
+              <v-text-field
+                v-model="ageForm.nearing"
+                label="Use soon from day"
+                type="number"
+                inputmode="numeric"
+                :error-messages="ageFormError"
+              />
+              <v-text-field
+                v-model="ageForm.past"
+                label="Past from day"
+                type="number"
+                inputmode="numeric"
+                :error="!!ageFormError"
+              />
+            </div>
+            <p class="text-body-medium pc-muted">
+              These are your own thresholds, not a sourced limit. Each vial page still shows its
+              cited limit ({{ catalog.storage.inUse.days }} days for bacteriostatic water).
+            </p>
+            <div class="pc-actions">
+              <v-btn variant="text" @click="resetAgeLimits">
+                Reset to {{ DEFAULT_CUSTOM_AGE_LIMITS.nearingDays }} and
+                {{ DEFAULT_CUSTOM_AGE_LIMITS.pastDays }} days
+              </v-btn>
+            </div>
+          </template>
         </v-card-text>
       </v-card>
 
@@ -185,20 +283,20 @@ const formatMb = (bytes: number | null) =>
           <p class="pc-eyebrow">Your data</p>
           <v-card-title>Backup and restore</v-card-title>
         </v-card-item>
-        <v-card-text>
-          <p class="mb-3">
+        <v-card-text class="pc-stack">
+          <p>
             Everything is stored only in this browser on this device. If you clear site data,
             uninstall the app, or the system reclaims storage, it is gone. A backup file is the only
             copy that survives.
           </p>
-          <v-alert v-if="backupStale" type="warning" variant="tonal" density="compact" class="mb-3">
+          <v-alert v-if="backupStale" type="warning" variant="tonal" density="compact">
             {{
               settings.lastBackupAt
                 ? `Last backup ${backupAge} days ago.`
                 : 'You have not made a backup yet.'
             }}
           </v-alert>
-          <p v-else-if="settings.lastBackupAt" class="pc-muted mb-3">
+          <p v-else-if="settings.lastBackupAt" class="pc-muted">
             Last backup {{ formatDateTime(settings.lastBackupAt) }}
           </p>
           <div class="d-flex flex-wrap ga-2">
@@ -223,7 +321,7 @@ const formatMb = (bytes: number | null) =>
               @change="importData"
             />
           </div>
-          <p class="text-body-small pc-muted mt-3">
+          <p class="text-body-small pc-muted">
             On iPhone and iPad, the Safari tab and the Home Screen app keep separate data. Move data
             between them with a backup.
           </p>
@@ -235,18 +333,19 @@ const formatMb = (bytes: number | null) =>
           <p class="pc-eyebrow">Install</p>
           <v-card-title>Add to Home Screen</v-card-title>
         </v-card-item>
-        <v-card-text>
+        <v-card-text class="pc-stack">
           <p v-if="install.state.standalone" class="d-flex align-center ga-2">
             <v-icon :icon="mdiCheckCircleOutline" color="success" />
             Running as an installed app.
           </p>
           <template v-else>
-            <p class="mb-3">Installed, PepCalc opens full screen and works with no connection.</p>
+            <p>Installed, PepCalc opens full screen and works with no connection.</p>
             <v-btn
               v-if="install.canPrompt.value"
               color="primary"
               variant="flat"
               :prepend-icon="mdiCellphoneArrowDown"
+              class="align-self-start"
               @click="promptInstall"
             >
               Install PepCalc
@@ -304,7 +403,7 @@ const formatMb = (bytes: number | null) =>
           <p class="pc-eyebrow">Privacy</p>
           <v-card-title>Nothing leaves this device</v-card-title>
         </v-card-item>
-        <v-card-text>
+        <v-card-text class="pc-stack">
           <ul class="privacy-list">
             <li>
               <v-icon :icon="mdiShieldLockOutline" size="small" /> No account, no server, no
@@ -314,7 +413,7 @@ const formatMb = (bytes: number | null) =>
               <v-icon :icon="mdiCloudOffOutline" size="small" /> Works fully offline once loaded.
             </li>
           </ul>
-          <p class="text-body-small pc-muted mt-3">
+          <p class="text-body-small pc-muted">
             Storage:
             {{
               storage.state.persisted
@@ -371,7 +470,7 @@ const formatMb = (bytes: number | null) =>
   width: 100%;
   max-width: 240px;
   height: auto;
-  margin: 16px auto 0;
+  margin: 0 auto;
   border: 1px solid var(--pc-divider-strong);
   border-radius: var(--pc-radius-lg);
 }

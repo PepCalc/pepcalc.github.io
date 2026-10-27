@@ -219,21 +219,28 @@
     overflow: visible;
   }
 
+  /* Left-aligned with the field's border, like every other label above a control (.pc-label). */
   .v-field--variant-outlined .v-field__field > .v-field-label {
     position: absolute;
     top: auto;
     bottom: calc(100% + 6px);
-    left: 2px;
+    left: 0;
+    margin-inline-start: 0;
     transform: none;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: var(--pc-label-size);
+    font-weight: var(--pc-label-weight);
     line-height: 1.2;
-    letter-spacing: 0.01em;
+    letter-spacing: var(--pc-label-tracking);
     color: var(--pc-text-2);
     opacity: 1;
     visibility: visible;
     max-width: 100%;
     white-space: nowrap;
+  }
+
+  /* Hints and errors share the label's left edge. */
+  .v-input:has(.v-field--variant-outlined) > .v-input__details {
+    padding-inline: 0;
   }
 
   .v-field--variant-outlined .v-field__outline__notch .v-field-label {
@@ -262,6 +269,21 @@
   .v-alert {
     border-radius: var(--pc-radius-md);
   }
+
+  /*
+   * Action rows line up with the content above them. A text button's label already sits 16px
+   * in (8px row padding plus 8px button padding), so text-only rows keep Vuetify's padding; a
+   * row with a filled, tonal or outlined button insets the button itself to the content edge.
+   * Dialogs and bottom sheets inset content by 24px, so their actions do too.
+   */
+  .v-card-actions:has(> .v-btn:not(.v-btn--variant-text)) {
+    flex-wrap: wrap;
+    padding: 0 16px 16px;
+  }
+
+  .v-dialog > .v-overlay__content > .v-card > .v-card-actions {
+    padding: 0 24px 24px;
+  }
 }
 
 @layer pc-utilities {
@@ -273,6 +295,45 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--pc-accent);
+  }
+
+  /* The label above a control that is not a Vuetify field: a preset group, a toggle, a list. */
+  .pc-label {
+    display: block;
+    font-size: var(--pc-label-size);
+    font-weight: var(--pc-label-weight);
+    letter-spacing: var(--pc-label-tracking);
+    line-height: 1.2;
+    color: var(--pc-text-2);
+    margin-bottom: 6px;
+    padding: 0;
+  }
+
+  /*
+   * Vertical rhythm: the container owns the spacing between its children, which carry no
+   * margins of their own. 16px between controls and blocks; --tight (8px) for a label-like
+   * line and what it describes; --loose (24px) between sections of one card.
+   */
+  .pc-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .pc-stack--tight {
+    gap: 8px;
+  }
+
+  .pc-stack--loose {
+    gap: 24px;
+  }
+
+  /* A row of actions inside a notice or panel: end-aligned, wrapping on narrow screens. */
+  .pc-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
   }
 
   .pc-display {

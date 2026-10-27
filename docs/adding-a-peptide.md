@@ -72,6 +72,19 @@ advisor uses `maxMgPerMl` to prefer more water; leave it out when the source giv
 }
 ```
 
+Every mixed vial is aged against the catalog's `storage.inUse` limit (28 days, the
+multiple-dose limit for bacteriostatic water). Add an `inUse` block only when the peptide's own
+label sets a shorter limit after mixing; it needs a `label`, `trial` or `standard` source, and
+its `note` replaces the general storage advice on the vial page, so say how to store it.
+
+```json
+"inUse": {
+  "days": 7,
+  "note": "What the label says about storing the mixed vial and when to discard it.",
+  "sources": [{ "kind": "label", "citation": "Product US prescribing information, 2.2", "url": "https://..." }]
+}
+```
+
 Blend components name the catalog peptide they contain, so its notes apply to the blend:
 `{ "name": "GHK-Cu", "amountMg": 50, "peptideId": "ghk-cu" }`.
 

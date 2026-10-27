@@ -75,8 +75,9 @@ onMounted(async () => {
       <v-banner
         v-if="showInstallBanner"
         :icon="mdiCellphoneArrowDown"
-        lines="one"
         density="compact"
+        :lines="wide ? 'one' : undefined"
+        :stacked="!wide"
         class="install-banner"
       >
         <v-banner-text>

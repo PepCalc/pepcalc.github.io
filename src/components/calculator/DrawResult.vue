@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { syringeCatalog } from '@/data'
 import type { ComponentDose } from '@/domain/blend'
 import type { DrawPlan } from '@/domain/reconstitution'
@@ -34,6 +34,17 @@ const concentrationText = computed(() => {
   return `${roundTo(perMl, 4)} mg/mL (${roundTo(perMl * 1000, 1)} mcg/mL)`
 })
 
+/*
+ * A dismissed suggestion stays hidden while this result is on screen. It is keyed on the
+ * suggested syringe, so a different, better fit after the inputs change is still offered.
+ */
+const dismissedSuggestionId = ref<string | null>(null)
+const suggestion = computed(() =>
+  props.betterSyringe && props.betterSyringe.id !== dismissedSuggestionId.value
+    ? props.betterSyringe
+    : null,
+)
+
 const syringeItems = syringeCatalog.syringes.map((s) => ({ title: s.label, value: s.id }))
 </script>
 
@@ -53,7 +64,7 @@ const syringeItems = syringeCatalog.syringes.map((s) => ({ title: s.label, value
       </p>
     </v-card-item>
 
-    <v-card-text>
+    <v-card-text class="pc-stack">
       <SyringeGraphic :syringe="reading.syringe" :volume-ml="plan.volumeMl" />
 
       <v-alert
@@ -62,27 +73,23 @@ const syringeItems = syringeCatalog.syringes.map((s) => ({ title: s.label, value
         :type="w.tone === 'alert' ? 'error' : 'warning'"
         variant="tonal"
         density="compact"
-        class="mt-3"
       >
         {{ w.text }}
       </v-alert>
 
-      <v-alert v-if="betterSyringe" type="info" variant="tonal" density="compact" class="mt-3">
-        A {{ betterSyringe.label }} has finer marks for this draw.
-        <template #append>
-          <v-btn size="small" variant="text" @click="syringeId = betterSyringe.id">Use it</v-btn>
-        </template>
+      <v-alert v-if="suggestion" type="info" variant="tonal" density="compact">
+        <div class="pc-stack pc-stack--tight">
+          <span>A {{ suggestion.label }} has finer marks for this draw.</span>
+          <div class="pc-actions">
+            <v-btn variant="text" @click="dismissedSuggestionId = suggestion.id">Dismiss</v-btn>
+            <v-btn variant="tonal" color="info" @click="syringeId = suggestion.id">Use it</v-btn>
+          </div>
+        </div>
       </v-alert>
 
-      <v-select
-        v-model="syringeId"
-        :items="syringeItems"
-        label="Syringe"
-        class="mt-4"
-        hide-details
-      />
+      <v-select v-model="syringeId" :items="syringeItems" label="Syringe" />
 
-      <dl class="draw-result__facts mt-6">
+      <dl class="draw-result__facts">
         <div>
           <dt class="pc-faint">Concentration</dt>
           <dd class="pc-num">{{ concentrationText }}</dd>
@@ -100,8 +107,8 @@ const syringeItems = syringeCatalog.syringes.map((s) => ({ title: s.label, value
         </div>
       </dl>
 
-      <div v-if="componentDoses.length" class="pc-inset pa-3 mt-4">
-        <p class="text-label-large mb-1">This draw contains</p>
+      <div v-if="componentDoses.length" class="pc-inset pa-3">
+        <p class="pc-label">This draw contains</p>
         <ul class="draw-result__components">
           <li v-for="c in componentDoses" :key="c.name" class="pc-num">
             <span>{{ c.name }}</span>
@@ -110,7 +117,7 @@ const syringeItems = syringeCatalog.syringes.map((s) => ({ title: s.label, value
         </ul>
       </div>
 
-      <details class="mt-4">
+      <details>
         <summary class="text-label-large">On every syringe</summary>
         <v-table density="compact" class="draw-result__table">
           <tbody>

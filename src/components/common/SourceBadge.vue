@@ -7,6 +7,7 @@ const props = defineProps<{ kind: SourceKind }>()
 const LABELS: Record<SourceKind, { text: string; tone: string }> = {
   label: { text: 'Prescribing label', tone: 'good' },
   trial: { text: 'Clinical trial', tone: 'info' },
+  standard: { text: 'Pharmacopeia standard', tone: 'info' },
   preclinical: { text: 'Animal data', tone: 'notice' },
   community: { text: 'Community-reported', tone: 'notice' },
   model: { text: 'Modelling choice', tone: 'brand' },

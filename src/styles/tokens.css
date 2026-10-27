@@ -65,6 +65,9 @@
     --pc-focus-ring: var(--terra-300);
     --pc-shadow-focus: 0 0 0 3px var(--pc-focus-ring);
     --pc-field-label-band: 24px;
+    --pc-label-size: 13px;
+    --pc-label-weight: 700;
+    --pc-label-tracking: 0.01em;
 
     /* Minimum comfortable touch target (Apple HIG 44pt, Material 48dp). */
     --pc-touch: 48px;

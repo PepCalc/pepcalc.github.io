@@ -51,12 +51,20 @@ export const vuetify = createVuetify({
     },
   },
   defaults: {
-    VTextField: { variant: 'outlined', density: 'comfortable', color: 'primary' },
-    VSelect: { variant: 'outlined', density: 'comfortable', color: 'primary' },
+    // hideDetails 'auto': the message row exists only when there is a hint or error to show,
+    // so spacing between fields comes from the container (.pc-stack), never from empty rows.
+    VTextField: {
+      variant: 'outlined',
+      density: 'comfortable',
+      color: 'primary',
+      hideDetails: 'auto',
+    },
+    VSelect: { variant: 'outlined', density: 'comfortable', color: 'primary', hideDetails: 'auto' },
     VTextarea: {
       variant: 'outlined',
       density: 'comfortable',
       color: 'primary',
+      hideDetails: 'auto',
       rows: 2,
       autoGrow: true,
     },

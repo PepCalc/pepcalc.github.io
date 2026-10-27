@@ -5,6 +5,7 @@ import type { DrawRow, VialRow } from '@/db/database'
 import type { NewDraw, NewVial } from '@/db/repository'
 import { vialBalance, type VialBalance } from '@/domain/inventory'
 import { findPeptide } from '@/data'
+import { sortByTime, vialNumbers } from '@/domain/listing'
 import {
   groupLevelsByPeptide,
   levelKey,
@@ -33,8 +34,31 @@ export const useShelfStore = defineStore('shelf', () => {
     loaded.value = true
   }
 
-  const activeVials = computed(() => vials.value.filter((v) => v.status === 'active'))
-  const archivedVials = computed(() => vials.value.filter((v) => v.status === 'archived'))
+  /** Epoch ms of the vial's latest draw, else when it was mixed, else when it was added. */
+  function lastUsedAt(vial: VialRow): number {
+    const latest = drawsFor(vial.id)[0]
+    return toEpochMs(latest?.takenAt ?? vial.reconstitutedAt ?? vial.createdAt)
+  }
+
+  /** Most recently used first, so the vial in use today leads the shelf. */
+  const byLastUsed = computed(() => sortByTime(vials.value, lastUsedAt, 'desc'))
+  const activeVials = computed(() => byLastUsed.value.filter((v) => v.status === 'active'))
+  const archivedVials = computed(() => byLastUsed.value.filter((v) => v.status === 'archived'))
+
+  const numbers = computed(() =>
+    vialNumbers(vials.value.map((v) => ({ ...v, createdAt: toEpochMs(v.createdAt) }))),
+  )
+
+  /** "BPC-157 #2" when another vial of the same peptide exists, else the plain name. */
+  function displayName(vial: VialRow): string {
+    const n = numbers.value.get(vial.id)
+    return n === undefined ? vial.name : `${vial.name} #${n}`
+  }
+
+  /** The vial's number among vials of the same peptide, or undefined when it has no twin. */
+  function vialNumber(vial: VialRow): number | undefined {
+    return numbers.value.get(vial.id)
+  }
 
   /** Draws newest first, grouped by vial id. */
   const drawsByVial = computed(() => {
@@ -126,6 +150,8 @@ export const useShelfStore = defineStore('shelf', () => {
     archivedVials,
     load,
     vialById,
+    displayName,
+    vialNumber,
     drawsFor,
     balanceOf,
     pkFor,

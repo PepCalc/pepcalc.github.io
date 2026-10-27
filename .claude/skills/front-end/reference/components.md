@@ -7,7 +7,9 @@ Part of the `front-end` skill.
 | Component                                       | Use                                                                                                                    |
 | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `common/PresetPicker.vue`                       | Number input as preset chips plus a Custom field; chips are buttons with `aria-pressed`                                |
-| `common/SourceBadge.vue`                        | Shows where a number came from (label, trial, community, ...)                                                          |
+| `common/SourceBadge.vue`                        | Shows where a number came from (label, trial, standard, community, ...)                                                |
+| `common/SourceList.vue`                         | A list of sources, each with its badge and a link                                                                      |
+| `common/ListPager.vue`, `SortToggle.vue`        | Range caption and `v-pagination` (hidden on one page); newest or oldest first toggle                                   |
 | `common/AppSnackbar.vue`, `AppConfirm.vue`      | Render the notify and confirm stores; mounted once in `App.vue`                                                        |
 | `common/UpdatePrompt.vue`                       | Service-worker update and offline-ready notices                                                                        |
 | `common/DisclaimerDialog.vue`                   | First-run research-use acknowledgement                                                                                 |
@@ -17,6 +19,7 @@ Part of the `front-end` skill.
 | `charts/PkPanel.vue`                            | Chooses catalog or user-supplied PK, shows sources and caveats, or why no curve exists; optional `title` and `caption` |
 | `charts/PkChart.vue`                            | ECharts curve: logged doses (solid) and the previewed draw (dashed), "Now" marker, table view                          |
 | `shelf/VialCard.vue`, `DrawList.vue`            | Shelf list and draw history                                                                                            |
+| `shelf/VialAgeBadge.vue`, `VialAgePanel.vue`    | Days since mixing against the use window (text, not colour alone); the window's source and storage advice              |
 | `shelf/VialFormDialog.vue`, `LogDrawDialog.vue` | Edit a vial (composition, PK override), log a draw                                                                     |
 
 ## Patterns
@@ -30,5 +33,31 @@ Part of the `front-end` skill.
   `PkPanel` per peptide (small multiples), never several peptides on one axis.
 - Helpers that read per-visit calculator state (the mixing advisor) open as a sheet over the
   calculator rather than a route, so the user's inputs are never lost or passed through the URL.
+- Lists page in memory, ten to a page (`usePaging`, `domain/listing.ts`): the shelf by most recent
+  use, draws newest first with a sort toggle. Charts and totals always use every row, not the page.
+- A vial is named through `shelf.displayName()`, which adds "#2" when another vial of the same
+  peptide exists, so the shelf, vial page, calculator and History agree.
 - Loading a shelf vial into the calculator (`?vial=<id>`) locks amount and water; editing them
   happens on the vial page so history stays consistent.
+
+## Spacing and alignment
+
+- The container owns spacing. A card body, form or panel is a `.pc-stack` (16px between
+  children), `.pc-stack--tight` (8px, a caption and what it describes) or `.pc-stack--loose`
+  (24px, sections of one card). Children carry no margin utilities. Scoped CSS is unlayered and
+  silently beats every utility class, so `margin: 0` in a component cancels `mt-*` on it.
+- Fields default to `hideDetails: 'auto'` (`src/plugins/vuetify.ts`): the message row appears
+  only for a hint or an error, so gaps come from the stack. A hint that must always show takes
+  `persistent-hint`. Rows that pair fields (dose and unit) use `align-start` so an error under
+  one does not shift the other.
+- Labels sit above controls, left-aligned with the control's border. Vuetify fields get this
+  from `theme.css`; any other control (a preset group, a toggle, a list) takes `.pc-label`,
+  which has the same type. Hints and errors share that left edge.
+- Action rows line up with the content above. Text-only rows keep Vuetify's padding, so the
+  label sits at the content edge; a row with a filled, tonal or outlined button insets that
+  button to 16px (24px in dialogs and sheets). `theme.css` does this; components do not pad
+  `v-card-actions`.
+- A notice with actions puts the message first and an end-aligned `.pc-actions` row below it:
+  Dismiss (text), then the action (tonal). Buttons keep the default size for touch targets.
+- Everyday actions sit with the content they act on; archive and delete close the page,
+  separated by a divider.

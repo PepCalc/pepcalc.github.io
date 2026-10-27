@@ -136,29 +136,31 @@ function save() {
         <v-card-title>Edit vial</v-card-title>
       </v-card-item>
       <v-card-text>
-        <v-form @submit.prevent="save">
+        <v-form class="pc-stack" @submit.prevent="save">
           <v-text-field v-model="form.name" label="Name" :rules="[rules.required]" />
 
           <template v-if="isBlend">
-            <p class="text-label-large mb-2">Composition per vial (total {{ blendTotal }} mg)</p>
-            <div v-for="(c, i) in form.components" :key="i" class="d-flex ga-3 align-center">
-              <v-text-field
-                v-model="c.name"
-                :label="`Component ${i + 1}`"
-                :rules="[rules.required]"
-              />
-              <v-text-field
-                v-model="c.amountMg"
-                label="Amount"
-                suffix="mg"
-                type="number"
-                inputmode="decimal"
-                :rules="[rules.positive]"
-                class="vial-form__amount"
-              />
+            <div class="pc-stack pc-stack--tight">
+              <p class="pc-label">Composition per vial (total {{ blendTotal }} mg)</p>
+              <div v-for="(c, i) in form.components" :key="i" class="d-flex ga-3 align-start">
+                <v-text-field
+                  v-model="c.name"
+                  :label="`Component ${i + 1}`"
+                  :rules="[rules.required]"
+                />
+                <v-text-field
+                  v-model="c.amountMg"
+                  label="Amount"
+                  suffix="mg"
+                  type="number"
+                  inputmode="decimal"
+                  :rules="[rules.positive]"
+                  class="vial-form__amount"
+                />
+              </div>
             </div>
           </template>
-          <div v-else class="d-flex ga-3 align-center">
+          <div v-else class="d-flex ga-3 align-start">
             <v-text-field
               v-model="form.amount"
               label="Peptide in vial"
@@ -171,6 +173,7 @@ function save() {
               label="Unit"
               readonly
               hint="Fixed once a vial exists"
+              persistent-hint
               class="vial-form__unit"
             />
           </div>
@@ -190,10 +193,9 @@ function save() {
             v-model="form.reconstitutedAt"
             label="Reconstituted on"
             type="datetime-local"
-            class="mt-2"
           />
 
-          <div class="d-flex ga-3 align-center">
+          <div class="d-flex ga-3 align-start">
             <v-text-field
               v-model="form.typicalDose"
               label="Usual dose"
@@ -209,23 +211,25 @@ function save() {
             />
           </div>
 
-          <v-divider class="my-4" />
-          <v-switch
-            v-model="form.useCustomPk"
-            label="Use my own half-life for the level chart"
-            hide-details
-          />
-          <p class="text-body-small pc-muted mb-2">
-            <template v-if="catalogPk">
-              Overrides the published values (t½ {{ catalogPk.halfLifeHours }} h, peak
-              {{ catalogPk.tmaxHours }} h). The chart will be labelled user-supplied.
-            </template>
-            <template v-else>
-              No reliable human data exists for this peptide. Values you enter are your own
-              assumption and the chart will say so.
-            </template>
-          </p>
-          <div v-if="form.useCustomPk" class="d-flex ga-3 align-center">
+          <v-divider />
+          <div>
+            <v-switch
+              v-model="form.useCustomPk"
+              label="Use my own half-life for the level chart"
+              hide-details
+            />
+            <p class="text-body-small pc-muted">
+              <template v-if="catalogPk">
+                Overrides the published values (t½ {{ catalogPk.halfLifeHours }} h, peak
+                {{ catalogPk.tmaxHours }} h). The chart will be labelled user-supplied.
+              </template>
+              <template v-else>
+                No reliable human data exists for this peptide. Values you enter are your own
+                assumption and the chart will say so.
+              </template>
+            </p>
+          </div>
+          <div v-if="form.useCustomPk" class="d-flex ga-3 align-start">
             <v-text-field
               v-model="form.halfLifeHours"
               label="Half-life"
@@ -244,7 +248,7 @@ function save() {
             />
           </div>
 
-          <v-textarea v-model="form.notes" label="Notes" class="mt-2" />
+          <v-textarea v-model="form.notes" label="Notes" />
         </v-form>
       </v-card-text>
       <v-card-actions>

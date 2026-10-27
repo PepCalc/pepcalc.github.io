@@ -1,6 +1,37 @@
 {
   "$schema": "./peptides.schema.json",
   "version": 2,
+  "storage": {
+    "inUse": {
+      "days": 28,
+      "note": "Bacteriostatic water is a multiple-dose diluent: its preservative is tested for 28 days, so a punctured vial is discarded 28 days after first entry. This is a sterility limit, not a measure of peptide potency; no published data covers how long research-grade peptides stay potent once mixed.",
+      "sources": [
+        {
+          "kind": "standard",
+          "citation": "USP General Chapter <797> FAQs (December 2023), question 194: a multiple-dose vial may not be used after 28 days of first puncture",
+          "url": "https://pages.usp.org/rs/711-SXF-172/images/USP_HQS_797_FAQs_December2023_V6__002.pdf"
+        },
+        {
+          "kind": "label",
+          "citation": "EGRIFTA WR patient instructions: discard Bacteriostatic Water for Injection left in the bottle 28 days after first use",
+          "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/022505s020lbl.pdf"
+        }
+      ]
+    },
+    "advice": "Keep a mixed vial in the refrigerator at 2 to 8 °C, away from light, and never in the freezer. Labels for injectable peptides say not to freeze them and not to use one that has been frozen. No label covers research-grade vials, so follow your vial's own instructions where they differ.",
+    "adviceSources": [
+      {
+        "kind": "label",
+        "citation": "OZEMPIC (semaglutide) US prescribing information, section 16: refrigerate 2 to 8 °C, protect from heat and light, do not freeze or use if frozen",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=adec4fd2-6858-4c99-91d4-531f5f2a2d79"
+      },
+      {
+        "kind": "label",
+        "citation": "EGRIFTA WR US prescribing information, sections 2.2 and 16: do not freeze",
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/022505s020lbl.pdf"
+      }
+    ]
+  },
   "peptides": [
     {
       "id": "semaglutide",
@@ -247,6 +278,17 @@
           {
             "kind": "label",
             "citation": "EGRIFTA WR US prescribing information, section 5.6",
+            "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/022505s020lbl.pdf"
+          }
+        ]
+      },
+      "inUse": {
+        "days": 7,
+        "note": "The EGRIFTA WR label (tesamorelin mixed with bacteriostatic water) says to keep the mixed vial at room temperature, 20 to 25 °C, not in the refrigerator or freezer, and to discard unused solution 7 days after mixing. Research-grade vials are a different formulation with no label of their own.",
+        "sources": [
+          {
+            "kind": "label",
+            "citation": "EGRIFTA WR US prescribing information, section 2.2: store reconstituted vial at 20 to 25 °C, discard 7 days after mixing, do not freeze",
             "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/022505s020lbl.pdf"
           }
         ]

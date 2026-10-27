@@ -43,9 +43,14 @@ const shelfVial = computed(() => {
   return typeof id === 'string' ? shelf.vialById(id) : undefined
 })
 
+/*
+ * Load the vial's values once per vial id. Logging a draw reloads the shelf and replaces the
+ * vial object; reacting to that would reset the user's dose to the vial's typical dose.
+ */
 watch(
-  shelfVial,
-  (vial) => {
+  () => shelfVial.value?.id,
+  () => {
+    const vial = shelfVial.value
     if (!vial) return
     calc.actions.selectPeptide(vial.peptideId ?? CUSTOM_PEPTIDE)
     Object.assign(state, {
@@ -117,23 +122,24 @@ async function saveToShelf() {
     status: 'active',
     notes: '',
   })
-  notify.show(`${vial.name} added to your shelf`, 'success')
+  notify.show(`${shelf.displayName(vial)} added to your shelf`, 'success')
   await router.replace({ name: 'calculator', query: { vial: vial.id } })
 }
 
 async function logDraw() {
   const vial = shelfVial.value
-  if (!vial || !calc.plan.value || !calc.dose.value) return
+  const dose = calc.dose.value
+  if (!vial || !calc.plan.value || !dose) return
   await shelf.addDraw({
     vialId: vial.id,
     takenAt: nowIso(),
-    dose: calc.dose.value,
+    dose,
     volumeMl: calc.plan.value.volumeMl,
     syringeId: state.syringeId,
     notes: '',
   })
   notify.show(
-    `Logged ${roundTo(calc.dose.value.value, 4)} ${unitLabel(calc.dose.value.unit)} of ${vial.name}`,
+    `Logged ${roundTo(dose.value, 4)} ${unitLabel(dose.unit)} of ${shelf.displayName(vial)}`,
     'success',
   )
 }
@@ -155,7 +161,7 @@ function clearShelfVial() {
         <v-card v-if="shelfVial" class="pc-card-soft">
           <v-card-item>
             <p class="pc-eyebrow">From your shelf</p>
-            <v-card-title>{{ shelfVial.name }}</v-card-title>
+            <v-card-title>{{ shelf.displayName(shelfVial) }}</v-card-title>
             <v-card-subtitle class="pc-num">
               {{ shelfVial.amount }} {{ unitLabel(shelfVial.unit) }} in {{ shelfVial.diluentMl }} mL
               <template v-if="balance">
@@ -175,7 +181,7 @@ function clearShelfVial() {
           <v-card-item>
             <p class="pc-eyebrow">1 · Peptide</p>
           </v-card-item>
-          <v-card-text>
+          <v-card-text class="pc-stack">
             <v-select
               :model-value="state.peptideId"
               :items="peptideItems"
@@ -204,26 +210,21 @@ function clearShelfVial() {
           <v-card-item>
             <p class="pc-eyebrow">2 · Vial</p>
           </v-card-item>
-          <v-card-text class="d-flex flex-column ga-4">
+          <v-card-text class="pc-stack">
             <template v-if="calc.isBlend.value">
-              <div>
-                <p class="text-label-large mb-2">Composition per vial</p>
-                <div
+              <div class="pc-stack pc-stack--tight">
+                <p class="pc-label">Composition per vial</p>
+                <v-text-field
                   v-for="(c, i) in state.components"
                   :key="c.name"
-                  class="d-flex ga-3 align-center"
-                >
-                  <v-text-field
-                    v-model.number="state.components[i]!.amountMg"
-                    :label="`${c.name} amount`"
-                    suffix="mg"
-                    type="number"
-                    inputmode="decimal"
-                    hide-details
-                    class="calc-component-amount"
-                  />
-                </div>
-                <p class="text-body-small pc-faint mt-2">
+                  v-model.number="state.components[i]!.amountMg"
+                  :label="`${c.name} amount`"
+                  suffix="mg"
+                  type="number"
+                  inputmode="decimal"
+                  class="calc-component-amount"
+                />
+                <p class="text-body-small pc-faint">
                   Vendor compositions differ. Match these to your vial's label. Total:
                   <strong class="pc-num">{{ state.vialAmount }} mg</strong>
                 </p>
@@ -272,7 +273,7 @@ function clearShelfVial() {
               Help me choose
             </v-btn>
           </v-card-text>
-          <v-card-actions class="calc-save">
+          <v-card-actions>
             <v-btn
               color="primary"
               variant="tonal"
@@ -290,7 +291,7 @@ function clearShelfVial() {
           <v-card-item>
             <p class="pc-eyebrow">{{ shelfVial ? 'Dose' : '3 · Dose' }}</p>
           </v-card-item>
-          <v-card-text class="d-flex flex-column ga-3">
+          <v-card-text class="pc-stack">
             <v-btn-toggle
               v-if="calc.doseUnits.value.length > 1"
               :model-value="state.doseUnit"
@@ -411,12 +412,6 @@ function clearShelfVial() {
     grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
     align-items: start;
   }
-}
-
-.calc-save {
-  flex-wrap: wrap;
-  gap: 8px 12px;
-  padding: 0 16px 16px;
 }
 
 .calc-component-amount {

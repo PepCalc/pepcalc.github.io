@@ -66,13 +66,47 @@ test('saves a vial, logs a draw and tracks the balance', async ({ page }) => {
   await expect(page.getByTestId('draw-headline')).toHaveText('37.5')
   await page.getByRole('button', { name: 'Save vial to shelf' }).click()
   await expect(page.getByText('From your shelf')).toBeVisible()
+  // A dose other than the vial's typical one: logging must not reset it.
+  await choose(page, 'Dose', '0.5 mg')
+  await expect(page.getByTestId('draw-headline')).toHaveText('75')
   await page.getByRole('button', { name: 'Log this draw now' }).click()
-  await expect(page.getByText(/Logged 0.25 mg of Semaglutide/)).toBeVisible()
+  await expect(page.getByText(/Logged 0.5 mg of Semaglutide/)).toBeVisible()
+  await expect(page.getByTestId('draw-headline')).toHaveText('75')
 
   await page.getByRole('link', { name: 'Open vial' }).click()
-  await expect(page.getByText('1.75', { exact: false }).first()).toBeVisible()
+  await expect(page.getByText('1.5', { exact: false }).first()).toBeVisible()
   await expect(page.getByText('1 draw')).toBeVisible()
   await expect(page.locator('.pk-chart canvas')).toBeVisible()
+})
+
+test('numbers twin vials, ages them, and pages the draw history', async ({ page }) => {
+  await page.goto('./')
+  await acceptDisclaimer(page)
+  for (let i = 0; i < 2; i++) {
+    await page.goto('./#/')
+    await expect(page.getByTestId('draw-headline')).toHaveText('37.5')
+    await page.getByRole('button', { name: 'Save vial to shelf' }).click()
+    await expect(page.getByText('From your shelf')).toBeVisible()
+  }
+  for (let i = 0; i < 11; i++) {
+    await page.getByRole('button', { name: 'Log this draw now' }).click()
+  }
+
+  await page.goto('./#/shelf')
+  await expect(page.getByRole('link', { name: /^Semaglutide #1/ })).toBeVisible()
+  await expect(page.getByRole('link', { name: /^Semaglutide #2/ })).toBeVisible()
+  await expect(page.getByText('Day 0 of 28')).toHaveCount(2)
+
+  await page.goto('./#/history')
+  await expect(page.getByText('1–10 of 11 draws')).toBeVisible()
+  await expect(page.getByText(/· Semaglutide #2/)).toHaveCount(10)
+  await page
+    .getByRole('navigation', { name: 'draws pages' })
+    .getByRole('button', { name: /2/ })
+    .click()
+  await expect(page.getByText('11–11 of 11 draws')).toBeVisible()
+  await page.getByRole('button', { name: 'Oldest first' }).click()
+  await expect(page.getByText('1–10 of 11 draws')).toBeVisible()
 })
 
 test('works offline after the first visit, including stored data', async ({

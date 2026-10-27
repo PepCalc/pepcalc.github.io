@@ -126,27 +126,29 @@ function choose() {
         <v-card-subtitle class="pc-num advisor__subtitle">{{ mixLabel }}</v-card-subtitle>
       </v-card-item>
 
-      <v-card-text class="d-flex flex-column ga-4">
-        <section aria-label="Water volumes" aria-live="polite">
+      <v-card-text class="pc-stack">
+        <section aria-label="Water volumes" aria-live="polite" class="pc-stack">
           <v-alert v-if="problem" type="warning" variant="tonal" density="compact">
             {{ problem }}
           </v-alert>
 
           <template v-else-if="advisor.selected.value">
-            <div class="advisor__headline">
-              <span class="pc-muted">Add</span>
-              <span class="advisor__value pc-num" data-testid="advisor-water">{{
-                advisor.selected.value.waterMl
-              }}</span>
-              <span class="advisor__unit">mL</span>
+            <div>
+              <div class="advisor__headline">
+                <span class="pc-muted">Add</span>
+                <span class="advisor__value pc-num" data-testid="advisor-water">{{
+                  advisor.selected.value.waterMl
+                }}</span>
+                <span class="advisor__unit">mL</span>
+              </div>
+              <p class="pc-muted pc-num">
+                {{ strength(advisor.selected.value.concentration) }} · {{ doseRangeLabel }} draws
+                {{ drawLabel(advisor.selected.value) }}
+              </p>
             </div>
-            <p class="pc-muted pc-num mb-3">
-              {{ strength(advisor.selected.value.concentration) }} · {{ doseRangeLabel }} draws
-              {{ drawLabel(advisor.selected.value) }}
-            </p>
             <p
               v-if="advisor.selected.value.topUp"
-              class="pc-inset pa-3 mb-3 text-body-medium"
+              class="pc-inset pa-3 text-body-medium"
               data-testid="advisor-top-up"
             >
               To sting less, draw the dose, then pull water into the same syringe up to
@@ -183,7 +185,7 @@ function choose() {
               </button>
             </div>
 
-            <p class="text-body-small pc-faint mt-3">
+            <p class="text-body-small pc-faint">
               {{ reason }}
               <template v-if="gentlerNeedsMl">
                 A gentle mix in the vial needs {{ gentlerNeedsMl }} mL, more than it holds.
@@ -200,7 +202,7 @@ function choose() {
           class="pc-inset pa-3"
           :aria-label="`${c.name} at the injection site`"
         >
-          <p class="text-label-large mb-1">{{ c.name }} at the injection site</p>
+          <p class="pc-label">{{ c.name }} at the injection site</p>
           <p class="text-body-small mb-2">
             {{ c.note.note }}
             <template v-if="c.note.maxMgPerMl">
@@ -227,43 +229,45 @@ function choose() {
         </section>
 
         <fieldset class="advisor__fieldset">
-          <legend class="advisor__legend pc-muted">Doses you plan to draw</legend>
-          <div class="d-flex ga-3">
-            <v-text-field
-              :model-value="state.lowDose ?? ''"
-              label="Dose"
-              :suffix="unitLabel(state.doseUnit)"
-              type="number"
-              inputmode="decimal"
-              hide-details
-              @update:model-value="state.lowDose = parseDose($event)"
-            />
-            <v-text-field
-              :model-value="state.highDose ?? ''"
-              label="Up to"
-              placeholder="Same"
-              persistent-placeholder
-              :suffix="unitLabel(state.doseUnit)"
-              type="number"
-              inputmode="decimal"
-              hide-details
-              @update:model-value="state.highDose = parseDose($event)"
-            />
-          </div>
-          <div class="d-flex flex-wrap align-center ga-3 mt-2">
-            <v-btn-toggle
-              v-if="advisor.doseUnits.value.length > 1"
-              :model-value="state.doseUnit"
-              mandatory
-              density="compact"
-              aria-label="Dose unit"
-              @update:model-value="advisor.actions.setDoseUnit($event)"
-            >
-              <v-btn v-for="u in advisor.doseUnits.value" :key="u" :value="u">{{
-                unitLabel(u)
-              }}</v-btn>
-            </v-btn-toggle>
-            <span class="text-body-small pc-faint">Add a top dose if you will titrate.</span>
+          <legend class="pc-label">Doses you plan to draw</legend>
+          <div class="pc-stack pc-stack--tight">
+            <div class="d-flex ga-3">
+              <v-text-field
+                :model-value="state.lowDose ?? ''"
+                label="Dose"
+                :suffix="unitLabel(state.doseUnit)"
+                type="number"
+                inputmode="decimal"
+                hide-details
+                @update:model-value="state.lowDose = parseDose($event)"
+              />
+              <v-text-field
+                :model-value="state.highDose ?? ''"
+                label="Up to"
+                placeholder="Same"
+                persistent-placeholder
+                :suffix="unitLabel(state.doseUnit)"
+                type="number"
+                inputmode="decimal"
+                hide-details
+                @update:model-value="state.highDose = parseDose($event)"
+              />
+            </div>
+            <div class="d-flex flex-wrap align-center ga-3">
+              <v-btn-toggle
+                v-if="advisor.doseUnits.value.length > 1"
+                :model-value="state.doseUnit"
+                mandatory
+                density="compact"
+                aria-label="Dose unit"
+                @update:model-value="advisor.actions.setDoseUnit($event)"
+              >
+                <v-btn v-for="u in advisor.doseUnits.value" :key="u" :value="u">{{
+                  unitLabel(u)
+                }}</v-btn>
+              </v-btn-toggle>
+              <span class="text-body-small pc-faint">Add a top dose if you will titrate.</span>
+            </div>
           </div>
         </fieldset>
 
@@ -298,13 +302,6 @@ function choose() {
   margin: 0;
   padding: 0;
   min-width: 0;
-}
-
-.advisor__legend {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  margin-bottom: 8px;
 }
 
 .advisor__badges {

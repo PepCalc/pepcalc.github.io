@@ -51,9 +51,10 @@ export function fromLocalInputValue(value: string): string {
   return new Date(value).toISOString()
 }
 
-/** Whole days elapsed between two instants, for "reconstituted 9 days ago". */
-export function daysBetween(fromIso: string, to: Date): number {
-  return Math.floor((to.getTime() - Date.parse(fromIso)) / 86_400_000)
+/** Whole days elapsed between two instants, for "reconstituted 9 days ago"; `to` may be epoch ms. */
+export function daysBetween(fromIso: string, to: Date | number): number {
+  const toMs = typeof to === 'number' ? to : to.getTime()
+  return Math.floor((toMs - Date.parse(fromIso)) / 86_400_000)
 }
 
 const relative = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })

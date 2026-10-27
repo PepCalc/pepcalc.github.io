@@ -4,10 +4,20 @@
   "title": "PepCalc peptide catalog",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "peptides"],
+  "required": ["version", "storage", "peptides"],
   "properties": {
     "$schema": { "type": "string" },
     "version": { "type": "integer", "minimum": 1 },
+    "storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inUse", "advice", "adviceSources"],
+      "properties": {
+        "inUse": { "$ref": "#/$defs/inUse" },
+        "advice": { "type": "string", "minLength": 10 },
+        "adviceSources": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/source" } }
+      }
+    },
     "peptides": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/peptide" } }
   },
   "$defs": {
@@ -17,7 +27,7 @@
       "additionalProperties": false,
       "required": ["kind", "citation"],
       "properties": {
-        "kind": { "enum": ["label", "trial", "preclinical", "community", "model"] },
+        "kind": { "enum": ["label", "trial", "standard", "preclinical", "community", "model"] },
         "citation": { "type": "string", "minLength": 3 },
         "url": { "type": "string", "pattern": "^https://" }
       }
@@ -53,6 +63,24 @@
           "contains": {
             "type": "object",
             "properties": { "kind": { "enum": ["label", "trial"] } }
+          }
+        }
+      }
+    },
+    "inUse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["days", "note", "sources"],
+      "properties": {
+        "days": { "type": "integer", "minimum": 1 },
+        "note": { "type": "string", "minLength": 10 },
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/source" },
+          "contains": {
+            "type": "object",
+            "properties": { "kind": { "enum": ["label", "trial", "standard"] } }
           }
         }
       }
@@ -126,6 +154,7 @@
           }
         },
         "injectionSite": { "$ref": "#/$defs/injectionSite" },
+        "inUse": { "$ref": "#/$defs/inUse" },
         "pk": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/pk" }] },
         "pkUnavailableReason": { "type": "string", "minLength": 10 }
       },
