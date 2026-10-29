@@ -100,6 +100,15 @@ export function anyDoseInEffect(
   return doses.some((d) => d.at + horizon >= now)
 }
 
+/**
+ * Hours of history a chart shows: three days for short-acting peptides (half-life under a day),
+ * whose daily doses would otherwise draw as a comb of unreadable spikes; undefined (every dose
+ * still in effect) for long-acting ones. The in-app chart and the report both follow it.
+ */
+export function lookbackHoursFor(params: PkParameters): number | undefined {
+  return params.halfLifeHours < 24 ? 72 : undefined
+}
+
 export interface SimulationWindow {
   start: number
   end: number
@@ -163,4 +172,30 @@ export function chartWindow(
   let start = Math.min(earliest, now) - Math.max(params.tmaxHours * MS_PER_HOUR * 0.25, 30 * 60_000)
   if (lookbackHours !== undefined) start = Math.max(start, now - lookbackHours * MS_PER_HOUR)
   return { start, end }
+}
+
+export interface LevelSummary {
+  /** Estimated amount at `now`. */
+  now: number
+  /** Highest sampled point, or null when every sample is zero. */
+  peak: PkPoint | null
+  /** First sample after the peak below 10% of it, or null if the window ends first. */
+  clearsAt: number | null
+}
+
+/** Headline readings for a simulated curve: the amount now, the peak, and when it falls away. */
+export function summarizeLevels(
+  points: readonly PkPoint[],
+  doses: readonly DoseEvent[],
+  params: PkParameters,
+  now: number,
+): LevelSummary {
+  const peak = points.reduce<PkPoint | null>(
+    (best, p) => (p.amount > (best?.amount ?? 0) ? p : best),
+    null,
+  )
+  const clearsAt = peak
+    ? (points.find((p) => p.at > peak.at && p.amount < peak.amount * 0.1)?.at ?? null)
+    : null
+  return { now: amountAt(now, doses, rateConstants(params)), peak, clearsAt }
 }

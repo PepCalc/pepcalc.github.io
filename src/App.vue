@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useDisplay, useTheme } from 'vuetify'
 import { useRoute } from 'vue-router'
 import { useSettingsStore } from '@/stores/settings'
 import { useShelfStore } from '@/stores/shelf'
 import { useInstallPrompt } from '@/composables/useInstallPrompt'
+import { useHideOnScroll } from '@/composables/useHideOnScroll'
+import AppLogo from '@/components/common/AppLogo.vue'
 import AppSnackbar from '@/components/common/AppSnackbar.vue'
 import AppConfirm from '@/components/common/AppConfirm.vue'
 import UpdatePrompt from '@/components/common/UpdatePrompt.vue'
@@ -36,6 +38,29 @@ const wide = computed(() => display.mdAndUp.value)
 
 const activeNav = computed(() => (route.name === 'vial' ? 'shelf' : String(route.name ?? '')))
 
+const bar = useHideOnScroll()
+
+// A new page starts with its title bar in view.
+watch(() => route.fullPath, bar.actions.reveal)
+
+/*
+ * A tap on a non-interactive part of the page brings the bar back, as tapping the screen does in
+ * reading apps; taps on controls are left to the control.
+ */
+const INTERACTIVE = 'a, button, input, select, textarea, label, canvas, [role], .v-field, .v-chip'
+function onContentTap(event: MouseEvent) {
+  if (!bar.state.hidden) return
+  if (event.target instanceof Element && event.target.closest(INTERACTIVE)) return
+  bar.actions.reveal()
+}
+
+/** Re-tapping the current tab scrolls back to the top, as in iOS and Android tab bars. */
+function onTabTap(name: string) {
+  if (route.name !== name) return
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+  bar.actions.reveal()
+}
+
 const showInstallBanner = computed(
   () => settings.loaded && !settings.installHintDismissed && !install.state.standalone,
 )
@@ -48,9 +73,17 @@ onMounted(async () => {
 
 <template>
   <v-app>
-    <v-app-bar flat density="comfortable" class="app-bar">
+    <v-app-bar
+      flat
+      density="compact"
+      :class="['app-bar', { 'pc-app-bar--hidden': bar.state.hidden }]"
+      @click="bar.actions.reveal"
+      @focusin="bar.actions.reveal"
+    >
       <v-app-bar-title>
-        <router-link :to="{ name: 'calculator' }" class="brand">PepCalc</router-link>
+        <router-link :to="{ name: 'calculator' }" class="brand" aria-label="PepCalc, calculator">
+          <AppLogo :size="30" />
+        </router-link>
       </v-app-bar-title>
     </v-app-bar>
 
@@ -71,7 +104,7 @@ onMounted(async () => {
       </v-list>
     </v-navigation-drawer>
 
-    <v-main>
+    <v-main @click="onContentTap">
       <v-banner
         v-if="showInstallBanner"
         :icon="mdiCellphoneArrowDown"
@@ -94,7 +127,13 @@ onMounted(async () => {
     </v-main>
 
     <v-bottom-navigation v-if="!wide" :model-value="activeNav" grow class="bottom-nav">
-      <v-btn v-for="item in NAV" :key="item.name" :value="item.name" :to="{ name: item.name }">
+      <v-btn
+        v-for="item in NAV"
+        :key="item.name"
+        :value="item.name"
+        :to="{ name: item.name }"
+        @click="onTabTap(item.name)"
+      >
         <v-icon :icon="item.icon" />
         <span>{{ item.title }}</span>
       </v-btn>
@@ -109,11 +148,7 @@ onMounted(async () => {
 
 <style scoped>
 .brand {
-  font-family: var(--pc-font-display);
-  font-weight: 500;
-  font-size: 1.5rem;
-  letter-spacing: -0.01em;
-  color: var(--pc-brand);
+  display: inline-flex;
   text-decoration: none;
 }
 

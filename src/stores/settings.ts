@@ -71,9 +71,13 @@ export const useSettingsStore = defineStore('settings', () => {
     await repository.setSetting(SETTING_KEYS.lastBackupAt, at)
   }
 
+  /**
+   * Record the acknowledgement on disk first, then close the dialog: closing optimistically let a
+   * reload in that window bring the dialog back. Rejects, leaving it open, if the write fails.
+   */
   async function acceptDisclaimer(at: string) {
-    disclaimerAcceptedAt.value = at
     await repository.setSetting(SETTING_KEYS.disclaimerAcceptedAt, at)
+    disclaimerAcceptedAt.value = at
   }
 
   async function dismissInstallHint() {

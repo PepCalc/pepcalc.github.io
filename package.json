@@ -27,7 +27,7 @@
     "check:contrast": "node scripts/check-contrast.mjs",
     "check:static": "npm run lint && npm run format:check && npm run typecheck && npm run check:tokens && npm run check:contrast && npm run check:md && npm run knip",
     "check": "npm run check:static && npm run test && npm run build",
-    "check:all": "npm run check && npm run test:e2e && npm audit --audit-level=high"
+    "check:all": "npm run check && npm run test:e2e && npm audit --audit-level=low"
   },
   "dependencies": {
     "@capacitor/android": "8.5.3",
@@ -36,7 +36,6 @@
     "@capacitor/share": "8.0.3",
     "@fontsource/hanken-grotesk": "5.3.0",
     "@fontsource/ibm-plex-mono": "5.3.0",
-    "@fontsource/newsreader": "5.3.0",
     "@mdi/js": "7.4.47",
     "@vue/devtools-api": "8.2.1",
     "dexie": "4.4.7",
@@ -58,6 +57,7 @@
     "@vue/test-utils": "2.5.1",
     "@vue/tsconfig": "0.9.1",
     "ajv": "8.20.0",
+    "deepmerge": "file:vendor/deepmerge",
     "eslint": "10.13.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-vue": "10.11.1",
@@ -74,5 +74,11 @@
     "vitest": "5.0.5",
     "vue-tsc": "3.3.13",
     "workbox-window": "7.4.1"
+  },
+  "overrides": {
+    "deepmerge": "$deepmerge",
+    "xcode": {
+      "uuid": "11.1.1"
+    }
   }
 }

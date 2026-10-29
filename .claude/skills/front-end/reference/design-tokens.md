@@ -4,7 +4,10 @@ Part of the `front-end` skill.
 
 The palette is adapted from the Cognitive Companion design system: warm paper surfaces, sage
 green primary, terracotta accent, warm ink text, soft daylight shadows, calm motion. PepCalc
-adds a warm-dark variant.
+adds a warm-dark variant and a glass layer: the app bar, bottom navigation, rail, dialogs,
+sheets, menus and snackbars are frosted (`backdrop-filter`) over a soft two-tone backdrop, and
+cards are translucent paper with a lit top edge. Glass falls back to `--pc-surface` where
+`backdrop-filter` is unsupported or the OS asks for reduced transparency.
 
 ## Files
 
@@ -25,10 +28,11 @@ adds a warm-dark variant.
 | Lines        | `--pc-divider`, `--pc-divider-strong`                                                                                            |
 | Status pairs | `--pc-{good,notice,alert,info}-{fg,bg}`                                                                                          |
 | Shadows      | `--pc-shadow-{sm,md,lg,inset}`                                                                                                   |
+| Glass        | `--pc-glass`, `--pc-glass-strong`, `--pc-glass-card`, `--pc-glass-{line,edge,sheen,shadow}`, `--pc-backdrop-{1,2}`               |
 | Syringe      | `--pc-syringe-{barrel,ink,fill,fill-deep,glint,plunger}`                                                                         |
 | Chart        | `--pc-chart-{logged,preview,grid,axis,now}`                                                                                      |
 
-Theme-independent: `--pc-font`, `--pc-font-display`, `--pc-font-mono`, `--pc-radius-*`,
+Theme-independent: `--pc-font`, `--pc-font-display`, `--pc-font-mono`, `--pc-radius-*`, `--pc-glass-blur`,
 `--pc-dur-*`, `--pc-focus-ring`, `--pc-shadow-focus`, `--pc-touch`.
 
 ## Utility classes
@@ -37,7 +41,7 @@ Theme-independent: `--pc-font`, `--pc-font-display`, `--pc-font-mono`, `--pc-rad
 | ------------------------------------------------------- | -------------------------------------------- |
 | `pc-page`                                               | Page container with responsive gutters       |
 | `pc-eyebrow`                                            | Small tracked terracotta label above a title |
-| `pc-display`                                            | Newsreader heading face                      |
+| `pc-display`                                            | Heading weight and tracking                  |
 | `pc-muted`, `pc-faint`                                  | Secondary and tertiary text                  |
 | `pc-num`, `pc-mono`                                     | Tabular figures                              |
 | `pc-inset`                                              | Grouped panel inside a card                  |
@@ -47,6 +51,11 @@ Theme-independent: `--pc-font`, `--pc-font-display`, `--pc-font-mono`, `--pc-rad
 ## Adding a colour
 
 1. Add the token to both `.v-theme--light` and `.v-theme--dark` in `tokens.css`.
-2. If it is text, add the pair to `scripts/check-contrast.mjs`.
-3. If it is a chart series, validate the palette with the dataviz palette checker against both
+2. If it is text, add the pair to `scripts/check-contrast.mjs`. The checker reads only solid
+   hex tokens; glass fills stay at 72% opacity or more so text keeps its contrast on them. The
+   backdrop tint lowers light-mode contrast at the top left: `--pc-text-3` drops to about
+   4.1:1 there, so faint text belongs inside cards, never on the bare page.
+3. Write `-webkit-backdrop-filter` before `backdrop-filter`: the CSS minifier merges the pair
+   and keeps the last one, and Chromium ignores the prefixed form.
+4. If it is a chart series, validate the palette with the dataviz palette checker against both
    surfaces (lightness band, chroma, colour-blind separation) before use.

@@ -12,6 +12,16 @@ import type { SyringeSpec } from './syringe'
  */
 export type SourceKind = 'label' | 'trial' | 'standard' | 'preclinical' | 'community' | 'model'
 
+/** How each kind of source is named wherever a figure is shown or shared. */
+export const SOURCE_KIND_LABELS: Record<SourceKind, string> = {
+  label: 'Prescribing label',
+  trial: 'Clinical trial',
+  standard: 'Pharmacopeia standard',
+  preclinical: 'Animal data',
+  community: 'Community-reported',
+  model: 'Modelling choice',
+}
+
 export interface SourceRef {
   kind: SourceKind
   citation: string

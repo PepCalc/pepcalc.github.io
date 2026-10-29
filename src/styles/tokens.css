@@ -1,7 +1,8 @@
 /*
  * PepCalc design tokens. Palette adapted from the Cognitive Companion design system (warm
  * paper, sage primary, terracotta accent, warm ink), plus a warm-dark variant selected by the
- * device's colour scheme. Components read only the semantic --pc-* tokens, never primitives.
+ * device's colour scheme. Chrome and floating layers are frosted glass (--pc-glass-*) over a
+ * soft two-tone backdrop. Components read only the semantic --pc-* tokens, never primitives.
  *
  *   :root           primitives, fonts, radii, motion (theme-independent)
  *   .v-theme--light surfaces, text, borders, shadows, chart colours for light
@@ -44,7 +45,9 @@
     --terra-600: #884630;
 
     --pc-font: 'Hanken Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-    --pc-font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
+    /* Headings share the UI face at a heavier weight with tight tracking, in the spirit of
+       system UI type, rather than a second display family. */
+    --pc-font-display: var(--pc-font);
     --pc-font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
     /* Vuetify 4 typography classes read these; without them they fall back to unbundled Roboto. */
@@ -57,6 +60,8 @@
     --pc-radius-lg: 20px;
     --pc-radius-xl: 28px;
     --pc-radius-pill: 999px;
+
+    --pc-glass-blur: blur(20px) saturate(170%);
 
     --pc-dur-fast: 130ms;
     --pc-dur-base: 220ms;
@@ -109,6 +114,22 @@
     --pc-shadow-md: 0 2px 4px rgba(45, 38, 26, 0.05), 0 8px 20px rgba(45, 38, 26, 0.08);
     --pc-shadow-lg: 0 4px 8px rgba(45, 38, 26, 0.06), 0 18px 40px rgba(45, 38, 26, 0.12);
     --pc-shadow-inset: inset 0 1px 2px rgba(45, 38, 26, 0.05);
+
+    /*
+     * Glass: translucent warm paper over a blurred backdrop, a bright hairline on the lit (top)
+     * edge and a soft drop. Fills stay at 72% or more so text keeps the contrast it has on
+     * --pc-surface; the solid fallback is --pc-surface itself.
+     */
+    --pc-glass: rgba(255, 253, 249, 0.72);
+    --pc-glass-strong: rgba(255, 253, 249, 0.88);
+    --pc-glass-card: rgba(255, 253, 249, 0.8);
+    --pc-glass-line: rgba(255, 255, 255, 0.7);
+    --pc-glass-edge: rgba(67, 60, 48, 0.1);
+    --pc-glass-sheen:
+      inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 0 rgba(67, 60, 48, 0.04);
+    --pc-glass-shadow: 0 1px 1px rgba(45, 38, 26, 0.04), 0 8px 24px rgba(45, 38, 26, 0.07);
+    --pc-backdrop-1: rgba(130, 178, 146, 0.22);
+    --pc-backdrop-2: rgba(220, 141, 107, 0.16);
 
     /* Syringe drawing */
     --pc-syringe-barrel: #fffdf9;
@@ -168,6 +189,16 @@
     --pc-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.35), 0 8px 20px rgba(0, 0, 0, 0.35);
     --pc-shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.4), 0 18px 40px rgba(0, 0, 0, 0.5);
     --pc-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+
+    --pc-glass: rgba(34, 30, 24, 0.72);
+    --pc-glass-strong: rgba(34, 30, 24, 0.9);
+    --pc-glass-card: rgba(34, 30, 24, 0.78);
+    --pc-glass-line: rgba(255, 240, 225, 0.1);
+    --pc-glass-edge: rgba(255, 240, 225, 0.07);
+    --pc-glass-sheen: inset 0 1px 0 rgba(255, 240, 225, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+    --pc-glass-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    --pc-backdrop-1: rgba(63, 171, 115, 0.14);
+    --pc-backdrop-2: rgba(189, 89, 47, 0.12);
 
     --pc-syringe-barrel: #2c2820;
     --pc-syringe-ink: #e8ddcc;

@@ -5,6 +5,7 @@ import {
   rateConstants,
   simulate,
   singleDoseAmount,
+  summarizeLevels,
   tmaxFor,
 } from '@/domain/pk'
 
@@ -93,5 +94,27 @@ describe('superposition and sampling', () => {
     const now = 1000 * H
     const w = chartWindow([{ at: now - 400 * H, amount: 1 }], params, now, 168)
     expect(w.start).toBe(now - 168 * H)
+  })
+})
+
+describe('summarizeLevels', () => {
+  const params = { halfLifeHours: 24, tmaxHours: 4 }
+  const dose = { at: 0, amount: 100 }
+
+  it('finds the peak near tmax and the drop below 10% of it', () => {
+    const points = simulate([dose], params, { start: 0, end: 240 * H })
+    const s = summarizeLevels(points, [dose], params, 48 * H)
+    expect(s.peak!.at / H).toBeCloseTo(4, 0)
+    expect(s.now).toBeCloseTo(amountAt(48 * H, [dose], rateConstants(params)))
+    expect(s.clearsAt! / H).toBeGreaterThan(70)
+    expect(s.clearsAt! / H).toBeLessThan(90)
+  })
+
+  it('has no peak or clearing time when nothing was dosed', () => {
+    expect(summarizeLevels([{ at: 0, amount: 0 }], [], params, 0)).toEqual({
+      now: 0,
+      peak: null,
+      clearsAt: null,
+    })
   })
 })

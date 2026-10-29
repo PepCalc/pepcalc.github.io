@@ -16,6 +16,8 @@ import DrawList from '@/components/shelf/DrawList.vue'
 import PkPanel from '@/components/charts/PkPanel.vue'
 import ListPager from '@/components/common/ListPager.vue'
 import SortToggle from '@/components/common/SortToggle.vue'
+import ExportReportDialog from '@/components/history/ExportReportDialog.vue'
+import { mdiFilePdfBox } from '@/plugins/icons'
 
 const shelf = useShelfStore()
 const confirm = useConfirmStore()
@@ -44,6 +46,8 @@ function captionFor(g: PeptideLevels): string {
   }
   return text
 }
+
+const exporting = ref(false)
 
 const direction = ref<SortDirection>('desc')
 const sortedDraws = computed(() =>
@@ -82,10 +86,22 @@ async function deleteDraw(draw: DrawRow) {
 
 <template>
   <div class="pc-page history">
-    <header class="mb-4">
-      <p class="pc-eyebrow">Log</p>
-      <h1 class="pc-display text-headline-large">History</h1>
+    <header class="mb-4 d-flex align-end flex-wrap ga-3">
+      <div class="flex-grow-1">
+        <p class="pc-eyebrow">Log</p>
+        <h1 class="pc-display text-headline-large">History</h1>
+      </div>
+      <v-btn
+        v-if="shelf.draws.length"
+        variant="tonal"
+        color="primary"
+        :prepend-icon="mdiFilePdfBox"
+        @click="exporting = true"
+      >
+        Export PDF
+      </v-btn>
     </header>
+    <ExportReportDialog v-model="exporting" />
 
     <v-card v-if="shelf.loaded && !shelf.draws.length" variant="tonal">
       <v-card-text class="pc-muted">

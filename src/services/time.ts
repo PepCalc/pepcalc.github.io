@@ -27,8 +27,9 @@ const shortFormat = new Intl.DateTimeFormat(undefined, {
   minute: '2-digit',
 })
 
-export function formatDateTime(iso: string): string {
-  return dateTimeFormat.format(new Date(iso))
+/** Medium date and short time; takes a stored ISO string or epoch milliseconds. */
+export function formatDateTime(at: string | number): string {
+  return dateTimeFormat.format(new Date(at))
 }
 
 export function formatDate(iso: string): string {
@@ -68,4 +69,29 @@ export function formatHours(hours: number): string {
   if (hours < 1) return `${Math.round(hours * 60)} min`
   if (hours < 48) return `${Number(hours.toFixed(1))} h`
   return `${Number((hours / 24).toFixed(1))} days`
+}
+
+const axisDayFormat = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' })
+const axisHourFormat = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' })
+
+/**
+ * Label for a chart axis tick: the date for spans over three days ("Oct 29"), otherwise the
+ * date and time, so ticks on short charts stay unambiguous.
+ */
+export function formatAxisTick(epochMs: number, spanMs: number): string {
+  return spanMs > 3 * 86_400_000
+    ? axisDayFormat.format(new Date(epochMs))
+    : `${axisDayFormat.format(new Date(epochMs))}, ${axisHourFormat.format(new Date(epochMs))}`
+}
+
+/** "Sep 29 – Oct 29, 2026" in the device's locale. */
+export function formatDateRange(startMs: number, endMs: number): string {
+  return dateFormat.formatRange(new Date(startMs), new Date(endMs))
+}
+
+/** Local calendar date as YYYY-MM-DD, for file names. */
+export function fileDate(epochMs: number): string {
+  const d = new Date(epochMs)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }

@@ -7,7 +7,7 @@ Part of the `engineering-standards` skill.
 | Command          | What it runs                                                                                    |
 | ---------------- | ----------------------------------------------------------------------------------------------- |
 | `make check`     | lint, format check, typecheck, token check, contrast check, markdown check, knip, Vitest, build |
-| `make check-all` | `make check`, Playwright e2e (phone and tablet), `npm audit --audit-level=high`                 |
+| `make check-all` | `make check`, Playwright e2e (phone and tablet), `npm audit --audit-level=low`                  |
 
 CI (`.github/workflows/ci.yml`) runs the full gate on pull requests. Deployment
 (`.github/workflows/deploy.yml`) runs `npm run check` and publishes `dist/` to GitHub Pages on
@@ -45,4 +45,22 @@ so native-only paths (`src/services/nativeFileTransfer.ts`) need a check on a de
 | TypeScript | 6.0                 | held below 7 until typescript-eslint supports it                                  |
 | Vitest     | 5                   | happy-dom environment                                                             |
 
-Run `npm audit --audit-level=high` before every change set. Use `npm ci` in CI.
+Run `npm audit --audit-level=low` before every change set: any advisory fails the gate. CI also
+runs `npm audit signatures`, which verifies registry signatures and provenance and needs network
+access to sigstore. Use `npm ci` in CI.
+
+## Dependency overrides
+
+`package.json` `overrides` patch advisories in transitive build tools that have no fixed release.
+Each is build-time only; none reaches the shipped bundle. Remove an override once its parent
+ships the fix, then rerun `npm audit`.
+
+| Override                          | Why                                                                                  | Drop when                          |
+| --------------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------- |
+| `xcode` > `uuid` 11.1.1           | GHSA-w5hq-g745-h8pq; `@capacitor/cli` 8.5 pins `xcode` 3, which pulls `uuid` 7       | `@capacitor/cli` is 8.6 or later   |
+| `deepmerge` to `vendor/deepmerge` | GHSA-gcqx-w48m-w2h4 has no upstream release; the vendored copy is 4.3.1 plus the fix | deepmerge releases a fixed version |
+
+`vendor/deepmerge` is a root `devDependency` (`file:`) that the override references as
+`$deepmerge`: a bare `file:` override resolves relative to the dependent package and breaks
+`npm ci`. Its tests are `tests/vendor/deepmerge.spec.ts`; the service worker it helps build was
+byte-identical before and after the swap.

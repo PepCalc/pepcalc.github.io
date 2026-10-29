@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { CatalogPeptide } from '@/domain/catalog'
-import type { DoseEvent, PkParameters } from '@/domain/pk'
+import { computed, ref } from 'vue'
+import { SOURCE_KIND_LABELS, type CatalogPeptide } from '@/domain/catalog'
+import { lookbackHoursFor, type DoseEvent, type PkParameters } from '@/domain/pk'
 import { formatHours } from '@/services/time'
+import { mdiShareVariantOutline } from '@/plugins/icons'
 import SourceList from '@/components/common/SourceList.vue'
 import PkChart from './PkChart.vue'
+import ShareLevelsDialog from './ShareLevelsDialog.vue'
 
 const props = defineProps<{
   peptide: CatalogPeptide | undefined
@@ -23,10 +25,22 @@ const props = defineProps<{
 const params = computed<PkParameters | null>(() => props.override ?? props.peptide?.pk ?? null)
 const userSupplied = computed(() => props.override !== null)
 
-/** Short-lived peptides show three days of history; long-acting ones all doses still in effect. */
-const lookbackHours = computed(() =>
-  params.value && params.value.halfLifeHours < 24 ? 72 : undefined,
-)
+const lookbackHours = computed(() => (params.value ? lookbackHoursFor(params.value) : undefined))
+
+const sharing = ref(false)
+const shareName = computed(() => props.title ?? props.peptide?.name ?? 'Estimated levels')
+
+/** The strongest source behind the curve, so the shared image says where its numbers came from. */
+const shareSource = computed(() => {
+  if (userSupplied.value) return { text: 'User-supplied values', tone: 'notice' as const }
+  // The catalog schema requires a label or trial source for every built-in curve.
+  const kinds = props.peptide?.pk?.sources.map((s) => s.kind) ?? []
+  const best = kinds.includes('label') ? 'label' : 'trial'
+  return {
+    text: `Source: ${SOURCE_KIND_LABELS[best]}`,
+    tone: best === 'label' ? ('good' as const) : ('info' as const),
+  }
+})
 </script>
 
 <template>
@@ -34,6 +48,14 @@ const lookbackHours = computed(() =>
     <v-card-item>
       <p class="pc-eyebrow">Estimated levels</p>
       <v-card-title class="text-wrap">{{ title ?? 'Amount in the body over time' }}</v-card-title>
+      <template v-if="params && (doses.length || preview)" #append>
+        <v-btn
+          :icon="mdiShareVariantOutline"
+          variant="text"
+          aria-label="Share as an image"
+          @click="sharing = true"
+        />
+      </template>
     </v-card-item>
     <v-card-text class="pc-stack">
       <template v-if="params">
@@ -66,6 +88,14 @@ const lookbackHours = computed(() =>
           <p class="text-body-small pc-muted">{{ peptide.pk.notes }}</p>
           <SourceList :sources="peptide.pk.sources" />
         </div>
+        <ShareLevelsDialog
+          v-model="sharing"
+          :input="{ params, doses, preview, unitLabel, now, lookbackHours }"
+          :name="shareName"
+          :half-life="formatHours(params.halfLifeHours)"
+          :peak-time="formatHours(params.tmaxHours)"
+          :source="shareSource"
+        />
       </template>
       <template v-else>
         <v-alert type="info" variant="tonal" density="comfortable">

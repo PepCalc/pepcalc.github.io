@@ -6,15 +6,17 @@ Part of the `engineering-standards` skill.
 
 ```
 src/
-  domain/        pure logic: units, reconstitution, diluent advice, syringe, pk, inventory, blend,
-                 listing (paging, ordering, vial numbers), vial age, catalog types
+  domain/        pure logic: units, reconstitution, diluent advice, syringe, pk, levels (pooling and
+                 the curve model), inventory, blend, listing (paging, ordering, vial numbers),
+                 vial age, report (periods, windows, totals, axis ticks), catalog types
   data/          peptides.json, syringes.json, their JSON Schemas, typed loader (index.ts)
   db/            Dexie database (schema history), repository, backup export/restore
   stores/        Pinia: shelf (vials + draws), settings, notify, confirm
   composables/   useCalculator, useDiluentAdvisor, useChartColors, useInstallPrompt, useStoragePersistence, useNow,
-                 usePaging, useVialAge
-  services/      time.ts (the only clock and date formatter), fileTransfer.ts (share/download)
-  components/    calculator/, charts/, shelf/, common/
+                 usePaging, useVialAge, useHideOnScroll, useReportExport
+  services/      time.ts (the only clock and date formatter), fileTransfer.ts (share/download),
+                 pdf/ (dependency-free PDF writer), report/ (the draws-and-levels report)
+  components/    calculator/, charts/, history/, shelf/, common/
   views/         one per route: Calculator, Shelf, Vial, History, Settings
   plugins/       vuetify.ts (themes, defaults), icons.ts (inline SVG icons), fonts.ts
   styles/        tokens.css (design tokens), theme.css (global and Vuetify overrides)
@@ -22,6 +24,7 @@ public/          icons, favicon, layers.css (cascade layer order, linked before 
 tests/           Vitest, mirrors src/
 e2e/             Playwright against `vite preview` of the production build
 scripts/         gate scripts (contrast, tokens, markdown)
+vendor/          patched copies of build-time dependencies (see testing-and-gates.md)
 ```
 
 ## Data flow
@@ -50,6 +53,30 @@ time to peak by bisection, which handles flip-flop kinetics. The output is an am
 in dose units, not a concentration: volume of distribution and bioavailability are unknown for
 most of these peptides. Sampling is adaptive so short peaks (tesamorelin, about 9 minutes) are
 not missed by a coarse grid.
+
+## PDF reports
+
+The report is written by PepCalc's own PDF writer (`services/pdf/`), not a library: no
+third-party code handles the user's data, and the output is easy to audit.
+
+| Module                    | Role                                                                          |
+| ------------------------- | ----------------------------------------------------------------------------- |
+| `pdf/text.ts`             | WinAnsi encoding, transliteration, exact Helvetica widths, wrapping, escaping |
+| `pdf/fontMetrics.ts`      | Generated Helvetica width tables (Adobe Core 14, checked against Nimbus Sans) |
+| `pdf/document.ts`         | `PdfPage` drawing API (top-left coordinates) and `buildPdf` serialisation     |
+| `report/collectReport.ts` | Store rows to `ReportData`: period filter, curves, sources, locale formatting |
+| `report/levelsReport.ts`  | Pure layout of `ReportData` to bytes; deterministic, tested without a browser |
+| `report/printPalette.ts`  | Light-theme colours for paper, tested against `tokens.css`                    |
+
+Rules the writer keeps:
+
+- **Text:** standard Helvetica, so nothing is embedded. Every character is one WinAnsi byte, so
+  cross-reference offsets are exact. Text enters a content stream only through `pdfString`,
+  which escapes it, so a vial name cannot inject operators.
+- **No hidden content:** no scripts, actions, links, attachments, timestamps or producer. The
+  only metadata is the title.
+- **Loading:** `useReportExport` imports the renderer lazily, so it is its own precached chunk
+  and works offline.
 
 ## PWA and hosting
 

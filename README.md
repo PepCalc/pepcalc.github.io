@@ -42,6 +42,10 @@ the body over time. It runs entirely on your device: no account, no server, no t
   retatrutide, cagrilintide, tesamorelin), an estimate of the amount in the body over time from
   your logged doses plus the draw you are calculating, projected forward with no further doses.
   For other peptides you may enter your own half-life, and the chart is labelled as such.
+- **Share and export.** Share a level chart as an image (with the option to leave out the
+  peptide name and amounts), or export a PDF report of your draws and estimated levels for the
+  last 30 or 90 days or all time, with every half-life's source. Both are made on the device:
+  no upload, no account, no paywall.
 - **Private and offline.** No account, no server, no analytics, no third-party requests. Back up
   to a JSON file you keep, and restore from it.
 - **Phones and tablets, light and dark.** Follows the device theme.

@@ -58,3 +58,8 @@ export function roundTo(value: number, maxDecimals: number): number {
   const factor = 10 ** maxDecimals
   return Math.round((value + Number.EPSILON) * factor) / factor
 }
+
+/** "0.25 mg": three decimals below one unit, two above. */
+export function formatAmount(value: number, unitLabel: string): string {
+  return `${roundTo(value, value < 1 ? 3 : 2)} ${unitLabel}`
+}

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="pc-tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4f8064"/>
+      <stop offset="1" stop-color="#2f5340"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#pc-tile)"/>
+  <!-- The P: a syringe barrel with graduations and a needle, and a vial bowl holding liquid. -->
+  <g transform="translate(-6 -10)">
+    <path d="M164 100h20a16 16 0 0 1 16 16v236a16 16 0 0 1-16 16h-20a20 20 0 0 1-20-20V120a20 20 0 0 1 20-20z" fill="#fbf8f3"/>
+    <path d="M144 264h26M144 300h26M144 336h26" stroke="#3f6b52" stroke-width="10"/>
+    <path d="M152 368h40l-12 22h-16z" fill="#fbf8f3"/>
+    <path d="M172 390v40" stroke="#fbf8f3" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="276" cy="204" r="80" fill="none" stroke="#fbf8f3" stroke-width="48"/>
+    <path d="M233.7 192a44 44 0 1 0 84.6 0z" fill="#dc8d6b"/>
+    <circle cx="300" cy="224" r="8" fill="#fbf8f3" opacity="0.7"/>
+  </g>
+</svg>

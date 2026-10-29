@@ -1,4 +1,13 @@
-import type { DoseEvent, PkParameters } from './pk'
+import {
+  chartWindow,
+  simulate,
+  summarizeLevels,
+  type DoseEvent,
+  type LevelSummary,
+  type PkParameters,
+  type PkPoint,
+  type SimulationWindow,
+} from './pk'
 import { areCompatible, convert, type AmountUnit, type Quantity } from './units'
 
 /** A vial as the level grouping needs it; the caller resolves its PK parameters. */
@@ -100,4 +109,42 @@ export function groupLevelsByPeptide(
     })
   }
   return groups.sort((a, b) => b.latestAt - a.latestAt)
+}
+
+export interface LevelsInput {
+  params: PkParameters
+  /** Logged doses, already converted to `unitLabel`. */
+  doses: DoseEvent[]
+  /** A draw being calculated, drawn as a dashed projection; null when only history is shown. */
+  preview: DoseEvent | null
+  unitLabel: string
+  now: number
+  lookbackHours?: number
+}
+
+export interface LevelsModel {
+  window: SimulationWindow
+  allDoses: DoseEvent[]
+  logged: PkPoint[]
+  projected: PkPoint[]
+  summary: LevelSummary
+}
+
+/**
+ * Everything a levels chart draws (the on-screen chart, its table, the share card and the PDF
+ * report), computed once from the inputs so they always agree.
+ */
+export function levelsModel(input: LevelsInput): LevelsModel {
+  const { params, doses, preview, now, lookbackHours } = input
+  const allDoses = preview ? [...doses, preview] : doses
+  const window = chartWindow(allDoses, params, now, lookbackHours)
+  const logged = doses.length ? simulate(doses, params, window) : []
+  const projected = preview ? simulate(allDoses, params, window) : []
+  return {
+    window,
+    allDoses,
+    logged,
+    projected,
+    summary: summarizeLevels(preview ? projected : logged, allDoses, params, now),
+  }
 }

@@ -23,8 +23,9 @@ One-line rules; detail lives in `reference/`. Read a reference when its trigger 
    Scoped styles are for layout and for drawing (SVG), never to restyle a Vuetify component.
 4. Cascade layers: our theme sits above Vuetify components and below Vuetify utilities
    (`public/layers.css`). No `!important` outside the reduced-motion rule.
-5. Typography: Newsreader (`pc-display`, card titles) for headings, Hanken Grotesk for UI,
-   IBM Plex Mono or `pc-num` for figures. Use Vuetify 4 MD3 classes (`text-headline-large`).
+5. Typography: Hanken Grotesk throughout; headings (`pc-display` 700, card titles 600) use tight
+   tracking. IBM Plex Mono or `pc-num` for figures. Use Vuetify 4 MD3 classes
+   (`text-headline-large`). The brand is `AppLogo` (mark plus wordmark), never plain text.
 
 ## Layout and interaction
 

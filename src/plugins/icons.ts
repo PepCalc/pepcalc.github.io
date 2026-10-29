@@ -13,6 +13,7 @@ export {
   mdiCogOutline,
   mdiDeleteOutline,
   mdiDownload,
+  mdiFilePdfBox,
   mdiHistory,
   mdiPencilOutline,
   mdiPlus,
@@ -23,5 +24,6 @@ export {
   mdiRefresh,
   mdiSortCalendarAscending,
   mdiSortCalendarDescending,
+  mdiShareVariantOutline,
   mdiWaterPlusOutline,
 } from '@mdi/js'

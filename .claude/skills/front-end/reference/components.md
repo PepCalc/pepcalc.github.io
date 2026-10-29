@@ -4,23 +4,27 @@ Part of the `front-end` skill.
 
 ## Shared components
 
-| Component                                       | Use                                                                                                                    |
-| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `common/PresetPicker.vue`                       | Number input as preset chips plus a Custom field; chips are buttons with `aria-pressed`                                |
-| `common/SourceBadge.vue`                        | Shows where a number came from (label, trial, standard, community, ...)                                                |
-| `common/SourceList.vue`                         | A list of sources, each with its badge and a link                                                                      |
-| `common/ListPager.vue`, `SortToggle.vue`        | Range caption and `v-pagination` (hidden on one page); newest or oldest first toggle                                   |
-| `common/AppSnackbar.vue`, `AppConfirm.vue`      | Render the notify and confirm stores; mounted once in `App.vue`                                                        |
-| `common/UpdatePrompt.vue`                       | Service-worker update and offline-ready notices                                                                        |
-| `common/DisclaimerDialog.vue`                   | First-run research-use acknowledgement                                                                                 |
-| `calculator/SyringeGraphic.vue`                 | SVG syringe drawn from a `SyringeSpec`; accessible label states the reading                                            |
-| `calculator/DiluentAdvisor.vue`                 | Bottom sheet: ranks water volumes for planned doses and vial size; emits the chosen mL                                 |
-| `calculator/DrawResult.vue`                     | Headline reading, warnings, syringe picker, readings on every syringe                                                  |
-| `charts/PkPanel.vue`                            | Chooses catalog or user-supplied PK, shows sources and caveats, or why no curve exists; optional `title` and `caption` |
-| `charts/PkChart.vue`                            | ECharts curve: logged doses (solid) and the previewed draw (dashed), "Now" marker, table view                          |
-| `shelf/VialCard.vue`, `DrawList.vue`            | Shelf list and draw history                                                                                            |
-| `shelf/VialAgeBadge.vue`, `VialAgePanel.vue`    | Days since mixing against the use window (text, not colour alone); the window's source and storage advice              |
-| `shelf/VialFormDialog.vue`, `LogDrawDialog.vue` | Edit a vial (composition, PK override), log a draw                                                                     |
+| Component                                       | Use                                                                                                                       |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `common/PresetPicker.vue`                       | Number input as preset chips plus a Custom field; chips are buttons with `aria-pressed`                                   |
+| `common/SourceBadge.vue`                        | Shows where a number came from (label, trial, standard, community, ...)                                                   |
+| `common/SourceList.vue`                         | A list of sources, each with its badge and a link                                                                         |
+| `common/ListPager.vue`, `SortToggle.vue`        | Range caption and `v-pagination` (hidden on one page); newest or oldest first toggle                                      |
+| `common/AppLogo.vue`                            | The brand: mark (`src/assets/brand/pepcalc-mark.svg`, same art as `public/favicon.svg`) plus the two-tone wordmark        |
+| `common/AppSnackbar.vue`, `AppConfirm.vue`      | Render the notify and confirm stores; mounted once in `App.vue`                                                           |
+| `common/UpdatePrompt.vue`                       | Service-worker update and offline-ready notices                                                                           |
+| `common/DisclaimerDialog.vue`                   | First-run research-use acknowledgement                                                                                    |
+| `calculator/SyringeGraphic.vue`                 | SVG syringe drawn from a `SyringeSpec`; accessible label states the reading                                               |
+| `calculator/DiluentAdvisor.vue`                 | Bottom sheet: ranks water volumes for planned doses and vial size; emits the chosen mL                                    |
+| `calculator/DrawResult.vue`                     | Headline reading, warnings, syringe picker, readings on every syringe                                                     |
+| `charts/PkPanel.vue`                            | Chooses catalog or user-supplied PK, shows sources and caveats, or why no curve exists; optional `title` and `caption`    |
+| `charts/PkChart.vue`                            | ECharts curve: logged doses (solid) and the previewed draw (dashed), "Now" marker, table view                             |
+| `charts/levelsChart.ts`                         | The curve's model and ECharts option, shared by `PkChart` and the share card so both draw the same thing                  |
+| `charts/ShareLevelsDialog.vue`                  | Previews the levels card (`levelsShareCard.ts`, a 1080x1350 PNG drawn on device) and shares it; name and amounts optional |
+| `history/ExportReportDialog.vue`                | Period choice and PDF export of draws and estimated levels (`useReportExport`)                                            |
+| `shelf/VialCard.vue`, `DrawList.vue`            | Shelf list and draw history                                                                                               |
+| `shelf/VialAgeBadge.vue`, `VialAgePanel.vue`    | Days since mixing against the use window (text, not colour alone); the window's source and storage advice                 |
+| `shelf/VialFormDialog.vue`, `LogDrawDialog.vue` | Edit a vial (composition, PK override), log a draw                                                                        |
 
 ## Patterns
 
@@ -39,6 +43,13 @@ Part of the `front-end` skill.
   peptide exists, so the shelf, vial page, calculator and History agree.
 - Loading a shelf vial into the calculator (`?vial=<id>`) locks amount and water; editing them
   happens on the vial page so history stays consistent.
+
+- The app bar scrolls away while reading (`useHideOnScroll`) and returns on a scroll up, a tap
+  on a non-interactive part of the page, a route change, or focus. Re-tapping the current tab
+  scrolls to the top. The bar keeps its layout slot, so content never jumps.
+- Anything shared out of the app (the levels image, the PDF report) is made on the device and
+  carries the source of every figure and the model caveat. The image lets the user leave out
+  names and amounts; the report covers a chosen period.
 
 ## Spacing and alignment
 

@@ -52,33 +52,84 @@
     color: var(--pc-brand);
   }
 
+  /*
+   * Two soft light pools (sage top left, terracotta top right) give the glass something to
+   * refract. They scroll with the page instead of using background-attachment: fixed, which
+   * iOS ignores and which forces a repaint on every scroll elsewhere.
+   */
   .v-application {
     font-family: var(--pc-font);
-    background-color: var(--pc-bg);
+    background:
+      radial-gradient(120% 60% at 0% 0%, var(--pc-backdrop-1), transparent 60%),
+      radial-gradient(90% 50% at 100% 8%, var(--pc-backdrop-2), transparent 60%), var(--pc-bg);
+    background-repeat: no-repeat;
     color: var(--pc-text-1);
   }
 
-  /* App bar: solid warm surface with a hairline; respects the iOS notch in standalone mode. */
-  .v-app-bar.v-toolbar {
-    background-color: var(--pc-surface);
+  /*
+   * Chrome (app bar, bottom navigation, rail): frosted glass that lets content scroll beneath
+   * it, a bright hairline on the lit edge, and no hard shadow. Respects the notch in standalone
+   * mode (App.vue pads for the safe areas).
+   */
+  .v-app-bar.v-toolbar,
+  .v-bottom-navigation,
+  .v-navigation-drawer {
+    background-color: var(--pc-glass);
     color: var(--pc-text-1);
-    border-bottom: 1px solid var(--pc-divider);
+    -webkit-backdrop-filter: var(--pc-glass-blur);
+    backdrop-filter: var(--pc-glass-blur);
+  }
+
+  .v-app-bar.v-toolbar {
+    border-bottom: 1px solid var(--pc-glass-edge);
+    box-shadow: var(--pc-glass-sheen);
+    transition-property: translate, box-shadow;
+    transition-duration: var(--pc-dur-base);
+    transition-timing-function: var(--pc-ease-standard);
+  }
+
+  /*
+   * Scrolled out of the way while reading (App.vue toggles the class). It slides by its own
+   * height less the safe-area inset, so a strip of glass still covers the status bar and
+   * content never scrolls under the clock. `translate` composes with the inline `transform`
+   * Vuetify's layout writes, so neither overrides the other.
+   */
+  .v-app-bar.v-toolbar.pc-app-bar--hidden {
+    translate: 0 calc(-100% + var(--safe-area-inset-top, env(safe-area-inset-top)));
     box-shadow: none;
   }
 
   .v-bottom-navigation {
-    background-color: var(--pc-surface);
-    border-top: 1px solid var(--pc-divider);
-    box-shadow: none;
+    border-top: 1px solid var(--pc-glass-edge);
+    box-shadow: var(--pc-glass-sheen);
+  }
+
+  .v-navigation-drawer {
+    border-right: 1px solid var(--pc-glass-edge);
+  }
+
+  /*
+   * Tabs are squared-off tiles inset from the bar's edges, not the app-wide pill: a pill the
+   * full height of the bar reads as a lozenge. The active tab is a soft brand tile.
+   */
+  .v-bottom-navigation .v-bottom-navigation__content > .v-btn {
+    border-radius: var(--pc-radius-xs);
+    height: calc(100% - 12px);
+    margin: 6px 3px;
   }
 
   .v-bottom-navigation .v-btn--active {
     color: var(--pc-brand);
+    background-color: var(--pc-brand-soft);
   }
 
-  .v-navigation-drawer {
-    background-color: var(--pc-surface);
-    border-right: 1px solid var(--pc-divider);
+  .v-bottom-navigation .v-btn--active > .v-btn__overlay,
+  .v-navigation-drawer .v-list-item--active > .v-list-item__overlay {
+    opacity: 0;
+  }
+
+  .v-navigation-drawer .v-list-item {
+    border-radius: var(--pc-radius-xs);
   }
 
   .v-list-item--active {
@@ -86,7 +137,15 @@
     color: var(--pc-brand);
   }
 
-  /* Cards: warm paper, hairline border, soft daylight shadow. */
+  .v-navigation-drawer .v-list-item--active {
+    background-color: var(--pc-brand-soft);
+  }
+
+  /*
+   * Cards: translucent paper over the backdrop with a lit top edge. No backdrop blur here:
+   * the backdrop behind a card is only the soft gradient, and blurring every card costs
+   * frames on mid-range phones for no visible gain.
+   */
   .v-card:not(
     .v-card--variant-outlined,
     .v-card--variant-tonal,
@@ -94,11 +153,11 @@
     .v-card--variant-text,
     .v-card--variant-plain
   ) {
-    background-color: var(--pc-surface);
+    background-color: var(--pc-glass-card);
     color: var(--pc-text-1);
-    border: 1px solid var(--pc-divider);
+    border: 1px solid var(--pc-glass-edge);
     border-radius: var(--pc-radius-lg);
-    box-shadow: var(--pc-shadow-sm);
+    box-shadow: var(--pc-glass-sheen), var(--pc-glass-shadow);
   }
 
   .v-card.v-card--variant-outlined {
@@ -113,14 +172,22 @@
 
   .v-card-title {
     font-family: var(--pc-font-display);
-    font-weight: 500;
-    letter-spacing: -0.01em;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
+  /* Floating layers (dialogs, sheets, menus, snackbars) are denser glass that blurs the page. */
+  .v-dialog > .v-overlay__content > .v-card,
+  .v-bottom-sheet > .v-overlay__content > .v-card {
+    background-color: var(--pc-glass-strong);
+    -webkit-backdrop-filter: var(--pc-glass-blur);
+    backdrop-filter: var(--pc-glass-blur);
   }
 
   .v-dialog > .v-overlay__content > .v-card {
     border-radius: var(--pc-radius-xl);
-    box-shadow: var(--pc-shadow-lg);
-    border: 1px solid var(--pc-divider-strong);
+    box-shadow: var(--pc-glass-sheen), var(--pc-shadow-lg);
+    border: 1px solid var(--pc-glass-line);
   }
 
   /*
@@ -135,16 +202,18 @@
   }
 
   .v-overlay__scrim {
-    backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
   }
 
   .v-menu > .v-overlay__content > .v-list,
   .v-menu > .v-overlay__content > .v-card {
     border-radius: var(--pc-radius-sm);
-    background-color: var(--pc-surface);
-    border: 1px solid var(--pc-divider);
-    box-shadow: var(--pc-shadow-md);
+    background-color: var(--pc-glass-strong);
+    -webkit-backdrop-filter: var(--pc-glass-blur);
+    backdrop-filter: var(--pc-glass-blur);
+    border: 1px solid var(--pc-glass-line);
+    box-shadow: var(--pc-glass-sheen), var(--pc-shadow-md);
   }
 
   /* Buttons: warm pill, calm press. */
@@ -260,10 +329,12 @@
 
   .v-snackbar__wrapper {
     border-radius: var(--pc-radius-md);
-    background-color: var(--pc-surface);
+    background-color: var(--pc-glass-strong);
+    -webkit-backdrop-filter: var(--pc-glass-blur);
+    backdrop-filter: var(--pc-glass-blur);
     color: var(--pc-text-1);
-    border: 1px solid var(--pc-divider);
-    box-shadow: var(--pc-shadow-lg);
+    border: 1px solid var(--pc-glass-line);
+    box-shadow: var(--pc-glass-sheen), var(--pc-shadow-lg);
   }
 
   .v-alert {
@@ -283,6 +354,48 @@
 
   .v-dialog > .v-overlay__content > .v-card > .v-card-actions {
     padding: 0 24px 24px;
+  }
+
+  /*
+   * Solid surfaces where glass cannot render (no backdrop-filter) or is unwanted (the user
+   * asked the OS for less transparency): translucency without blur only muddies text.
+   */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .v-app-bar.v-toolbar,
+    .v-bottom-navigation,
+    .v-navigation-drawer,
+    .v-dialog > .v-overlay__content > .v-card,
+    .v-bottom-sheet > .v-overlay__content > .v-card,
+    .v-menu > .v-overlay__content > .v-list,
+    .v-menu > .v-overlay__content > .v-card,
+    .v-snackbar__wrapper {
+      background-color: var(--pc-surface);
+    }
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .v-app-bar.v-toolbar,
+    .v-bottom-navigation,
+    .v-navigation-drawer,
+    .v-dialog > .v-overlay__content > .v-card,
+    .v-bottom-sheet > .v-overlay__content > .v-card,
+    .v-menu > .v-overlay__content > .v-list,
+    .v-menu > .v-overlay__content > .v-card,
+    .v-snackbar__wrapper {
+      background-color: var(--pc-surface);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+
+    .v-card:not(
+      .v-card--variant-outlined,
+      .v-card--variant-tonal,
+      .v-card--variant-flat,
+      .v-card--variant-text,
+      .v-card--variant-plain
+    ) {
+      background-color: var(--pc-surface);
+    }
   }
 }
 
@@ -338,8 +451,8 @@
 
   .pc-display {
     font-family: var(--pc-font-display);
-    font-weight: 500;
-    letter-spacing: -0.014em;
+    font-weight: 700;
+    letter-spacing: -0.022em;
   }
 
   .pc-muted {

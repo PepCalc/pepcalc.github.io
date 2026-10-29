@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { SourceKind } from '@/domain/catalog'
+import { SOURCE_KIND_LABELS, type SourceKind } from '@/domain/catalog'
 
 const props = defineProps<{ kind: SourceKind }>()
 
-const LABELS: Record<SourceKind, { text: string; tone: string }> = {
-  label: { text: 'Prescribing label', tone: 'good' },
-  trial: { text: 'Clinical trial', tone: 'info' },
-  standard: { text: 'Pharmacopeia standard', tone: 'info' },
-  preclinical: { text: 'Animal data', tone: 'notice' },
-  community: { text: 'Community-reported', tone: 'notice' },
-  model: { text: 'Modelling choice', tone: 'brand' },
+const TONES: Record<SourceKind, string> = {
+  label: 'good',
+  trial: 'info',
+  standard: 'info',
+  preclinical: 'notice',
+  community: 'notice',
+  model: 'brand',
 }
 
-const badge = computed(() => LABELS[props.kind])
+const badge = computed(() => ({ text: SOURCE_KIND_LABELS[props.kind], tone: TONES[props.kind] }))
 </script>
 
 <template>

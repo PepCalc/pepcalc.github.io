@@ -1,0 +1,90 @@
+import { describe, expect, it } from 'vitest'
+import { niceTicks, periodStart, reportWindow, totalsByUnit } from '@/domain/report'
+
+const DAY = 86_400_000
+const H = 3_600_000
+
+describe('periodStart', () => {
+  it('reaches back 30 or 90 days, or everything', () => {
+    expect(periodStart('30d', 100 * DAY)).toBe(70 * DAY)
+    expect(periodStart('90d', 100 * DAY)).toBe(10 * DAY)
+    expect(periodStart('all', 100 * DAY)).toBe(-Infinity)
+  })
+})
+
+describe('reportWindow', () => {
+  const params = { halfLifeHours: 168, tmaxHours: 56 }
+  it('starts just before the first dose in the period, even with older doses', () => {
+    const doses = [
+      { at: 0, amount: 1 },
+      { at: 40 * DAY, amount: 1 },
+    ]
+    const w = reportWindow(doses, params, 50 * DAY, 30 * DAY)
+    expect(w.start).toBe(40 * DAY - 14 * H)
+    expect(w.end).toBeGreaterThan(50 * DAY + 5 * 168 * H - 1)
+  })
+
+  it('falls back to now when the period has no dose', () => {
+    expect(reportWindow([], params, 50 * DAY, 30 * DAY).start).toBe(50 * DAY - 14 * H)
+  })
+})
+
+describe('totalsByUnit', () => {
+  it('sums mass across mg and mcg in the first unit seen and keeps IU apart', () => {
+    expect(
+      totalsByUnit([
+        { value: 250, unit: 'mcg' },
+        { value: 0.5, unit: 'mg' },
+        { value: 2, unit: 'iu' },
+        { value: 3, unit: 'iu' },
+      ]),
+    ).toEqual([
+      { value: 750, unit: 'mcg' },
+      { value: 5, unit: 'iu' },
+    ])
+  })
+
+  it('does not change the doses it is given', () => {
+    const doses = [
+      { value: 1, unit: 'mg' as const },
+      { value: 1, unit: 'mg' as const },
+    ]
+    totalsByUnit(doses)
+    expect(doses[0]!.value).toBe(1)
+  })
+})
+
+describe('niceTicks', () => {
+  it('uses round steps that cover the maximum', () => {
+    expect(niceTicks(0.845)).toEqual([0, 0.25, 0.5, 0.75, 1])
+    expect(niceTicks(1.87)).toEqual([0, 0.5, 1, 1.5, 2])
+    expect(niceTicks(10)).toEqual([0, 2.5, 5, 7.5, 10])
+    expect(niceTicks(0.0031)).toEqual([0, 0.001, 0.002, 0.003, 0.004])
+  })
+
+  it('has a sensible axis when there is nothing to show', () => {
+    expect(niceTicks(0)).toEqual([0, 1])
+  })
+})
+
+describe('reportWindow for short-acting peptides', () => {
+  const tesamorelin = { halfLifeHours: 0.5, tmaxHours: 0.15 }
+  const daily = Array.from({ length: 90 }, (_, i) => ({ at: i * DAY, amount: 2 }))
+
+  it('shows the three days up to the latest dose, as the in-app chart does', () => {
+    const w = reportWindow(daily, tesamorelin, 95 * DAY, 0)
+    expect(w.trimmed).toBe(true)
+    expect(w.start).toBe(89 * DAY - 72 * H)
+  })
+
+  it('keeps the whole period when it is already shorter than three days', () => {
+    const w = reportWindow(daily.slice(-2), tesamorelin, 90 * DAY, 0)
+    expect(w.trimmed).toBe(false)
+    expect(w.start).toBeLessThan(88 * DAY)
+  })
+
+  it('never trims a long-acting peptide', () => {
+    const w = reportWindow(daily, { halfLifeHours: 168, tmaxHours: 56 }, 95 * DAY, 0)
+    expect(w.trimmed).toBe(false)
+  })
+})

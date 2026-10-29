@@ -1,7 +1,14 @@
 import { expect, test, type Page } from '@playwright/test'
 
+/**
+ * Accept the first-run notice. The dialog closes only once the acceptance is on disk, so its
+ * button disappearing is the point after which a reload keeps it accepted.
+ */
 async function acceptDisclaimer(page: Page) {
-  await page.getByRole('button', { name: 'I understand' }).click()
+  const dialog = page.getByRole('dialog', { name: 'For research and education only' })
+  await expect(dialog).toBeVisible()
+  await dialog.getByRole('button', { name: 'I understand' }).click()
+  await expect(page.getByRole('button', { name: 'I understand' })).toBeHidden()
 }
 
 /**
@@ -206,4 +213,98 @@ test.describe('install guide on iOS Chrome', () => {
       .poll(() => shot.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth))
       .toBeGreaterThan(0)
   })
+})
+
+/**
+ * Scroll the way a finger does, a frame at a time, rather than jumping straight to the end.
+ * `scrollBy` rather than the mouse wheel, which Playwright cannot drive in mobile WebKit.
+ */
+async function scrollInSteps(page: Page, step: number, steps: number) {
+  for (let i = 0; i < steps; i++) {
+    const before = await page.evaluate(() => window.scrollY)
+    await page.evaluate((dy) => window.scrollBy(0, dy), step)
+    await page.waitForFunction(
+      ([from, dy]) => Math.abs(window.scrollY - from) >= Math.abs(dy) - 1,
+      [before, step] as const,
+    )
+    // Let the bar's per-frame scroll handler see each step, as it would during a real swipe.
+    await page.evaluate(() => new Promise(requestAnimationFrame))
+  }
+}
+
+test('the top bar scrolls away when reading and returns on scrolling up', async ({ page }) => {
+  await page.goto('./')
+  await acceptDisclaimer(page)
+  await page.locator('.v-select').first().click()
+  await page.getByRole('option', { name: /Semaglutide/ }).click()
+  await choose(page, 'Dose', '0.5 mg')
+  const bar = page.locator('.v-app-bar')
+  await page.evaluate(() => window.scrollTo(0, 0))
+  await expect(bar).not.toHaveClass(/pc-app-bar--hidden/)
+  await scrollInSteps(page, 150, 4)
+  await expect(bar).toHaveClass(/pc-app-bar--hidden/)
+  await scrollInSteps(page, -80, 1)
+  await expect(bar).not.toHaveClass(/pc-app-bar--hidden/)
+
+  // Hidden again, then a tap on plain page background brings it back.
+  await page.evaluate(() => window.scrollTo(0, 0))
+  await scrollInSteps(page, 150, 4)
+  await expect(bar).toHaveClass(/pc-app-bar--hidden/)
+  await page
+    .locator('.pc-page')
+    .first()
+    .click({ position: { x: 4, y: 200 } })
+  await expect(bar).not.toHaveClass(/pc-app-bar--hidden/)
+})
+
+test('estimated levels can be previewed as a shareable image', async ({ page }) => {
+  await page.goto('./')
+  await acceptDisclaimer(page)
+  await page.locator('.v-select').first().click()
+  await page.getByRole('option', { name: /Semaglutide/ }).click()
+  await choose(page, 'Peptide in vial', '5 mg')
+  await choose(page, 'Bacteriostatic water added', '2 mL')
+  await choose(page, 'Dose', '0.5 mg')
+  await page.getByRole('button', { name: 'Share as an image' }).click()
+  const preview = page.getByAltText('Preview of the image to share')
+  await expect(preview).toBeVisible()
+  await expect
+    .poll(() => preview.evaluate((img: HTMLImageElement) => [img.naturalWidth, img.naturalHeight]))
+    .toEqual([1080, 1350])
+  await page.getByLabel('Show amounts').click()
+  await expect(page.getByRole('button', { name: 'Share image' })).toBeEnabled()
+})
+
+test('exports draws and estimated levels as a PDF, offline', async ({
+  page,
+  context,
+  browserName,
+}) => {
+  test.skip(
+    browserName === 'webkit',
+    'Playwright WebKit does not drive service workers reliably; offline is verified on Chromium',
+  )
+  await page.goto('./')
+  await acceptDisclaimer(page)
+  await waitForServiceWorker(page)
+  await page.getByRole('button', { name: 'Save vial to shelf' }).click()
+  await page.getByRole('button', { name: 'Log this draw now' }).click()
+  await expect(page.getByText(/Logged 0.25 mg of Semaglutide/)).toBeVisible()
+
+  // The PDF writer is a lazily loaded chunk; it must come from the precache.
+  await context.setOffline(true)
+  await page.getByRole('link', { name: 'History' }).first().click()
+  await page.getByRole('button', { name: 'Export PDF' }).click()
+  await page.getByRole('group', { name: 'Period' }).getByRole('button', { name: '30 days' }).click()
+  const download = page.waitForEvent('download')
+  await page.getByRole('dialog').getByRole('button', { name: 'Export PDF' }).click()
+  const file = await download
+  expect(file.suggestedFilename()).toMatch(/^pepcalc-report-\d{4}-\d{2}-\d{2}\.pdf$/)
+  const bytes = Buffer.from(await (await file.createReadStream()).toArray().then(Buffer.concat))
+  const text = bytes.toString('latin1')
+  expect(text.startsWith('%PDF-1.4')).toBe(true)
+  expect(text.endsWith('%%EOF\n')).toBe(true)
+  expect(text).toContain('(Semaglutide)')
+  await expect(page.getByRole('dialog')).toBeHidden()
+  await context.setOffline(false)
 })

@@ -1,18 +1,33 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, useId } from 'vue'
 import { useSettingsStore } from '@/stores/settings'
+import { useNotifyStore } from '@/stores/notify'
 import { nowIso } from '@/services/time'
 
 const settings = useSettingsStore()
+const notify = useNotifyStore()
 const open = computed(() => settings.loaded && settings.disclaimerAcceptedAt === null)
+const saving = ref(false)
+const titleId = useId()
+
+async function accept() {
+  saving.value = true
+  try {
+    await settings.acceptDisclaimer(nowIso())
+  } catch {
+    notify.show('Could not save that on this device. Please try again.', 'error')
+  } finally {
+    saving.value = false
+  }
+}
 </script>
 
 <template>
-  <v-dialog :model-value="open" max-width="520" persistent>
+  <v-dialog :model-value="open" max-width="520" persistent :aria-labelledby="titleId">
     <v-card>
       <v-card-item>
         <p class="pc-eyebrow">Before you start</p>
-        <v-card-title class="text-wrap">For research and education only</v-card-title>
+        <v-card-title :id="titleId" class="text-wrap">For research and education only</v-card-title>
       </v-card-item>
       <v-card-text class="disclaimer">
         <p>
@@ -32,7 +47,7 @@ const open = computed(() => settings.loaded && settings.disclaimerAcceptedAt ===
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn color="primary" variant="flat" @click="settings.acceptDisclaimer(nowIso())">
+        <v-btn color="primary" variant="flat" :loading="saving" @click="accept">
           I understand
         </v-btn>
       </v-card-actions>

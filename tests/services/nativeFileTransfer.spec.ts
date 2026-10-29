@@ -32,6 +32,16 @@ describe('shareNative', () => {
     })
   })
 
+  it('writes a Blob as base64 bytes, without a text encoding', async () => {
+    const png = new Blob([new Uint8Array([137, 80, 78, 71])], { type: 'image/png' })
+    await expect(shareNative('levels.png', png)).resolves.toBe('shared')
+    expect(writeFile).toHaveBeenCalledWith({
+      path: 'levels.png',
+      data: 'iVBORw==',
+      directory: 'CACHE',
+    })
+  })
+
   it('reports a dismissed share sheet as cancelled', async () => {
     share.mockRejectedValue(new Error('Share canceled'))
     await expect(shareNative('backup.json', '{}')).resolves.toBe('cancelled')

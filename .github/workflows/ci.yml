@@ -21,4 +21,7 @@ jobs:
       - run: npm run check
       - run: npx playwright install --with-deps chromium webkit
       - run: npm run test:e2e
-      - run: npm audit --audit-level=high
+      # Any advisory fails the build, then every package is checked against the registry's
+      # signatures and provenance attestations (needs network access to sigstore, so CI only).
+      - run: npm audit --audit-level=low
+      - run: npm audit signatures
