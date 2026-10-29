@@ -64,3 +64,16 @@ ships the fix, then rerun `npm audit`.
 `$deepmerge`: a bare `file:` override resolves relative to the dependent package and breaks
 `npm ci`. Its tests are `tests/vendor/deepmerge.spec.ts`; the service worker it helps build was
 byte-identical before and after the swap.
+
+## Build-time patches
+
+A bug in a shipped dependency that is too small to vendor the whole package is fixed by a Vite
+plugin in `build/` that rewrites the one module. It runs in the production and Android builds,
+in Vitest, and in the dev pre-bundle (`optimizeDeps.rolldownOptions.plugins`). The build fails
+if the expected source is missing, so an upgrade cannot ship the dependency unpatched.
+
+| Patch                                                          | Why                                                                                                                    | Drop when                      |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| `build/vuetify-ripple-patch.ts` (`directives/ripple/index.js`) | A touch under 80 ms leaves a ripple on screen: the deferred hide reads `currentTarget` after dispatch, when it is null | Vuetify ships the fix upstream |
+
+Its tests are `tests/vendor/vuetify-ripple.spec.ts` and the e2e fling test in `e2e/app.spec.ts`.

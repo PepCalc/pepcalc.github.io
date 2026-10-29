@@ -95,7 +95,7 @@ export default defineConfigWithVueTs(
   },
   {
     // Tests build fixed dates; scripts and configs run in Node.
-    files: ['tests/**', 'e2e/**', 'scripts/**', '*.config.ts', '*.config.js'],
+    files: ['tests/**', 'e2e/**', 'scripts/**', 'build/**', '*.config.ts', '*.config.js'],
     languageOptions: { globals: { ...globals.node } },
     rules: { 'no-restricted-syntax': 'off', 'no-restricted-globals': 'off' },
   },

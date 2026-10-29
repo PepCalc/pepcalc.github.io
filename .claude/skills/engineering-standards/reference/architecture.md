@@ -25,6 +25,7 @@ tests/           Vitest, mirrors src/
 e2e/             Playwright against `vite preview` of the production build
 scripts/         gate scripts (contrast, tokens, markdown)
 vendor/          patched copies of build-time dependencies (see testing-and-gates.md)
+build/           Vite plugins that patch a dependency at build time (see testing-and-gates.md)
 ```
 
 ## Data flow

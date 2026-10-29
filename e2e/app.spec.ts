@@ -287,6 +287,12 @@ test('a tab tapped while the page is still coasting from a fling opens', async (
   await touch('touchStart', [{ x: tab.x + tab.width / 2, y: tab.y + tab.height / 2 }])
   await touch('touchEnd', [])
   await expect(page.getByRole('heading', { level: 1, name: 'Vials' })).toBeVisible()
+
+  // Back on the first tab, the Shelf tab no longer looks pressed.
+  await page.locator('.v-bottom-navigation .v-btn', { hasText: 'Calculator' }).tap()
+  await expect(page.getByRole('heading', { level: 1, name: 'How much to draw' })).toBeVisible()
+  await expect(page.locator('.v-bottom-navigation .v-ripple__container')).toHaveCount(0)
+  await expect(page.locator('.v-bottom-navigation .v-btn--active')).toHaveText('Calculator')
 })
 
 test('estimated levels can be previewed as a shareable image', async ({ page }) => {

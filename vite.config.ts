@@ -4,6 +4,7 @@ import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vuetify from 'vite-plugin-vuetify'
 import { VitePWA } from 'vite-plugin-pwa'
+import { vuetifyRipplePatch } from './build/vuetify-ripple-patch.ts'
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as {
   version: string
@@ -61,13 +62,14 @@ function contentSecurityPolicy(): Plugin {
  * serving the previous version's files after an app update). It writes to its own directory
  * so it never mixes with the Pages build.
  */
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ command, mode }) => {
   const native = mode === 'android'
   const base = native ? '/' : webBase()
   return {
     base,
     define: { __APP_VERSION__: JSON.stringify(pkg.version), __NATIVE__: JSON.stringify(native) },
     plugins: [
+      vuetifyRipplePatch({ required: command === 'build' }),
       vue(),
       vuetify({ autoImport: true }),
       contentSecurityPolicy(),
@@ -116,6 +118,8 @@ export default defineConfig(({ mode }) => {
       alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
     },
     optimizeDeps: {
+      // The dev server pre-bundles Vuetify, which bypasses the plugins above.
+      rolldownOptions: { plugins: [vuetifyRipplePatch()] },
       // Vuetify 4: keep overlay modules in one pre-bundle so nested overlays stack in dev.
       include: [
         'vuetify/components/VOverlay',
