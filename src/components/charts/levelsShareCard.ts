@@ -245,8 +245,8 @@ export async function renderLevelsCard(
   ctx.font = `400 26px ${font}`
   ctx.fillStyle = t['text-2']
   const caveat =
-    'Estimated amount in the body from logged doses, not blood levels. One-compartment ' +
-    'model. Not medical advice.' +
+    'Estimated amount in the body from logged doses, based on a simple model. ' +
+    'Not medical advice.' +
     (content.input.preview ? ' Dashed line: a draw not yet logged.' : '')
   for (const line of wrap(ctx, caveat, inner, 3)) {
     ctx.fillText(line, PAD, y)

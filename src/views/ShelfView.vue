@@ -31,7 +31,7 @@ const { state: archivedPaging, current: archivedPage } = usePaging(() => shelf.a
       <v-card-text class="pc-stack pc-stack--tight">
         <p><strong>No vials yet.</strong></p>
         <p class="pc-muted">
-          In the calculator, tap <em>Save vial to shelf</em> to track what's left as you log draws.
+          Tap <em>Save vial to shelf</em> in the calculator to track what's left.
         </p>
       </v-card-text>
     </v-card>

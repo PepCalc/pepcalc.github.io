@@ -241,9 +241,8 @@ const formatMb = (bytes: number | null) =>
             </v-btn-toggle>
           </div>
           <p v-if="settings.vialAgeMode === 'sourced'" class="text-body-medium pc-muted">
-            Uses each vial's cited limit ({{ catalog.storage.inUse.days }} days for bacteriostatic
-            water unless a peptide's label says less). Vials show <em>use soon</em> in the last
-            quarter.
+            Each vial's cited limit ({{ catalog.storage.inUse.days }} days for bacteriostatic water,
+            or less if the label says so). Vials show <em>use soon</em> in the last quarter.
           </p>
           <template v-else>
             <div class="d-flex ga-3 align-start">

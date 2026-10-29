@@ -241,14 +241,14 @@ test('the top bar scrolls away when reading and returns on scrolling up', async 
   const bar = page.locator('.v-app-bar')
   await page.evaluate(() => window.scrollTo(0, 0))
   await expect(bar).not.toHaveClass(/pc-app-bar--hidden/)
-  await scrollInSteps(page, 150, 4)
+  await scrollInSteps(page, 120, 4)
   await expect(bar).toHaveClass(/pc-app-bar--hidden/)
   await scrollInSteps(page, -80, 1)
   await expect(bar).not.toHaveClass(/pc-app-bar--hidden/)
 
   // Hidden again, then a tap on plain page background brings it back.
   await page.evaluate(() => window.scrollTo(0, 0))
-  await scrollInSteps(page, 150, 4)
+  await scrollInSteps(page, 120, 4)
   await expect(bar).toHaveClass(/pc-app-bar--hidden/)
   await page
     .locator('.pc-page')

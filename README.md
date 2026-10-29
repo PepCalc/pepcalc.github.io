@@ -5,15 +5,14 @@ from the browser to your phone or tablet's home screen; it then works with no co
 Everything you enter stays on your device.
 
 <p align="center">
-  <img src=".github/feature-peptide-calculator.png" alt="The draw calculator: a peptide, vial size and water volume chosen from sourced presets" width="300">
+  <img src=".github/feature-peptide-calculator.png" alt="The draw calculator: semaglutide, a 5 mg vial and 2 mL of water chosen from sourced presets" width="300">
   &nbsp;&nbsp;
-  <img src=".github/feature-estimated-level-over-time.png" alt="The level chart: estimated amount in the body over time from logged doses" width="300">
+  <img src=".github/feature-estimated-level-over-time.png" alt="The level chart: estimated tirzepatide in the body over time from logged draws" width="300">
 </p>
 
-Pick a peptide, the amount in your vial and the water you added, and PepCalc tells you how far
-to draw the syringe, with a drawing of the barrel to check against. Save vials to a shelf, log
-each draw, and for peptides with published human data see an estimate of how much remains in
-the body over time. It runs entirely on your device: no account, no server, no tracking.
+Pick a peptide, the amount in your vial and the water you added, and PepCalc shows how far to
+draw the syringe, with a drawing of the barrel to check against. It runs on your device with no
+account, server or tracking.
 
 > PepCalc does arithmetic and shows sourced reference values. It does not recommend doses and
 > is not medical advice. Several listed peptides are investigational or not approved for human
@@ -21,34 +20,26 @@ the body over time. It runs entirely on your device: no account, no server, no t
 
 ## Features
 
-- **Draw calculator.** Pick a peptide (or enter a custom one), the amount in the vial, and the
-  bacteriostatic water added; choose a dose in mg, mcg, or IU. PepCalc shows the volume to draw
-  and the reading on your syringe, with a drawing of the barrel. U-100 (1, 0.5, 0.3 mL,
-  half-unit), U-40, and mL syringes are supported, with warnings for draws over capacity,
-  below one mark, or between marks.
-- **Mixing advisor.** Not sure how much water to add? Enter the doses you plan to draw (a
-  range if you titrate) and the size of your vial, and PepCalc ranks water volumes so every
-  dose fits one syringe and lands on a mark. Peptides users report as stinging (GHK-Cu, and
-  blends that contain it) are diluted as far as the vial allows. When the vial is too small for
-  a gentle mix, PepCalc says how far to top up the syringe with water after drawing each dose,
-  both in the advisor and on every draw.
-- **Presets with sources.** Common vial sizes, water volumes, and doses for each peptide. Each
-  preset shows whether it comes from a prescribing label, a clinical trial, or community
-  reports.
-- **Blends.** KLOW and GLOW (and any custom composition) split each dose into its components.
-- **Shelf.** Save reconstituted vials so concentrations are never re-entered; log draws and see
-  what is left, in amount, volume, and doses.
-- **Level charts.** For peptides with human pharmacokinetic data (semaglutide, tirzepatide,
-  retatrutide, cagrilintide, tesamorelin), an estimate of the amount in the body over time from
-  your logged doses plus the draw you are calculating, projected forward with no further doses.
-  For other peptides you may enter your own half-life, and the chart is labelled as such.
-- **Share and export.** Share a level chart as an image (with the option to leave out the
-  peptide name and amounts), or export a PDF report of your draws and estimated levels for the
-  last 30 or 90 days or all time, with every half-life's source. Both are made on the device:
-  no upload, no account, no paywall.
-- **Private and offline.** No account, no server, no analytics, no third-party requests. Back up
-  to a JSON file you keep, and restore from it.
-- **Phones and tablets, light and dark.** Follows the device theme.
+- Draw calculator: dose in mg, mcg or IU, with the volume and syringe reading for U-100 (1,
+  0.5, 0.3 mL, half-unit), U-40 and mL syringes. Warns when a draw is over capacity, under one
+  mark or between marks.
+- Mixing advisor: enter the doses you plan to draw and your vial size, and PepCalc ranks water
+  volumes so every dose fits one syringe and lands on a mark. For peptides users report as
+  stinging (GHK-Cu and blends that contain it), it dilutes as far as the vial allows, or says how
+  far to top up the syringe with water.
+- Presets with sources: vial sizes, water volumes and doses for each peptide, each marked as
+  coming from a prescribing label, a clinical trial or community reports.
+- Blends: KLOW, GLOW and custom mixes split each dose into its components.
+- Shelf: save mixed vials, log draws and see what's left.
+- Level charts: an estimate of the amount remaining in the body, based on a simple model from
+  published human data (semaglutide, tirzepatide, retatrutide, cagrilintide, tesamorelin). For
+  other peptides you can enter your own half-life, and the chart is marked user-supplied.
+- Share and export: share a level chart as an image, with or without the peptide name and
+  amounts, or export a PDF report for the last 30 days, 90 days or all time. Both are made on
+  the device.
+- Private and offline: no account, server, analytics or third-party requests. Back up to a JSON
+  file you keep.
+- Phones and tablets, in light and dark themes.
 
 ## Launch peptides
 

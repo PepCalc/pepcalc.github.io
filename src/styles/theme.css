@@ -244,7 +244,7 @@
     letter-spacing: -0.003em;
   }
 
-  /* Fields: warm surface, soft inset, sage focus border plus terracotta ring. */
+  /* Fields: warm surface, soft inset, sage focus border. One focus indicator, not a border and a ring. */
   .v-field--variant-outlined {
     background-color: var(--pc-surface);
     border-radius: var(--pc-radius-md);
@@ -262,10 +262,6 @@
 
   .v-field--focused.v-field--variant-outlined .v-field__outline {
     color: var(--pc-brand);
-  }
-
-  .v-field--focused.v-field--variant-outlined {
-    box-shadow: var(--pc-shadow-focus);
   }
 
   .v-field--error.v-field--variant-outlined .v-field__outline {

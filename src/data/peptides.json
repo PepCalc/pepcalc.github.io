@@ -4,7 +4,7 @@
   "storage": {
     "inUse": {
       "days": 28,
-      "note": "Discard 28 days after the first puncture, the period bacteriostatic water's preservative is tested for. This limit is about sterility; how long a mixed peptide stays potent is unknown.",
+      "note": "Discard 28 days after the first puncture, the period the water's preservative is tested for. How long a mixed peptide stays potent is unknown.",
       "sources": [
         {
           "kind": "standard",
@@ -68,7 +68,7 @@
       "pk": {
         "halfLifeHours": 168,
         "tmaxHours": 56,
-        "notes": "Label: half-life about 1 week, peak 1 to 3 days after a dose, subcutaneous bioavailability 89%. The model uses the single-dose median time to peak of 56 h in healthy adults.",
+        "notes": "Label: half-life about 1 week, peak 1 to 3 days after a dose. The model uses the median peak of 56 h.",
         "sources": [
           {
             "kind": "label",
@@ -118,7 +118,7 @@
       "pk": {
         "halfLifeHours": 120,
         "tmaxHours": 24,
-        "notes": "Label: half-life about 5 days, peak 8 to 72 hours after a dose, bioavailability 80%. The label gives only a range for time to peak; 24 h is a modelling choice inside it.",
+        "notes": "Label: half-life about 5 days, peak 8 to 72 hours after a dose. The model uses 24 h, inside that range.",
         "sources": [
           {
             "kind": "label",

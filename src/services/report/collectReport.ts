@@ -69,8 +69,8 @@ function describePeptide(
       curve: null,
       noCurveReason:
         peptide?.pkUnavailableReason ??
-        'No level curve: there is no pharmacokinetic data for a custom peptide. Enter a ' +
-          'half-life and time to peak on the vial to see one.',
+        'No level curve: custom peptides have no published data. Enter a half-life and time ' +
+          'to peak on the vial to see one.',
     }
   }
 

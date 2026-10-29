@@ -124,8 +124,8 @@ async function deleteDraw(draw: DrawRow) {
         <v-card v-if="withoutPk.length || cleared.length" variant="tonal">
           <v-card-text class="text-body-medium pc-stack pc-stack--tight">
             <p v-if="withoutPk.length">
-              <strong>No curve for {{ withoutPk.join(', ') }}.</strong> There's no reliable human
-              data. To see one, add your own half-life and time to peak on the vial.
+              <strong>No curve for {{ withoutPk.join(', ') }}.</strong> No reliable human data. Add
+              your own half-life and time to peak on the vial to see one.
             </p>
             <p v-if="cleared.length">
               <strong>Cleared:</strong> {{ cleared.join(', ') }}. Logged doses are estimated to have

@@ -66,18 +66,16 @@ const TOP = 48
 const BOTTOM = 56
 
 const CAVEAT =
-  'Estimated amount left in the body from logged doses, not blood levels. A one-compartment ' +
-  'model fitted to the half-life and time to peak; it ignores bioavailability and individual ' +
-  'variation, and assumes no further doses.'
+  'Estimated amount left in the body from logged doses, not blood levels. Based on a simple ' +
+  'model from the half-life and time to peak.'
 
 const ABOUT = [
-  'PepCalc does arithmetic and shows sourced references. It never recommends a dose, and ' +
-    'nothing in this report is medical advice.',
-  'Draws are the ones logged in PepCalc on this device. Doses in IU are never converted to or ' +
-    'added to mass. Level curves pool every logged draw of a peptide across its vials.',
-  'Built-in half-lives and times to peak come only from human data (a prescribing label or a ' +
-    'clinical trial); values marked user-supplied were entered by the person who made this ' +
-    'report.',
+  'PepCalc does arithmetic and shows sourced references. It never recommends a dose and is ' +
+    'not medical advice.',
+  'Draws are those logged in PepCalc on this device. IU doses are never converted to mass. ' +
+    'Level curves include every logged draw of a peptide, across all its vials.',
+  'Built-in half-lives and peak times come only from human data (a label or a clinical ' +
+    'trial). Values marked user-supplied were entered by the person who made this report.',
 ]
 
 /**
