@@ -85,9 +85,7 @@ const typedLimits = computed(() => ({
   pastDays: Number(ageForm.past),
 }))
 const ageFormError = computed(() =>
-  areValidLimits(typedLimits.value)
-    ? undefined
-    : 'Use whole days, with "use soon" earlier than "past".',
+  areValidLimits(typedLimits.value) ? undefined : 'Use whole days, with "use soon" before "past".',
 )
 watch(typedLimits, (typed) => {
   const saved = settings.customAgeLimits
@@ -115,7 +113,7 @@ async function exportData() {
     )
     if (result !== 'cancelled') {
       await settings.markBackedUp(backup.exportedAt)
-      notify.show('Backup saved. Keep it somewhere safe.', 'success')
+      notify.show('Backup saved', 'success')
     }
   } finally {
     busy.value = false
@@ -131,7 +129,7 @@ async function importData(event: Event) {
     const backup = parseBackup(await file.text())
     const ok = await confirm.ask({
       title: 'Replace everything on this device?',
-      text: `The backup has ${backup.vials.length} vials and ${backup.draws.length} draws. Your current ${shelf.vials.length} vials and ${shelf.draws.length} draws will be replaced.`,
+      text: `Your ${shelf.vials.length} vials and ${shelf.draws.length} draws will be replaced with ${backup.vials.length} vials and ${backup.draws.length} draws from the backup.`,
       confirmText: 'Restore backup',
       destructive: true,
     })
@@ -141,7 +139,7 @@ async function importData(event: Event) {
     theme.change(settings.theme)
     notify.show('Backup restored', 'success')
   } catch (e) {
-    notify.show(e instanceof BackupFormatError ? e.message : 'Could not read that file.', 'error')
+    notify.show(e instanceof BackupFormatError ? e.message : "Couldn't read that file.", 'error')
   }
 }
 
@@ -243,9 +241,9 @@ const formatMb = (bytes: number | null) =>
             </v-btn-toggle>
           </div>
           <p v-if="settings.vialAgeMode === 'sourced'" class="text-body-medium pc-muted">
-            Each vial counts against its cited limit ({{ catalog.storage.inUse.days }} days for
-            bacteriostatic water, shorter where a peptide's label says so) and is marked
-            <em>use soon</em> in its last quarter.
+            Uses each vial's cited limit ({{ catalog.storage.inUse.days }} days for bacteriostatic
+            water unless a peptide's label says less). Vials show <em>use soon</em> in the last
+            quarter.
           </p>
           <template v-else>
             <div class="d-flex ga-3 align-start">
@@ -265,8 +263,7 @@ const formatMb = (bytes: number | null) =>
               />
             </div>
             <p class="text-body-medium pc-muted">
-              These are your own thresholds, not a sourced limit. Each vial page still shows its
-              cited limit ({{ catalog.storage.inUse.days }} days for bacteriostatic water).
+              Your own thresholds. Each vial still shows its cited limit.
             </p>
             <div class="pc-actions">
               <v-btn variant="text" @click="resetAgeLimits">
@@ -285,15 +282,14 @@ const formatMb = (bytes: number | null) =>
         </v-card-item>
         <v-card-text class="pc-stack">
           <p>
-            Everything is stored only in this browser on this device. If you clear site data,
-            uninstall the app, or the system reclaims storage, it is gone. A backup file is the only
-            copy that survives.
+            Your data is only on this device. Clearing site data or uninstalling deletes it, so keep
+            a backup.
           </p>
           <v-alert v-if="backupStale" type="warning" variant="tonal" density="compact">
             {{
               settings.lastBackupAt
                 ? `Last backup ${backupAge} days ago.`
-                : 'You have not made a backup yet.'
+                : "You haven't made a backup yet."
             }}
           </v-alert>
           <p v-else-if="settings.lastBackupAt" class="pc-muted">
@@ -322,8 +318,8 @@ const formatMb = (bytes: number | null) =>
             />
           </div>
           <p class="text-body-small pc-muted">
-            On iPhone and iPad, the Safari tab and the Home Screen app keep separate data. Move data
-            between them with a backup.
+            On iPhone and iPad, Safari and the Home Screen app store data separately. Use a backup
+            to move between them.
           </p>
         </v-card-text>
       </v-card>
@@ -336,10 +332,10 @@ const formatMb = (bytes: number | null) =>
         <v-card-text class="pc-stack">
           <p v-if="install.state.standalone" class="d-flex align-center ga-2">
             <v-icon :icon="mdiCheckCircleOutline" color="success" />
-            Running as an installed app.
+            Installed
           </p>
           <template v-else>
-            <p>Installed, PepCalc opens full screen and works with no connection.</p>
+            <p>Install PepCalc to open it full screen and use it offline.</p>
             <v-btn
               v-if="install.canPrompt.value"
               color="primary"
@@ -406,19 +402,16 @@ const formatMb = (bytes: number | null) =>
         <v-card-text class="pc-stack">
           <ul class="privacy-list">
             <li>
-              <v-icon :icon="mdiShieldLockOutline" size="small" /> No account, no server, no
-              analytics.
+              <v-icon :icon="mdiShieldLockOutline" size="small" /> No account, server or analytics.
             </li>
-            <li>
-              <v-icon :icon="mdiCloudOffOutline" size="small" /> Works fully offline once loaded.
-            </li>
+            <li><v-icon :icon="mdiCloudOffOutline" size="small" /> Works offline.</li>
           </ul>
           <p class="text-body-small pc-muted">
             Storage:
             {{
               storage.state.persisted
-                ? 'protected from automatic clean-up'
-                : 'best effort (the browser may clear it under storage pressure)'
+                ? 'protected'
+                : 'not protected (the browser may clear it when space is low)'
             }}
             <template v-if="storage.state.usageBytes !== null">
               · {{ formatMb(storage.state.usageBytes) }} used
@@ -434,13 +427,12 @@ const formatMb = (bytes: number | null) =>
         </v-card-item>
         <v-card-text class="about">
           <p>
-            A reconstitution and draw calculator for peptide research. It does arithmetic and shows
-            sourced reference values; it does not recommend doses and is not medical advice.
+            A reconstitution and draw calculator for peptide research. It shows sourced reference
+            values but doesn't recommend doses and isn't medical advice.
           </p>
           <p>
-            Preset values carry their source: prescribing labels, clinical trials, or
-            community-reported amounts (not clinically established). Level charts are model
-            estimates.
+            Presets come from prescribing labels, clinical trials or community reports. Community
+            amounts aren't clinically established. Level charts are estimates.
           </p>
         </v-card-text>
       </v-card>

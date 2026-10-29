@@ -25,10 +25,7 @@ async function exportReport() {
   <v-dialog v-model="open" max-width="520" :aria-labelledby="titleId">
     <v-card>
       <v-card-item>
-        <p class="pc-eyebrow">Export</p>
-        <v-card-title :id="titleId" class="text-wrap"
-          >Draws and estimated levels as a PDF</v-card-title
-        >
+        <v-card-title :id="titleId" class="text-wrap">Export report</v-card-title>
       </v-card-item>
       <v-card-text class="pc-stack">
         <div>
@@ -38,12 +35,7 @@ async function exportReport() {
           </v-btn-toggle>
         </div>
         <p class="text-body-medium">
-          For each peptide: your draws, totals, the estimated-level curve with its half-life and
-          where that comes from. Then the full draw log, with your notes.
-        </p>
-        <p class="text-body-small pc-muted">
-          Made on this device; nothing is uploaded. The file holds only what is printed in it, so
-          share it only with people you choose.
+          Draws, totals and estimated levels for each peptide, plus your full draw log with notes.
         </p>
       </v-card-text>
       <v-card-actions>

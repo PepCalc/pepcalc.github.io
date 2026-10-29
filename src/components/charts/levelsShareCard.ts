@@ -245,9 +245,9 @@ export async function renderLevelsCard(
   ctx.font = `400 26px ${font}`
   ctx.fillStyle = t['text-2']
   const caveat =
-    'Estimated drug left in the body from logged doses (not blood levels), using a ' +
-    'one-compartment model. Not medical advice.' +
-    (content.input.preview ? ' Dashed line: a draw being calculated, not yet logged.' : '')
+    'Estimated amount in the body from logged doses, not blood levels. One-compartment ' +
+    'model. Not medical advice.' +
+    (content.input.preview ? ' Dashed line: a draw not yet logged.' : '')
   for (const line of wrap(ctx, caveat, inner, 3)) {
     ctx.fillText(line, PAD, y)
     y += 36
@@ -255,7 +255,7 @@ export async function renderLevelsCard(
 
   ctx.font = `600 24px ${font}`
   ctx.fillStyle = t['text-3']
-  ctx.fillText('Made on-device with PepCalc · free, private, open source', PAD, HEIGHT - PAD + 12)
+  ctx.fillText('Made with PepCalc', PAD, HEIGHT - PAD + 12)
 
   return new Promise((resolve, reject) =>
     canvas.toBlob(

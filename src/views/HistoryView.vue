@@ -40,9 +40,9 @@ const cleared = computed(() =>
 
 function captionFor(g: PeptideLevels): string {
   const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
-  let text = `Sum of ${plural(g.doses.length, 'logged dose')} from ${plural(g.vialCount, 'vial')}.`
+  let text = `${plural(g.doses.length, 'logged dose')} from ${plural(g.vialCount, 'vial')}.`
   if (g.excluded) {
-    text += ` ${plural(g.excluded, 'draw')} in a unit that cannot be converted to ${unitLabel(g.unit)} left out.`
+    text += ` Excludes ${plural(g.excluded, 'draw')} that can't be converted to ${unitLabel(g.unit)}.`
   }
   return text
 }
@@ -74,7 +74,7 @@ const groups = computed(() => {
 async function deleteDraw(draw: DrawRow) {
   const ok = await confirm.ask({
     title: 'Delete this draw?',
-    text: `${roundTo(draw.dose.value, 4)} ${unitLabel(draw.dose.unit)} on ${formatDateTime(draw.takenAt)} will be removed.`,
+    text: `${roundTo(draw.dose.value, 4)} ${unitLabel(draw.dose.unit)} on ${formatDateTime(draw.takenAt)}`,
     confirmText: 'Delete',
     destructive: true,
   })
@@ -104,9 +104,7 @@ async function deleteDraw(draw: DrawRow) {
     <ExportReportDialog v-model="exporting" />
 
     <v-card v-if="shelf.loaded && !shelf.draws.length" variant="tonal">
-      <v-card-text class="pc-muted">
-        Draws you log from a shelf vial appear here, newest first.
-      </v-card-text>
+      <v-card-text class="pc-muted"> Draws you log appear here. </v-card-text>
     </v-card>
 
     <section v-if="levelGroups.length" class="mb-6" aria-label="Estimated levels">
@@ -126,9 +124,8 @@ async function deleteDraw(draw: DrawRow) {
         <v-card v-if="withoutPk.length || cleared.length" variant="tonal">
           <v-card-text class="text-body-medium pc-stack pc-stack--tight">
             <p v-if="withoutPk.length">
-              <strong>No curve for {{ withoutPk.join(', ') }}:</strong> no reliable human
-              pharmacokinetic data. Enter your own half-life and time to peak on the vial to see
-              one.
+              <strong>No curve for {{ withoutPk.join(', ') }}.</strong> There's no reliable human
+              data. To see one, add your own half-life and time to peak on the vial.
             </p>
             <p v-if="cleared.length">
               <strong>Cleared:</strong> {{ cleared.join(', ') }}. Logged doses are estimated to have

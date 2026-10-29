@@ -11,7 +11,7 @@ const { needRefresh, offlineReady, updateServiceWorker } = useRegisterSW({ immed
 
 <template>
   <v-snackbar v-model="needRefresh" :timeout="-1" location="top">
-    A new version of PepCalc is ready.
+    A new version is available.
     <template #actions>
       <v-btn variant="text" :prepend-icon="mdiRefresh" @click="updateServiceWorker(true)"
         >Reload</v-btn
@@ -20,6 +20,6 @@ const { needRefresh, offlineReady, updateServiceWorker } = useRegisterSW({ immed
     </template>
   </v-snackbar>
   <v-snackbar v-model="offlineReady" :timeout="4000" location="top">
-    PepCalc is ready to work offline.
+    Ready to use offline.
   </v-snackbar>
 </template>

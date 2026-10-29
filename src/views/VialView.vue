@@ -66,9 +66,7 @@ const pooled = computed(() =>
   vial.value ? shelf.pooledDosesFor(vial.value, chartUnit.value) : { doses: [], vialCount: 0 },
 )
 const pooledCaption = computed(() =>
-  pooled.value.vialCount > 1
-    ? `Includes doses from ${pooled.value.vialCount} vials of this peptide.`
-    : undefined,
+  pooled.value.vialCount > 1 ? `Includes doses from ${pooled.value.vialCount} vials.` : undefined,
 )
 
 const concentrationText = computed(() => {
@@ -94,7 +92,7 @@ async function saveDraw(draw: NewDraw) {
 async function deleteDraw(draw: DrawRow) {
   const ok = await confirm.ask({
     title: 'Delete this draw?',
-    text: `${roundTo(draw.dose.value, 4)} ${unitLabel(draw.dose.unit)} on ${formatDateTime(draw.takenAt)} will be removed and the vial balance restored.`,
+    text: `${roundTo(draw.dose.value, 4)} ${unitLabel(draw.dose.unit)} on ${formatDateTime(draw.takenAt)} will be added back to the vial.`,
     confirmText: 'Delete',
     destructive: true,
   })
@@ -114,7 +112,7 @@ async function deleteVial() {
   if (!vial.value) return
   const ok = await confirm.ask({
     title: `Delete ${shelf.displayName(vial.value)}?`,
-    text: `The vial and its ${draws.value.length} logged draws will be permanently removed from this device. Archive it instead to keep the history.`,
+    text: `This permanently deletes the vial and its ${draws.value.length} logged draws. To keep them, archive it instead.`,
     confirmText: 'Delete vial',
     destructive: true,
   })
@@ -176,8 +174,7 @@ async function deleteVial() {
                 aria-label="Share of vial remaining"
               />
               <v-alert v-if="balance.overdrawn" type="warning" variant="tonal" density="compact">
-                Logged draws add up to more than the vial held. Check the vial amount or delete a
-                mistaken entry.
+                Logged draws exceed the vial amount. Check the amount or delete a wrong entry.
               </v-alert>
               <p v-if="vial.components" class="text-body-small pc-muted">
                 Blend: {{ vial.components.map((c) => `${c.name} ${c.amountMg} mg`).join(', ') }}

@@ -113,9 +113,7 @@ onMounted(async () => {
         :stacked="!wide"
         class="install-banner"
       >
-        <v-banner-text>
-          Add PepCalc to your Home Screen to use it offline like an app.
-        </v-banner-text>
+        <v-banner-text> Add PepCalc to your Home Screen to use it offline. </v-banner-text>
         <template #actions>
           <v-btn :to="{ name: 'settings' }" variant="text">How</v-btn>
           <v-btn variant="text" @click="settings.dismissInstallHint()">Dismiss</v-btn>

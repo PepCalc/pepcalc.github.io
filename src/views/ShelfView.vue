@@ -31,9 +31,7 @@ const { state: archivedPaging, current: archivedPage } = usePaging(() => shelf.a
       <v-card-text class="pc-stack pc-stack--tight">
         <p><strong>No vials yet.</strong></p>
         <p class="pc-muted">
-          Work out a draw in the calculator (<em>Help me choose</em> suggests how much water to
-          add), then choose <em>Save vial to shelf</em>. PepCalc will remember the concentration and
-          track what is left as you log draws.
+          In the calculator, tap <em>Save vial to shelf</em> to track what's left as you log draws.
         </p>
       </v-card-text>
     </v-card>

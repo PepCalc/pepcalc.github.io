@@ -83,7 +83,7 @@ const mixContext = computed<MixContext>(() => ({
 
 const doseHint = computed(() => {
   const doses = calc.peptide.value?.doses
-  if (!doses) return 'No established dose for this peptide: enter your own.'
+  if (!doses) return 'No established dose. Enter your own.'
   return undefined
 })
 
@@ -96,9 +96,7 @@ const pooled = computed(() =>
     : { doses: [], vialCount: 0 },
 )
 const pooledCaption = computed(() =>
-  pooled.value.vialCount > 1
-    ? `Includes doses from ${pooled.value.vialCount} vials of this peptide.`
-    : undefined,
+  pooled.value.vialCount > 1 ? `Includes doses from ${pooled.value.vialCount} vials.` : undefined,
 )
 
 const previewDose = computed<DoseEvent | null>(() =>
@@ -237,11 +235,7 @@ function clearShelfVial() {
                 label="Peptide in vial"
                 :presets="calc.peptide.value?.vialSizes.values ?? []"
                 :unit-label="unitLabel(state.vialUnit)"
-                :hint="
-                  calc.peptide.value
-                    ? 'Common vial sizes. Use the amount printed on your vial.'
-                    : undefined
-                "
+                :hint="calc.peptide.value ? 'Use the amount printed on your vial.' : undefined"
               />
               <v-btn-toggle
                 v-if="state.peptideId === CUSTOM_PEPTIDE"
@@ -261,7 +255,7 @@ function clearShelfVial() {
               label="Bacteriostatic water added"
               :presets="calc.peptide.value?.diluentMl.values ?? [1, 2, 3, 5]"
               unit-label="mL"
-              hint="More water makes small doses easier to measure, but each dose is a larger volume."
+              hint="More water makes small doses easier to measure but increases each dose's volume."
             />
             <v-btn
               variant="tonal"
@@ -283,7 +277,7 @@ function clearShelfVial() {
             >
               Save vial to shelf
             </v-btn>
-            <span class="text-body-small pc-faint">Remembers this vial so you can log draws.</span>
+            <span class="text-body-small pc-faint">Track this vial and log draws.</span>
           </v-card-actions>
         </v-card>
 
@@ -352,9 +346,7 @@ function clearShelfVial() {
         <v-card v-else variant="tonal">
           <v-card-text class="pc-muted">
             <template v-if="calc.error.value">{{ calc.error.value }}</template>
-            <template v-else
-              >Choose the vial amount, water and dose to see how much to draw.</template
-            >
+            <template v-else>Enter the vial amount, water and dose.</template>
           </v-card-text>
         </v-card>
 

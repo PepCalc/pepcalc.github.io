@@ -182,12 +182,10 @@ function drawHeader(layout: Layout, data: ReportData) {
 
   layout.y += 14
   page.rect(MARGIN, layout.y, layout.width, 30, { fill: ink['surface-2'] }, 6)
-  page.text(
-    MARGIN + 12,
-    layout.y + 18.5,
-    'Made on this device by PepCalc, which has no servers or accounts. This file holds only what is printed here.',
-    { size: 8.5, color: ink['text-2'] },
-  )
+  page.text(MARGIN + 12, layout.y + 18.5, 'Made with PepCalc on this device.', {
+    size: 8.5,
+    color: ink['text-2'],
+  })
   layout.y += 30 + 18
 }
 

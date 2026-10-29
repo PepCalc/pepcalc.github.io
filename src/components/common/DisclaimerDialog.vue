@@ -15,7 +15,7 @@ async function accept() {
   try {
     await settings.acceptDisclaimer(nowIso())
   } catch {
-    notify.show('Could not save that on this device. Please try again.', 'error')
+    notify.show("Couldn't save. Try again.", 'error')
   } finally {
     saving.value = false
   }
@@ -31,19 +31,14 @@ async function accept() {
       </v-card-item>
       <v-card-text class="disclaimer">
         <p>
-          PepCalc does arithmetic: it converts a vial amount, a water volume and a dose into a
-          volume and syringe reading. It does not recommend doses and is not medical advice.
+          PepCalc converts a vial amount, water volume and dose into a syringe reading. It doesn't
+          recommend doses and isn't medical advice.
         </p>
         <p>
-          Several peptides listed here are investigational or not approved for human use. Preset
-          amounts are labelled with their source; community-reported values are not clinically
-          established. Level charts are model estimates.
+          Some peptides listed are investigational or not approved for human use. Community-reported
+          amounts aren't clinically established, and level charts are estimates.
         </p>
-        <p>Always check a calculation against your vial's label and your syringe's markings.</p>
-        <p class="pc-muted">
-          Everything you enter stays on this device. There is no account, no server, and no
-          tracking.
-        </p>
+        <p>Always check results against your vial label and syringe markings.</p>
       </v-card-text>
       <v-card-actions>
         <v-spacer />

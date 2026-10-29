@@ -58,7 +58,7 @@ async function render() {
       ),
     )
   } catch {
-    notify.show('Could not draw the image on this device.', 'error')
+    notify.show("Couldn't create the image.", 'error')
     open.value = false
   } finally {
     busy.value = false
@@ -78,7 +78,7 @@ async function share() {
     `pepcalc-${slug}-${fileDate(systemClock().getTime())}.png`,
     image.value,
   )
-  if (result === 'downloaded') notify.show('Image saved to your downloads.', 'success')
+  if (result === 'downloaded') notify.show('Image saved', 'success')
   if (result !== 'cancelled') open.value = false
 }
 </script>
@@ -87,8 +87,7 @@ async function share() {
   <v-dialog v-model="open" max-width="520" scrollable :aria-labelledby="titleId">
     <v-card>
       <v-card-item>
-        <p class="pc-eyebrow">Share</p>
-        <v-card-title :id="titleId">Estimated levels as an image</v-card-title>
+        <v-card-title :id="titleId">Share estimated levels</v-card-title>
       </v-card-item>
       <v-card-text class="pc-stack">
         <div class="share-preview">
@@ -101,13 +100,11 @@ async function share() {
           <v-progress-circular v-else indeterminate color="primary" />
         </div>
         <div class="pc-stack pc-stack--tight">
-          <v-switch v-model="showName" label="Show the peptide name" hide-details />
+          <v-switch v-model="showName" label="Show peptide name" hide-details />
           <v-switch v-model="showAmounts" label="Show amounts" hide-details />
         </div>
         <p class="text-body-small pc-muted">
-          Made on this device. Nothing is uploaded; the image goes only where you send it, and
-          carries no data beyond what you see. Without the name, the half-life and curve may still
-          suggest which peptide it is.
+          Even without the name, the half-life and curve may reveal the peptide.
         </p>
       </v-card-text>
       <v-card-actions>

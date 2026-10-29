@@ -42,8 +42,8 @@ const sources = computed(() =>
       <div v-if="age" class="pc-stack pc-stack--tight">
         <div><VialAgeBadge :age="age" /></div>
         <p v-if="age.custom" class="text-body-small pc-muted pc-num">
-          Your thresholds from Settings: use soon from day {{ age.limits.nearingDays }}, past from
-          day {{ age.limits.pastDays }}.
+          Your settings: use soon from day {{ age.limits.nearingDays }}, past from day
+          {{ age.limits.pastDays }}.
         </p>
       </div>
       <div v-else>

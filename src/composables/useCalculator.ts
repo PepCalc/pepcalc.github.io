@@ -182,11 +182,11 @@ export function useCalculator(initial: Partial<CalculatorInput> = {}) {
     const cap = caps.find((c) => c.amountMg / c.maxMgPerMl >= gentleMinMl - 1e-9)!
     const topUp = syringeTopUp(drawMl, waterMl, gentleMinMl, syringe)
     const remedy = topUp
-      ? `To inject it gentler, draw the dose, then pull bacteriostatic water into the same syringe up to ${scaleLabel(topUp)}.`
+      ? `To reduce stinging, draw the dose, then pull bacteriostatic water into the same syringe up to ${scaleLabel(topUp)}.`
       : 'More water may sting less.'
     return {
       tone: 'notice',
-      text: `${cap.name} at ${roundTo(cap.amountMg / waterMl, 1)} mg/mL is stronger than PepCalc's ${cap.maxMgPerMl} mg/mL guide, set from user reports of stinging. ${remedy}`,
+      text: `${cap.name} at ${roundTo(cap.amountMg / waterMl, 1)} mg/mL is stronger than ${cap.maxMgPerMl} mg/mL, above which users report stinging. ${remedy}`,
     }
   }
 
@@ -196,22 +196,22 @@ export function useCalculator(initial: Partial<CalculatorInput> = {}) {
     const p = plan.value
     if (!r || !p) return list
     if (p.volumeMl > (state.diluentMl ?? 0) + 1e-9) {
-      list.push({ tone: 'alert', text: 'This dose is more than the whole vial contains.' })
+      list.push({ tone: 'alert', text: 'This dose is more than the vial contains.' })
     }
     if (!r.fits) {
       list.push({
         tone: 'alert',
-        text: `Too much for this syringe: it needs ${r.fillsNeeded} full draws. Use a larger syringe or less water.`,
+        text: `Needs ${r.fillsNeeded} full draws of this syringe. Use a larger syringe or less water.`,
       })
     } else if (r.belowResolution) {
       list.push({
         tone: 'alert',
-        text: 'Smaller than one mark on this syringe, so it cannot be measured. Use a finer syringe or more water.',
+        text: 'Too small to measure on this syringe. Use a finer syringe or more water.',
       })
     } else if (r.tickRoundingError > TICK_ERROR_WARNING) {
       list.push({
         tone: 'notice',
-        text: `Falls between marks: the nearest mark is ${Math.round(r.tickRoundingError * 100)}% off. Adjusting water volume gives a cleaner reading.`,
+        text: `Falls between marks. The nearest mark is ${Math.round(r.tickRoundingError * 100)}% off. Change the water volume for a cleaner reading.`,
       })
     }
     const comfort = comfortWarning(p.volumeMl, r.syringe)
@@ -219,7 +219,7 @@ export function useCalculator(initial: Partial<CalculatorInput> = {}) {
     if (r.syringe.unitsPerMl === 40) {
       list.push({
         tone: 'notice',
-        text: 'U-40 units are not U-100 units. Check the syringe label before drawing.',
+        text: 'U-40 units differ from U-100 units. Check the syringe label.',
       })
     }
     return list

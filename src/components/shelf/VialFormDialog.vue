@@ -185,15 +185,11 @@ function save() {
             type="number"
             inputmode="decimal"
             :rules="[rules.positive]"
-            hint="Changing this does not rewrite volumes already logged."
+            hint="Doesn't change volumes already logged."
             persistent-hint
           />
 
-          <v-text-field
-            v-model="form.reconstitutedAt"
-            label="Reconstituted on"
-            type="datetime-local"
-          />
+          <v-text-field v-model="form.reconstitutedAt" label="Mixed on" type="datetime-local" />
 
           <div class="d-flex ga-3 align-start">
             <v-text-field
@@ -220,12 +216,12 @@ function save() {
             />
             <p class="text-body-small pc-muted">
               <template v-if="catalogPk">
-                Overrides the published values (t½ {{ catalogPk.halfLifeHours }} h, peak
-                {{ catalogPk.tmaxHours }} h). The chart will be labelled user-supplied.
+                Replaces the published values (t½ {{ catalogPk.halfLifeHours }} h, peak
+                {{ catalogPk.tmaxHours }} h). The chart is labelled user-supplied.
               </template>
               <template v-else>
-                No reliable human data exists for this peptide. Values you enter are your own
-                assumption and the chart will say so.
+                There's no reliable human data for this peptide. The chart is labelled
+                user-supplied.
               </template>
             </p>
           </div>

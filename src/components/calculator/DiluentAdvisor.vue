@@ -76,11 +76,11 @@ function tagsFor(o: DiluentOption) {
 
 const PROBLEMS: Record<DiluentProblem, string> = {
   'too-large':
-    'Your largest dose does not fit one syringe at any dilution. Choose a larger syringe.',
+    "Your largest dose doesn't fit in one syringe at any dilution. Choose a larger syringe.",
   'too-small':
-    'Your smallest dose is under one mark on this syringe even at 10 mL. A finer syringe can measure it.',
+    'Your smallest dose is under one mark on this syringe, even at 10 mL. Choose a finer syringe.',
   'range-too-wide':
-    'No single volume measures your smallest dose and fits your largest in one syringe. Narrow the range or change syringe.',
+    'No single volume works for both your smallest and largest dose. Narrow the range or change syringe.',
   'more-than-vial': 'Your largest dose is more than this vial contains.',
 }
 
@@ -99,8 +99,8 @@ const MARK_PHRASE: Record<MarkFit, string> = {
 const reason = computed(() => {
   const b = advisor.best.value
   if (!b) return ''
-  const vial = b.fitsVial ? 'fits your vial' : 'needs a larger vial'
-  return `Recommended ${vial}, keeps each dose in one syringe and ${MARK_PHRASE[b.marks]}, and dilutes as far as that allows.`
+  const vial = b.fitsVial ? 'Fits your vial' : 'Needs a larger vial'
+  return `${vial}, keeps each dose in one syringe and ${MARK_PHRASE[b.marks]}, and is as dilute as that allows.`
 })
 
 /** The gentler volume, rounded up to a measurable half mL, when the vial cannot hold it. */
@@ -151,7 +151,7 @@ function choose() {
               class="pc-inset pa-3 text-body-medium"
               data-testid="advisor-top-up"
             >
-              To sting less, draw the dose, then pull water into the same syringe up to
+              To reduce stinging, draw the dose, then pull water into the same syringe up to
               <strong class="pc-num">{{
                 readingRange(advisor.selected.value.topUp.low, advisor.selected.value.topUp.high)
               }}</strong
@@ -188,12 +188,12 @@ function choose() {
             <p class="text-body-small pc-faint">
               {{ reason }}
               <template v-if="gentlerNeedsMl">
-                A gentle mix in the vial needs {{ gentlerNeedsMl }} mL, more than it holds.
+                A gentler mix needs {{ gentlerNeedsMl }} mL, more than the vial holds.
               </template>
             </p>
           </template>
 
-          <p v-else class="pc-muted">Enter the dose you plan to draw below.</p>
+          <p v-else class="pc-muted">Enter your dose below.</p>
         </section>
 
         <section
@@ -207,8 +207,8 @@ function choose() {
             {{ c.note.note }}
             <template v-if="c.note.maxMgPerMl">
               PepCalc aims for
-              <strong class="pc-num">{{ c.note.maxMgPerMl }} mg/mL</strong> or weaker, below the
-              strengths users report as stinging.
+              <strong class="pc-num">{{ c.note.maxMgPerMl }} mg/mL</strong> or weaker, below where
+              users report stinging.
             </template>
           </p>
           <details>
@@ -266,7 +266,7 @@ function choose() {
                   unitLabel(u)
                 }}</v-btn>
               </v-btn-toggle>
-              <span class="text-body-small pc-faint">Add a top dose if you will titrate.</span>
+              <span class="text-body-small pc-faint">Add a top dose if you'll titrate.</span>
             </div>
           </div>
         </fieldset>

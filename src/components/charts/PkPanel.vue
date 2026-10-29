@@ -80,9 +80,9 @@ const shareSource = computed(() => {
           :lookback-hours="lookbackHours"
         />
         <p class="text-body-small pc-muted">
-          Estimated drug left in the body (not blood levels), assuming no further doses. A
-          one-compartment model fitted to the half-life and peak time; it ignores bioavailability
-          and individual variation.
+          Estimated amount in the body, not blood levels. Uses a one-compartment model from the
+          half-life and peak time, assumes no further doses, and ignores bioavailability and
+          individual variation.
         </p>
         <div v-if="!userSupplied && peptide?.pk" class="pc-stack pc-stack--tight">
           <p class="text-body-small pc-muted">{{ peptide.pk.notes }}</p>
@@ -101,7 +101,7 @@ const shareSource = computed(() => {
         <v-alert type="info" variant="tonal" density="comfortable">
           {{
             peptide?.pkUnavailableReason ??
-            'No pharmacokinetic data for a custom peptide. Save it to your shelf and enter a half-life to see a curve.'
+            'No data for a custom peptide. To see a curve, save the vial and add a half-life.'
           }}
         </v-alert>
       </template>
