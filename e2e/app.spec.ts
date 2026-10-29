@@ -257,6 +257,38 @@ test('the top bar scrolls away when reading and returns on scrolling up', async 
   await expect(bar).not.toHaveClass(/pc-app-bar--hidden/)
 })
 
+/*
+ * Chrome on Android sends no click for a tap that stops a fling, so this drives raw touches
+ * through the DevTools protocol: a fast swipe, then a tap on a tab while the page still coasts.
+ */
+test('a tab tapped while the page is still coasting from a fling opens', async ({
+  page,
+  browserName,
+}) => {
+  test.skip(browserName !== 'chromium', 'raw touch input needs the DevTools protocol')
+  await page.goto('./')
+  await acceptDisclaimer(page)
+  const shelfTab = page.locator('.v-bottom-navigation .v-btn', { hasText: 'Shelf' })
+  test.skip((await shelfTab.count()) === 0, 'phones only: wide layouts have a rail')
+  const tab = await shelfTab.boundingBox()
+  if (!tab) throw new Error('Shelf tab has no box')
+
+  const cdp = await page.context().newCDPSession(page)
+  const touch = (
+    type: 'touchStart' | 'touchMove' | 'touchEnd',
+    points: { x: number; y: number }[],
+  ) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: points })
+  await touch('touchStart', [{ x: 200, y: 600 }])
+  for (let y = 560; y >= 200; y -= 40) await touch('touchMove', [{ x: 200, y }])
+  await touch('touchEnd', [])
+  const before = await page.evaluate(() => window.scrollY)
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(before)
+
+  await touch('touchStart', [{ x: tab.x + tab.width / 2, y: tab.y + tab.height / 2 }])
+  await touch('touchEnd', [])
+  await expect(page.getByRole('heading', { level: 1, name: 'Vials' })).toBeVisible()
+})
+
 test('estimated levels can be previewed as a shareable image', async ({ page }) => {
   await page.goto('./')
   await acceptDisclaimer(page)

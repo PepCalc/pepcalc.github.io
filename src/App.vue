@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue'
 import { useDisplay, useTheme } from 'vuetify'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useSettingsStore } from '@/stores/settings'
 import { useShelfStore } from '@/stores/shelf'
 import { useInstallPrompt } from '@/composables/useInstallPrompt'
@@ -24,6 +24,7 @@ const shelf = useShelfStore()
 const theme = useTheme()
 const display = useDisplay()
 const route = useRoute()
+const router = useRouter()
 const install = useInstallPrompt()
 
 const NAV = [
@@ -54,11 +55,44 @@ function onContentTap(event: MouseEvent) {
   bar.actions.reveal()
 }
 
-/** Re-tapping the current tab scrolls back to the top, as in iOS and Android tab bars. */
-function onTabTap(name: string) {
-  if (route.name !== name) return
+/** Opens a tab; re-tapping the current one scrolls back to the top, as in iOS and Android tab bars. */
+function selectTab(name: string) {
+  if (route.name !== name) {
+    void router.push({ name })
+    return
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' })
   bar.actions.reveal()
+}
+
+/*
+ * A tap that lands while the page is still coasting from a fling only stops the fling: Chrome on
+ * Android sends pointerup but no click, so a tab that waits for the click ignores it. Touch and
+ * pen therefore select on pointerup, and the click that usually follows is skipped. Mouse and
+ * keyboard go through the tab's router link on click. A drag that began on a tab and ended off it
+ * selects nothing.
+ */
+let selectedOnPointerUp = false
+
+function onTabPointerDown() {
+  selectedOnPointerUp = false
+}
+
+function onTabPointerUp(event: PointerEvent, name: string) {
+  if (event.pointerType === 'mouse') return
+  const tab = event.currentTarget
+  if (!(tab instanceof Element)) return
+  if (!tab.contains(document.elementFromPoint(event.clientX, event.clientY))) return
+  selectedOnPointerUp = true
+  selectTab(name)
+}
+
+function onTabClick(name: string) {
+  if (selectedOnPointerUp) {
+    selectedOnPointerUp = false
+    return
+  }
+  if (route.name === name) selectTab(name)
 }
 
 const showInstallBanner = computed(
@@ -95,6 +129,9 @@ onMounted(async () => {
           :to="{ name: item.name }"
           :active="activeNav === item.name"
           class="rail-item"
+          @pointerdown="onTabPointerDown"
+          @pointerup="onTabPointerUp($event, item.name)"
+          @click="onTabClick(item.name)"
         >
           <div class="d-flex flex-column align-center ga-1 py-1">
             <v-icon :icon="item.icon" />
@@ -130,7 +167,9 @@ onMounted(async () => {
         :key="item.name"
         :value="item.name"
         :to="{ name: item.name }"
-        @click="onTabTap(item.name)"
+        @pointerdown="onTabPointerDown"
+        @pointerup="onTabPointerUp($event, item.name)"
+        @click="onTabClick(item.name)"
       >
         <v-icon :icon="item.icon" />
         <span>{{ item.title }}</span>
