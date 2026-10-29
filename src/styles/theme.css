@@ -400,6 +400,21 @@
 }
 
 @layer pc-utilities {
+  /*
+   * Hover feedback only where a pointer can hover. Touch browsers keep :hover on the last
+   * element a tap landed on, and a tap that stops a fling does not move it, so a tab left behind
+   * stayed tinted next to the active one. Every Vuetify state layer reads this variable, so
+   * zeroing it removes the hover tint while pressed, active and focus states keep their look.
+   * Vuetify declares it in its theme, in vuetify-utilities, hence this layer.
+   */
+  @media (hover: none) {
+    :root,
+    .v-theme--light,
+    .v-theme--dark {
+      --v-hover-opacity: 0;
+    }
+  }
+
   /* Small-caps tracked label in terracotta: the warm accent above section titles. */
   .pc-eyebrow {
     font-family: var(--pc-font);

@@ -261,18 +261,9 @@ test('the top bar scrolls away when reading and returns on scrolling up', async 
  * Chrome on Android sends no click for a tap that stops a fling, so this drives raw touches
  * through the DevTools protocol: a fast swipe, then a tap on a tab while the page still coasts.
  */
-test('a tab tapped while the page is still coasting from a fling opens', async ({
-  page,
-  browserName,
-}) => {
-  test.skip(browserName !== 'chromium', 'raw touch input needs the DevTools protocol')
-  await page.goto('./')
-  await acceptDisclaimer(page)
-  const shelfTab = page.locator('.v-bottom-navigation .v-btn', { hasText: 'Shelf' })
-  test.skip((await shelfTab.count()) === 0, 'phones only: wide layouts have a rail')
-  const tab = await shelfTab.boundingBox()
-  if (!tab) throw new Error('Shelf tab has no box')
-
+async function flingThenTapTab(page: Page, title: string) {
+  const tab = await page.locator('.v-bottom-navigation .v-btn', { hasText: title }).boundingBox()
+  if (!tab) throw new Error(`${title} tab has no box`)
   const cdp = await page.context().newCDPSession(page)
   const touch = (
     type: 'touchStart' | 'touchMove' | 'touchEnd',
@@ -286,13 +277,44 @@ test('a tab tapped while the page is still coasting from a fling opens', async (
 
   await touch('touchStart', [{ x: tab.x + tab.width / 2, y: tab.y + tab.height / 2 }])
   await touch('touchEnd', [])
+  await cdp.detach()
+}
+
+test('a tab tapped while the page is still coasting from a fling opens', async ({
+  page,
+  browserName,
+}) => {
+  test.skip(browserName !== 'chromium', 'raw touch input needs the DevTools protocol')
+  await page.goto('./')
+  await acceptDisclaimer(page)
+  const tab = (title: string) => page.locator('.v-bottom-navigation .v-btn', { hasText: title })
+  test.skip((await tab('Shelf').count()) === 0, 'phones only: wide layouts have a rail')
+
+  await flingThenTapTab(page, 'Shelf')
   await expect(page.getByRole('heading', { level: 1, name: 'Vials' })).toBeVisible()
 
-  // Back on the first tab, the Shelf tab no longer looks pressed.
-  await page.locator('.v-bottom-navigation .v-btn', { hasText: 'Calculator' }).tap()
+  // Back on the first tab, the Shelf tab no longer looks pressed (no ripple left behind).
+  await tab('Calculator').tap()
   await expect(page.getByRole('heading', { level: 1, name: 'How much to draw' })).toBeVisible()
   await expect(page.locator('.v-bottom-navigation .v-ripple__container')).toHaveCount(0)
   await expect(page.locator('.v-bottom-navigation .v-btn--active')).toHaveText('Calculator')
+
+  /*
+   * Android keeps :hover on the last element a completed tap landed on, and a tap that stops a
+   * fling does not move it, so the tab left behind can stay hovered. Emulation moves hover on
+   * every touch, so the stale hover is placed directly. A touch screen shows no hover tint.
+   */
+  const shelf = await tab('Shelf').boundingBox()
+  if (!shelf) throw new Error('Shelf tab has no box')
+  const cdp = await page.context().newCDPSession(page)
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved',
+    x: shelf.x + shelf.width / 2,
+    y: shelf.y + shelf.height / 2,
+  })
+  expect(await page.evaluate(() => matchMedia('(hover: none)').matches)).toBe(true)
+  expect(await tab('Shelf').evaluate((el) => el.matches(':hover'))).toBe(true)
+  await expect(tab('Shelf').locator('.v-btn__overlay')).toHaveCSS('opacity', '0')
 })
 
 test('estimated levels can be previewed as a shareable image', async ({ page }) => {
