@@ -89,6 +89,13 @@ Rules the writer keeps:
 
 ## PWA and hosting
 
+- `build/seo.ts` makes the single-page app findable (web builds only, never Android): a plain
+  description of PepCalc inside `#app` that Vue replaces on mount (crawlers and AI assistants
+  that don't run JavaScript read it), canonical and Open Graph tags pointing at the fixed
+  `PEPCALC_SITE_URL` (default `https://pepcalc.github.io/`), a `WebApplication` JSON-LD record,
+  and `robots.txt`, `sitemap.xml` and `llms.txt`. Peptide names come from the catalog.
+  `public/og.png` is the link-preview image and is kept out of the precache.
+
 - `vite-plugin-pwa` (generateSW) precaches every built asset, including the ECharts chunk and
   fonts. `registerType: 'prompt'`: an update waits until the user reloads (`UpdatePrompt.vue`).
 - Base path comes from `PEPCALC_BASE` (default `/pepcalc/`). The router uses hash history so
