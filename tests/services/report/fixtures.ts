@@ -1,8 +1,9 @@
 import { findPeptide } from '@/data'
-import type { DrawRow, VialRow } from '@/db/database'
+import type { DrawRow, GlucoseRow, SymptomRow, VialRow } from '@/db/database'
 import { groupLevelsByPeptide, type LevelVial } from '@/domain/levels'
 import type { ReportPeriod } from '@/domain/report'
 import type { ReportSource } from '@/services/report/collectReport'
+import { REPORT_SECTIONS } from '@/services/report/reportData'
 
 const DAY = 86_400_000
 export const NOW = Date.parse('2026-10-29T12:00:00.000Z')
@@ -80,6 +81,81 @@ export function sampleShelf() {
   return { vials, draws }
 }
 
+/** A hostile note: it tries to close the string and draw in a huge font. */
+export const HOSTILE = 'fine) Tj /F1 99 Tf (pwned'
+
+/** Weekly weigh-ins, two HbA1c results, glucose at mixed times, and a few side effects. */
+export function sampleJournal() {
+  const iso = (ms: number) => new Date(ms).toISOString()
+  const created = iso(NOW - 200 * DAY)
+  const weights = Array.from({ length: 12 }, (_, i) => ({
+    measuredAt: iso(NOW - i * 7 * DAY),
+    kg: 90 + i * 0.6,
+  }))
+  const symptoms: SymptomRow[] = [
+    {
+      id: 's1',
+      occurredAt: iso(NOW - 3 * DAY),
+      symptom: 'nausea',
+      otherText: '',
+      severity: 'moderate',
+      notes: HOSTILE,
+      createdAt: created,
+    },
+    {
+      id: 's2',
+      occurredAt: iso(NOW - 10 * DAY),
+      symptom: 'nausea',
+      otherText: '',
+      severity: 'mild',
+      notes: '',
+      createdAt: created,
+    },
+    {
+      id: 's3',
+      occurredAt: iso(NOW - 5 * DAY),
+      symptom: 'joint-pain',
+      otherText: '',
+      severity: 'mild',
+      notes: '',
+      createdAt: created,
+    },
+  ]
+  const glucose: GlucoseRow[] = [
+    {
+      id: 'a1',
+      kind: 'a1c',
+      measuredAt: iso(NOW - 80 * DAY),
+      value: 7.4,
+      context: null,
+      enteredUnit: '%',
+      notes: HOSTILE,
+      createdAt: created,
+    },
+    {
+      id: 'a2',
+      kind: 'a1c',
+      measuredAt: iso(NOW - 5 * DAY),
+      value: 6.6,
+      context: null,
+      enteredUnit: '%',
+      notes: '',
+      createdAt: created,
+    },
+    ...Array.from({ length: 8 }, (_, i): GlucoseRow => ({
+      id: `g${i}`,
+      kind: 'glucose',
+      measuredAt: iso(NOW - i * 9 * DAY),
+      value: 130 - i * 2 + (i % 2) * 40,
+      context: i % 2 ? 'after-meal' : 'fasting',
+      enteredUnit: 'mg/dL',
+      notes: '',
+      createdAt: created,
+    })),
+  ]
+  return { weights, symptoms, glucose }
+}
+
 export function sampleSource(period: ReportPeriod = '90d', locale = 'en-GB'): ReportSource {
   const { vials, draws } = sampleShelf()
   const levelVials: LevelVial[] = vials.map((v) => ({
@@ -96,5 +172,17 @@ export function sampleSource(period: ReportPeriod = '90d', locale = 'en-GB'): Re
     levelVials,
     draws.map((d) => ({ vialId: d.vialId, at: Date.parse(d.takenAt), dose: d.dose })),
   )
-  return { vials, draws, groups, vialName: (v) => v.name, period, now: NOW, locale }
+  return {
+    vials,
+    draws,
+    groups,
+    vialName: (v) => v.name,
+    ...sampleJournal(),
+    units: { weight: 'kg', a1c: '%', glucose: 'mg/dL' },
+    profile: { heightCm: 175, birthMonth: '1980-04' },
+    sections: REPORT_SECTIONS,
+    period,
+    now: NOW,
+    locale,
+  }
 }

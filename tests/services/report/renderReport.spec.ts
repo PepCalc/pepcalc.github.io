@@ -1,15 +1,20 @@
 import { describe, expect, it } from 'vitest'
 import { catalog } from '@/data'
 import { collectReport } from '@/services/report/collectReport'
-import { renderLevelsReport } from '@/services/report/levelsReport'
+import { renderReport } from '@/services/report/renderReport'
+import type { ReportSection } from '@/services/report/reportData'
+import { BMI_SOURCE } from '@/domain/body'
+import { SYMPTOM_SOURCES } from '@/domain/symptoms'
 import { toWinAnsi } from '@/services/pdf/text'
 import { readPdf, withoutStrings } from '../pdf/pdfParse'
 import { sampleSource } from './fixtures'
 
 const render = (period: '30d' | '90d' | 'all' = '90d') =>
-  renderLevelsReport(collectReport(sampleSource(period)))
+  renderReport(collectReport(sampleSource(period)))
+const text = (sections: ReportSection[]) =>
+  readPdf(renderReport(collectReport({ ...sampleSource('90d'), sections }))).streams.join('\n')
 
-describe('renderLevelsReport', () => {
+describe('renderReport', () => {
   it('produces a valid, multi-page PDF numbered "page n of m"', () => {
     const pdf = readPdf(render())
     const pages = pdf.streams.length
@@ -29,6 +34,14 @@ describe('renderLevelsReport', () => {
       '(Prescribing label)',
       '(User-supplied values)',
       '(Draw log)',
+      '(Combined chart)',
+      '(Weight)',
+      '(Body mass index)',
+      '(Blood sugar)',
+      '(HbA1c)',
+      '(Blood glucose)',
+      '(Side effects)',
+      '(Events)',
     ]) {
       expect(all).toContain(text)
     }
@@ -39,6 +52,17 @@ describe('renderLevelsReport', () => {
     const { streams } = readPdf(render('all'))
     const withHeader = streams.filter((s) => s.includes('(Peptide or vial)'))
     expect(withHeader.length).toBe(streams.filter((s) => s.includes('(Draw log')).length)
+  })
+
+  it('prints only the chosen sections', () => {
+    const journal = text(['weight', 'sugar'])
+    expect(journal).toContain('(Weight)')
+    expect(journal).toContain('(HbA1c)')
+    for (const absent of ['(Draw log', '(Combined chart)', '(Side effects)', '(Semaglutide)'])
+      expect(journal).not.toContain(absent)
+    const draws = text(['draws'])
+    expect(draws).toContain('(Draw log)')
+    expect(draws).not.toContain('(Weight)')
   })
 
   it('cannot be steered by a hostile vial name or note', () => {
@@ -64,6 +88,7 @@ describe('catalog text in reports', () => {
       out.push(p.name, p.pkUnavailableReason ?? '')
       if (p.pk) out.push(p.pk.notes, ...p.pk.sources.flatMap((s) => [s.citation, s.url ?? '']))
     }
+    out.push(BMI_SOURCE.citation, BMI_SOURCE.url, ...SYMPTOM_SOURCES.map((s) => s.citation))
     return out.filter(Boolean)
   }
 

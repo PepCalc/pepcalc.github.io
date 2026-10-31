@@ -192,3 +192,32 @@ test('saves photos, pins them to the weight line, shares a collage, and backs th
   await expect(page.getByRole('button', { name: /^Front photo from / })).toHaveCount(3)
   await expect(page.getByTestId('journal-weight')).toHaveText('100 kg')
 })
+
+test('exports the journal as a PDF with only the chosen parts', async ({ page }) => {
+  await openTab(page, 'Journal')
+  await logWeight(page, '92', '2026-10-01T08:00')
+  await logWeight(page, '90.5', '2026-10-08T08:00')
+  await page.getByRole('button', { name: 'Log side effect' }).click()
+  const effects = page.getByRole('dialog', { name: 'Side effects' })
+  await effects.getByRole('button', { name: 'Nausea' }).click()
+  await effects.getByRole('button', { name: 'Save' }).click()
+  await expect(page.getByRole('list', { name: 'Side effects this week' })).toContainText('Nausea')
+
+  await page.getByRole('button', { name: 'Export PDF' }).click()
+  const report = page.getByRole('dialog', { name: 'Export report' })
+  await choose(report, 'Period', 'All')
+  // Nothing was drawn, so the draw log cannot be chosen.
+  await expect(report.getByRole('checkbox', { name: /^Draw log/ })).toBeDisabled()
+  await report.getByRole('checkbox', { name: /^Side effects/ }).uncheck()
+  const download = page.waitForEvent('download')
+  await report.getByRole('button', { name: 'Export PDF' }).click()
+  const file = await download
+  const text = Buffer.concat(await (await file.createReadStream()).toArray()).toString('latin1')
+  expect(text.startsWith('%PDF-1.4')).toBe(true)
+  for (const shown of ['(Journal)', '(Combined chart)', '(Weight)', '(Weight \\(kg\\))'])
+    expect(text).toContain(shown)
+  // Left out everywhere, the combined chart's rows of events included.
+  expect(text).not.toContain('(Side effects)')
+  expect(text).not.toContain('(Draw log)')
+  await expect(report).toBeHidden()
+})

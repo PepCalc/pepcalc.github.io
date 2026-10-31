@@ -21,7 +21,7 @@ Part of the `front-end` skill.
 | `charts/PkChart.vue`                            | ECharts curve: logged doses (solid) and the previewed draw (dashed), "Now" marker, table view                             |
 | `charts/levelsChart.ts`                         | The curve's model and ECharts option, shared by `PkChart` and the share card so both draw the same thing                  |
 | `charts/ShareLevelsDialog.vue`                  | Previews the levels card (`levelsShareCard.ts`, a 1080x1350 PNG drawn on device) and shares it; name and amounts optional |
-| `history/ExportReportDialog.vue`                | Period choice and PDF export of draws and estimated levels (`useReportExport`)                                            |
+| `report/ExportReportDialog.vue`                 | Period and section choice, then PDF export (`useReportExport`); opened from History and Journal                           |
 | `shelf/VialCard.vue`, `DrawList.vue`            | Shelf list and draw history                                                                                               |
 | `shelf/VialAgeBadge.vue`, `VialAgePanel.vue`    | Days since mixing against the use window (text, not colour alone); the window's source and storage advice                 |
 | `shelf/VialFormDialog.vue`, `LogDrawDialog.vue` | Edit a vial (composition, PK override), log a draw                                                                        |

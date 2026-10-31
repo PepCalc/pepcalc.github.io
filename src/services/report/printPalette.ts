@@ -20,6 +20,7 @@ export const PRINT_TOKENS = {
   'notice-fg': '#8a5c12',
   'notice-bg': '#fbefd7',
   'chart-logged': '#1a7046',
+  'chart-preview': '#d4824f',
   'chart-grid': '#e8ddcc',
   'chart-axis': '#7a6c54',
   'chart-now': '#877960',

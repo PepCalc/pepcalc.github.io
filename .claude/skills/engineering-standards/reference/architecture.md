@@ -15,7 +15,7 @@ src/
   composables/   useCalculator, useDiluentAdvisor, useChartColors, useInstallPrompt, useStoragePersistence, useNow,
                  usePaging, useVialAge, useHideOnScroll, useReportExport
   services/      time.ts (the only clock and date formatter), fileTransfer.ts (share/download),
-                 pdf/ (dependency-free PDF writer), report/ (the draws-and-levels report)
+                 pdf/ (dependency-free PDF writer), report/ (the PDF report: data, layout, charts)
   components/    calculator/, charts/, history/, shelf/, common/
   views/         one per route: Calculator, Shelf, Vial, History, Settings
   plugins/       vuetify.ts (themes, defaults), icons.ts (inline SVG icons), fonts.ts
@@ -65,9 +65,17 @@ third-party code handles the user's data, and the output is easy to audit.
 | `pdf/text.ts`             | WinAnsi encoding, transliteration, exact Helvetica widths, wrapping, escaping |
 | `pdf/fontMetrics.ts`      | Generated Helvetica width tables (Adobe Core 14, checked against Nimbus Sans) |
 | `pdf/document.ts`         | `PdfPage` drawing API (top-left coordinates) and `buildPdf` serialisation     |
-| `report/collectReport.ts` | Store rows to `ReportData`: period filter, curves, sources, locale formatting |
-| `report/levelsReport.ts`  | Pure layout of `ReportData` to bytes; deterministic, tested without a browser |
+| `report/reportData.ts`    | `ReportData` and the sections a reader can choose (`REPORT_SECTIONS`)         |
+| `report/collectReport.ts` | Store rows to `ReportData`: period, chosen sections, curves, charts, sources  |
+| `report/renderReport.ts`  | Pure layout of `ReportData` to bytes; deterministic, tested without a browser |
+| `report/layout.ts`        | Page flow: headings kept with what follows, figures, paged tables, footers    |
+| `report/pdfChart.ts`      | Vector charts over time: series, draw markers, guides, stacked panels         |
 | `report/printPalette.ts`  | Light-theme colours for paper, tested against `tokens.css`                    |
+
+The reader picks the period and the sections: combined chart, estimated levels, weight and
+BMI, blood sugar, side effects, draw log. Sections with nothing in the period are offered but
+disabled. The combined chart stacks the other chosen sections on one time axis (separate
+panels, never a second value axis), so a section left out is left out of the whole file.
 
 Rules the writer keeps:
 

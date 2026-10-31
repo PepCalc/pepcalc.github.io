@@ -11,7 +11,7 @@ import { useShelfStore } from '@/stores/shelf'
 import { useNow } from '@/composables/useNow'
 import { useBodyMetrics } from '@/composables/useBodyMetrics'
 import { formatDate, formatDateTime, toEpochMs } from '@/services/time'
-import { mdiScaleBathroom, mdiStethoscope, mdiWaterOutline } from '@/plugins/icons'
+import { mdiFilePdfBox, mdiScaleBathroom, mdiStethoscope, mdiWaterOutline } from '@/plugins/icons'
 import SourceList from '@/components/common/SourceList.vue'
 import TrendCard from '@/components/charts/TrendCard.vue'
 import PhotosCard from '@/components/photos/PhotosCard.vue'
@@ -20,6 +20,7 @@ import JournalEntries from '@/components/journal/JournalEntries.vue'
 import LogWeightDialog from '@/components/journal/LogWeightDialog.vue'
 import LogSymptomDialog from '@/components/journal/LogSymptomDialog.vue'
 import LogGlucoseDialog from '@/components/journal/LogGlucoseDialog.vue'
+import ExportReportDialog from '@/components/report/ExportReportDialog.vue'
 
 /**
  * The journal: body measurements, blood sugar, side effects and progress photos, beside the
@@ -32,6 +33,7 @@ const now = useNow()
 const body = useBodyMetrics(() => now.value)
 
 const weightDialog = ref(false)
+const exporting = ref(false)
 const symptomDialog = ref(false)
 const glucoseDialog = ref(false)
 
@@ -54,14 +56,29 @@ const recentSymptoms = computed(() =>
 )
 
 const hasTrend = computed(() => journal.weights.length > 0 || journal.glucose.length > 0)
+const hasAnything = computed(
+  () => hasTrend.value || journal.symptoms.length > 0 || shelf.draws.length > 0,
+)
 </script>
 
 <template>
   <div class="pc-page">
-    <header class="mb-4">
-      <p class="pc-eyebrow">Body and how you feel</p>
-      <h1 class="pc-display text-headline-large">Journal</h1>
+    <header class="mb-4 d-flex align-end flex-wrap ga-3">
+      <div class="flex-grow-1">
+        <p class="pc-eyebrow">Body and how you feel</p>
+        <h1 class="pc-display text-headline-large">Journal</h1>
+      </div>
+      <v-btn
+        v-if="hasAnything"
+        variant="tonal"
+        color="primary"
+        :prepend-icon="mdiFilePdfBox"
+        @click="exporting = true"
+      >
+        Export PDF
+      </v-btn>
     </header>
+    <ExportReportDialog v-model="exporting" />
 
     <div class="journal-grid">
       <v-card>

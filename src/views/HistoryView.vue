@@ -16,7 +16,7 @@ import DrawList from '@/components/shelf/DrawList.vue'
 import PkPanel from '@/components/charts/PkPanel.vue'
 import ListPager from '@/components/common/ListPager.vue'
 import SortToggle from '@/components/common/SortToggle.vue'
-import ExportReportDialog from '@/components/history/ExportReportDialog.vue'
+import ExportReportDialog from '@/components/report/ExportReportDialog.vue'
 import { mdiFilePdfBox } from '@/plugins/icons'
 
 const shelf = useShelfStore()
