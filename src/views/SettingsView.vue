@@ -6,10 +6,21 @@ import {
   backupFileName,
   BackupFormatError,
   exportBackup,
-  parseBackup,
+  exportBackupArchive,
+  readBackupFile,
   restoreBackup,
 } from '@/db/backup'
 import { catalog, syringeCatalog } from '@/data'
+import { ADULT_AGE, ageOn } from '@/domain/body'
+import {
+  cmToFeetInches,
+  feetInchesToCm,
+  formatHeight,
+  type HeightUnit,
+  type WeightUnit,
+} from '@/domain/bodyUnits'
+import type { A1cUnit, GlucoseUnit } from '@/domain/glucose'
+import { roundTo } from '@/domain/units'
 import { areValidLimits } from '@/domain/vialAge'
 import {
   DEFAULT_CUSTOM_AGE_LIMITS,
@@ -18,6 +29,8 @@ import {
   type VialAgeMode,
 } from '@/stores/settings'
 import { useShelfStore } from '@/stores/shelf'
+import { useJournalStore } from '@/stores/journal'
+import { usePhotosStore } from '@/stores/photos'
 import { useNotifyStore } from '@/stores/notify'
 import { useConfirmStore } from '@/stores/confirm'
 import { useStoragePersistence } from '@/composables/useStoragePersistence'
@@ -27,7 +40,14 @@ import androidFirefoxShot from '@/assets/install/android-firefox.webp'
 import iosChromeShot from '@/assets/install/ios-chrome.webp'
 import iosSafariShot from '@/assets/install/ios-safari.webp'
 import { saveFile } from '@/services/fileTransfer'
-import { daysBetween, formatDateTime, systemClock } from '@/services/time'
+import {
+  calendarMonth,
+  daysBetween,
+  formatBirthMonth,
+  formatDateTime,
+  monthNames,
+  systemClock,
+} from '@/services/time'
 import {
   mdiCellphoneArrowDown,
   mdiCheckCircleOutline,
@@ -39,14 +59,17 @@ import {
 
 const settings = useSettingsStore()
 const shelf = useShelfStore()
+const journal = useJournalStore()
+const photos = usePhotosStore()
 const notify = useNotifyStore()
 const confirm = useConfirmStore()
 const theme = useTheme()
 const storage = useStoragePersistence()
 const install = useInstallPrompt()
 // Android file providers often label a .json backup as a generic type, which would grey it out
-// in the native picker; parseBackup rejects anything that is not a backup.
-const backupAccept = __NATIVE__ ? undefined : 'application/json,.json'
+// in the native picker; readBackupFile rejects anything that is not a backup.
+const backupAccept = __NATIVE__ ? undefined : 'application/json,.json,application/zip,.zip'
+const includePhotos = ref(true)
 const fileInput = ref<HTMLInputElement | null>(null)
 const busy = ref(false)
 
@@ -96,28 +119,159 @@ function resetAgeLimits() {
   void settings.setCustomAgeLimits(DEFAULT_CUSTOM_AGE_LIMITS)
 }
 
+const weightUnitModel = computed({
+  get: () => settings.weightUnit,
+  set: (value: WeightUnit) => void settings.setWeightUnit(value),
+})
+
+const heightUnitModel = computed({
+  get: () => settings.heightUnit,
+  set: (value: HeightUnit) => void settings.setHeightUnit(value),
+})
+
+const glucoseUnitModel = computed({
+  get: () => settings.glucoseUnit,
+  set: (value: GlucoseUnit) => void settings.setGlucoseUnit(value),
+})
+
+const a1cUnitModel = computed({
+  get: () => settings.a1cUnit,
+  set: (value: A1cUnit) => void settings.setA1cUnit(value),
+})
+
+const months = monthNames().map((title, i) => ({ title, value: i + 1 }))
+
+/*
+ * The profile form holds what the user is typing; Save writes only valid values. It is filled
+ * from the store whenever the store or the height unit changes.
+ */
+const profileForm = reactive({
+  cm: '',
+  feet: '',
+  inches: '',
+  birthMonth: null as number | null,
+  birthYear: '',
+})
+
+function fillProfileForm() {
+  const p = settings.profile
+  profileForm.cm = p.heightCm ? String(roundTo(p.heightCm, 1)) : ''
+  const fi = p.heightCm ? cmToFeetInches(p.heightCm) : null
+  profileForm.feet = fi ? String(fi.feet) : ''
+  profileForm.inches = fi ? String(fi.inches) : ''
+  const [y, m] = p.birthMonth ? p.birthMonth.split('-') : []
+  profileForm.birthYear = y ?? ''
+  profileForm.birthMonth = m ? Number(m) : null
+}
+watch(() => [settings.profile, settings.heightUnit, settings.loaded], fillProfileForm, {
+  immediate: true,
+})
+
+const thisYear = calendarMonth(systemClock().getTime()).year
+
+const parsedProfile = computed(() => {
+  const num = (t: string) => (t.trim() === '' ? null : Number(t))
+  let heightCm: number | null = null
+  let heightError: string | undefined
+  if (settings.heightUnit === 'cm') {
+    const cm = num(profileForm.cm)
+    if (cm !== null) {
+      if (cm >= 50 && cm <= 272) heightCm = cm
+      else heightError = 'Between 50 and 272 cm'
+    }
+  } else {
+    const ft = num(profileForm.feet)
+    const inch = num(profileForm.inches) ?? 0
+    if (ft !== null) {
+      const cm = feetInchesToCm({ feet: ft, inches: inch })
+      if (Number.isInteger(ft) && inch >= 0 && inch < 12 && cm >= 50 && cm <= 272) heightCm = cm
+      else heightError = 'Feet as a whole number, inches 0 to 11.9'
+    }
+  }
+  const year = num(profileForm.birthYear)
+  let birthMonth: string | null = null
+  let birthError: string | undefined
+  if (year !== null || profileForm.birthMonth !== null) {
+    if (
+      year !== null &&
+      Number.isInteger(year) &&
+      year >= 1900 &&
+      year <= thisYear &&
+      profileForm.birthMonth
+    )
+      birthMonth = `${year}-${String(profileForm.birthMonth).padStart(2, '0')}`
+    else birthError = 'Choose a month and a year'
+  }
+  return { heightCm, heightError, birthMonth, birthError }
+})
+
+const age = computed(() =>
+  parsedProfile.value.birthMonth
+    ? ageOn(parsedProfile.value.birthMonth, calendarMonth(systemClock().getTime()))
+    : null,
+)
+
+const profileValid = computed(
+  () => !parsedProfile.value.heightError && !parsedProfile.value.birthError,
+)
+
+async function saveProfile() {
+  if (!profileValid.value) return
+  const { heightCm, birthMonth } = parsedProfile.value
+  await settings.updateProfile({ heightCm, birthMonth })
+  notify.show('Profile saved', 'success')
+}
+
 const backupAge = computed(() =>
   settings.lastBackupAt ? daysBetween(settings.lastBackupAt, systemClock()) : null,
 )
+const hasData = computed(
+  () =>
+    shelf.vials.length > 0 ||
+    journal.measurements.length > 0 ||
+    journal.symptoms.length > 0 ||
+    journal.glucose.length > 0 ||
+    photos.photos.length > 0,
+)
 const backupStale = computed(
-  () => shelf.vials.length > 0 && (backupAge.value === null || backupAge.value > 14),
+  () => hasData.value && (backupAge.value === null || backupAge.value > 14),
 )
 
 async function exportData() {
   busy.value = true
   try {
-    const backup = await exportBackup(db)
-    const result = await saveFile(
-      backupFileName(backup.exportedAt),
-      JSON.stringify(backup, null, 2),
-    )
+    let result: Awaited<ReturnType<typeof saveFile>>
+    let backup
+    if (photos.photos.length && includePhotos.value) {
+      const archive = await exportBackupArchive(db)
+      backup = archive.backup
+      result = await saveFile(
+        backupFileName(backup.exportedAt, true),
+        new Blob([archive.bytes as BlobPart], { type: 'application/zip' }),
+      )
+    } else {
+      backup = await exportBackup(db)
+      result = await saveFile(backupFileName(backup.exportedAt), JSON.stringify(backup, null, 2))
+    }
     if (result !== 'cancelled') {
       await settings.markBackedUp(backup.exportedAt)
       notify.show('Backup saved', 'success')
     }
+  } catch {
+    notify.show("Couldn't save the backup. Your device may be out of space.", 'error')
   } finally {
     busy.value = false
   }
+}
+
+const plural = (n: number, noun: string, nouns = `${noun}s`) => `${n} ${n === 1 ? noun : nouns}`
+
+/** "3 vials, 12 draws, 9 journal entries and 4 photos": what a restore replaces, on each side. */
+function describe(counts: { vials: number; draws: number; entries: number; photos: number }) {
+  const parts = [plural(counts.vials, 'vial'), plural(counts.draws, 'draw')]
+  if (counts.entries) parts.push(plural(counts.entries, 'journal entry', 'journal entries'))
+  if (counts.photos) parts.push(plural(counts.photos, 'photo'))
+  return parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts.at(-1)}` : parts[0]!
 }
 
 async function importData(event: Event) {
@@ -126,16 +280,29 @@ async function importData(event: Event) {
   input.value = ''
   if (!file) return
   try {
-    const backup = parseBackup(await file.text())
+    const { backup, photoFiles } = readBackupFile(new Uint8Array(await file.arrayBuffer()))
+    const mine = describe({
+      vials: shelf.vials.length,
+      draws: shelf.draws.length,
+      entries: journal.measurements.length + journal.symptoms.length + journal.glucose.length,
+      photos: photos.photos.length,
+    })
+    const theirs = describe({
+      vials: backup.vials.length,
+      draws: backup.draws.length,
+      entries: backup.measurements.length + backup.symptoms.length + backup.glucose.length,
+      photos: backup.photos.length,
+    })
+    const losesPhotos = photos.photos.length > 0 && backup.photos.length === 0
     const ok = await confirm.ask({
       title: 'Replace everything on this device?',
-      text: `Your ${shelf.vials.length} vials and ${shelf.draws.length} draws will be replaced with ${backup.vials.length} vials and ${backup.draws.length} draws from the backup.`,
+      text: `Your ${mine} will be replaced with ${theirs} from the backup.${losesPhotos ? ' This backup has no photos, so your photos will be deleted.' : ''}`,
       confirmText: 'Restore backup',
       destructive: true,
     })
     if (!ok) return
-    await restoreBackup(db, backup)
-    await Promise.all([shelf.load(), settings.load()])
+    await restoreBackup(db, backup, photoFiles)
+    await Promise.all([shelf.load(), journal.load(), photos.load(), settings.load()])
     theme.change(settings.theme)
     notify.show('Backup restored', 'success')
   } catch (e) {
@@ -224,6 +391,144 @@ const formatMb = (bytes: number | null) =>
 
       <v-card>
         <v-card-item>
+          <p class="pc-eyebrow">Journal</p>
+          <v-card-title>Units</v-card-title>
+        </v-card-item>
+        <v-card-text class="pc-stack">
+          <div>
+            <p id="weight-unit-label" class="pc-label">Weight unit</p>
+            <v-btn-toggle
+              v-model="weightUnitModel"
+              role="group"
+              mandatory
+              density="comfortable"
+              aria-labelledby="weight-unit-label"
+            >
+              <v-btn value="kg">Kilograms</v-btn>
+              <v-btn value="lb">Pounds</v-btn>
+            </v-btn-toggle>
+          </div>
+          <div>
+            <p id="height-unit-label" class="pc-label">Height unit</p>
+            <v-btn-toggle
+              v-model="heightUnitModel"
+              role="group"
+              mandatory
+              density="comfortable"
+              aria-labelledby="height-unit-label"
+            >
+              <v-btn value="cm">Centimetres</v-btn>
+              <v-btn value="ftin">Feet and inches</v-btn>
+            </v-btn-toggle>
+          </div>
+          <div>
+            <p id="glucose-unit-label" class="pc-label">Blood glucose unit</p>
+            <v-btn-toggle
+              v-model="glucoseUnitModel"
+              role="group"
+              mandatory
+              density="comfortable"
+              aria-labelledby="glucose-unit-label"
+            >
+              <v-btn value="mg/dL">mg/dL</v-btn>
+              <v-btn value="mmol/L">mmol/L</v-btn>
+            </v-btn-toggle>
+          </div>
+          <div>
+            <p id="a1c-unit-label" class="pc-label">HbA1c unit</p>
+            <v-btn-toggle
+              v-model="a1cUnitModel"
+              role="group"
+              mandatory
+              density="comfortable"
+              aria-labelledby="a1c-unit-label"
+            >
+              <v-btn value="%">Percent (%)</v-btn>
+              <v-btn value="mmol/mol">mmol/mol</v-btn>
+            </v-btn-toggle>
+          </div>
+          <p class="text-body-small pc-muted">
+            Switch units any time. Your entries convert automatically. Dose units are set per vial.
+          </p>
+        </v-card-text>
+      </v-card>
+
+      <v-card>
+        <v-card-item>
+          <p class="pc-eyebrow">Journal</p>
+          <v-card-title>Profile</v-card-title>
+        </v-card-item>
+        <v-card-text class="pc-stack">
+          <p class="text-body-small pc-muted">
+            Optional. Height gives your BMI in the Journal; birth month keeps adult BMI bands from
+            showing under {{ ADULT_AGE }}.
+          </p>
+          <div v-if="settings.heightUnit === 'cm'">
+            <v-text-field
+              v-model="profileForm.cm"
+              label="Height"
+              suffix="cm"
+              type="number"
+              inputmode="decimal"
+              :error-messages="parsedProfile.heightError"
+            />
+          </div>
+          <div v-else class="d-flex ga-3 align-start">
+            <v-text-field
+              v-model="profileForm.feet"
+              label="Height, feet"
+              suffix="ft"
+              type="number"
+              inputmode="numeric"
+              :error-messages="parsedProfile.heightError"
+            />
+            <v-text-field
+              v-model="profileForm.inches"
+              label="Inches"
+              suffix="in"
+              type="number"
+              inputmode="decimal"
+              :error="!!parsedProfile.heightError"
+            />
+          </div>
+          <div class="birth-row">
+            <v-select
+              v-model="profileForm.birthMonth"
+              :items="months"
+              label="Birth month"
+              clearable
+              :error-messages="parsedProfile.birthError"
+            />
+            <v-text-field
+              v-model="profileForm.birthYear"
+              label="Year"
+              type="number"
+              inputmode="numeric"
+              :error="!!parsedProfile.birthError"
+            />
+          </div>
+          <p v-if="age !== null" class="text-body-small pc-muted">
+            Age {{ age
+            }}<template v-if="parsedProfile.birthMonth">
+              (born {{ formatBirthMonth(parsedProfile.birthMonth) }})</template
+            >.
+            <template v-if="age < ADULT_AGE">
+              Adult BMI bands don't apply under {{ ADULT_AGE }}, so PepCalc won't show one.
+            </template>
+          </p>
+          <div class="pc-actions">
+            <v-btn color="primary" variant="flat" :disabled="!profileValid" @click="saveProfile">
+              Save profile
+            </v-btn>
+          </div>
+          <p v-if="settings.profile.heightCm" class="text-body-small pc-faint">
+            Saved height: {{ formatHeight(settings.profile.heightCm, settings.heightUnit) }}
+          </p>
+        </v-card-text>
+      </v-card>
+
+      <v-card>
+        <v-card-item>
           <p class="pc-eyebrow">Shelf</p>
           <v-card-title>Vial age alerts</v-card-title>
         </v-card-item>
@@ -294,6 +599,18 @@ const formatMb = (bytes: number | null) =>
           <p v-else-if="settings.lastBackupAt" class="pc-muted">
             Last backup {{ formatDateTime(settings.lastBackupAt) }}
           </p>
+          <div v-if="photos.photos.length" class="pc-stack pc-stack--tight">
+            <v-switch
+              v-model="includePhotos"
+              :label="`Include ${plural(photos.photos.length, 'photo')}`"
+              color="primary"
+              hide-details
+            />
+            <p class="text-body-small pc-muted">
+              With photos, the backup is a .zip file. Keep it somewhere private: it holds your
+              photos as ordinary images.
+            </p>
+          </div>
           <div class="d-flex flex-wrap ga-2">
             <v-btn
               color="primary"
@@ -444,6 +761,14 @@ const formatMb = (bytes: number | null) =>
   display: grid;
   gap: 16px;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+  align-items: start;
+}
+
+/* The month gets the wider share so its label and the longest month name fit beside the year. */
+.birth-row {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 12px;
   align-items: start;
 }
 

@@ -1,6 +1,10 @@
 import Dexie, { type EntityTable } from 'dexie'
 import type { BlendComponent } from '@/domain/blend'
+import type { BodyMetric, MeasureUnit } from '@/domain/body'
+import type { A1cUnit, GlucoseContext, GlucoseUnit } from '@/domain/glucose'
+import type { PhotoPose } from '@/domain/photos'
 import type { PkParameters } from '@/domain/pk'
+import type { Severity, Symptom } from '@/domain/symptoms'
 import type { AmountUnit, Quantity } from '@/domain/units'
 
 /** A reconstituted (or still dry) vial on the user's shelf. Timestamps are UTC ISO-8601. */
@@ -35,6 +39,71 @@ export interface DrawRow {
   createdAt: string
 }
 
+/**
+ * One body measure at one time: a weigh-in today, and body fat or a waist later, without a
+ * schema change (see `METRICS`). `value` is in the metric's canonical unit (kg, cm, percent),
+ * unrounded, so switching units never compounds rounding.
+ */
+export interface MeasurementRow {
+  id: string
+  metric: BodyMetric
+  measuredAt: string
+  value: number
+  /** The unit the user typed, so an edit shows the number they entered. */
+  enteredUnit: MeasureUnit
+  notes: string
+  createdAt: string
+}
+
+/** A side effect the user felt, for their own record. */
+export interface SymptomRow {
+  id: string
+  occurredAt: string
+  symptom: Symptom
+  /** The user's words when `symptom` is `other`; empty otherwise. */
+  otherText: string
+  severity: Severity
+  notes: string
+  createdAt: string
+}
+
+/**
+ * An HbA1c result or a glucose reading. `value` is canonical and unrounded: HbA1c in NGSP
+ * percent, glucose in mg/dL.
+ */
+export type GlucoseRow = {
+  id: string
+  measuredAt: string
+  value: number
+  notes: string
+  createdAt: string
+} & (
+  | { kind: 'a1c'; enteredUnit: A1cUnit; context: null }
+  | { kind: 'glucose'; enteredUnit: GlucoseUnit; context: GlucoseContext }
+)
+
+/** A progress photo's details. Its pixels live in `photoImages` and `photoThumbs`, by id. */
+export interface PhotoRow {
+  id: string
+  takenAt: string
+  pose: PhotoPose
+  notes: string
+  /** Pixel size of the stored image, for laying out before it loads. */
+  width: number
+  height: number
+  createdAt: string
+}
+
+/**
+ * A photo's JPEG bytes. Stored as an ArrayBuffer, not a Blob: older Safari and some IndexedDB
+ * implementations cannot store Blobs. Thumbnails sit in their own table so a grid of them never
+ * reads the full images.
+ */
+export interface PhotoBytesRow {
+  id: string
+  bytes: ArrayBuffer
+}
+
 export interface SettingRow {
   key: string
   value: unknown
@@ -43,6 +112,12 @@ export interface SettingRow {
 export type PepcalcDb = Dexie & {
   vials: EntityTable<VialRow, 'id'>
   draws: EntityTable<DrawRow, 'id'>
+  measurements: EntityTable<MeasurementRow, 'id'>
+  symptoms: EntityTable<SymptomRow, 'id'>
+  glucose: EntityTable<GlucoseRow, 'id'>
+  photos: EntityTable<PhotoRow, 'id'>
+  photoImages: EntityTable<PhotoBytesRow, 'id'>
+  photoThumbs: EntityTable<PhotoBytesRow, 'id'>
   settings: EntityTable<SettingRow, 'key'>
 }
 
@@ -59,6 +134,16 @@ export function createDatabase(name = DB_NAME): PepcalcDb {
     vials: 'id, status, peptideId, createdAt',
     draws: 'id, vialId, takenAt, [vialId+takenAt]',
     settings: 'key',
+  })
+  // The journal: body measurements, side effects, blood sugar and progress photos. New tables
+  // only, so existing rows need no upgrade.
+  db.version(2).stores({
+    measurements: 'id, measuredAt, [metric+measuredAt]',
+    symptoms: 'id, occurredAt',
+    glucose: 'id, kind, measuredAt',
+    photos: 'id, takenAt',
+    photoImages: 'id',
+    photoThumbs: 'id',
   })
   return db
 }

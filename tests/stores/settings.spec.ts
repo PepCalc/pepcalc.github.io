@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { repository } from '@/db'
-import { useSettingsStore } from '@/stores/settings'
+import { sanitizeProfile, useSettingsStore } from '@/stores/settings'
 
 describe('settings.acceptDisclaimer', () => {
   beforeEach(() => {
@@ -27,5 +27,19 @@ describe('settings.acceptDisclaimer', () => {
     const settings = useSettingsStore()
     await expect(settings.acceptDisclaimer('2026-10-29T12:00:00.000Z')).rejects.toThrow()
     expect(settings.disclaimerAcceptedAt).toBeNull()
+  })
+})
+
+describe('sanitizeProfile', () => {
+  it('keeps valid fields and drops the rest, so a restored backup cannot break the app', () => {
+    expect(sanitizeProfile({ heightCm: -4, birthMonth: '1990-13', gender: 'x' })).toEqual({
+      heightCm: null,
+      birthMonth: null,
+    })
+    expect(sanitizeProfile('nonsense')).toEqual({ heightCm: null, birthMonth: null })
+    expect(sanitizeProfile({ heightCm: 172.5, birthMonth: '1990-06' })).toEqual({
+      heightCm: 172.5,
+      birthMonth: '1990-06',
+    })
   })
 })

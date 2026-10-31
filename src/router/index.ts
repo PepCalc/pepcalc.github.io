@@ -21,6 +21,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'Vial' },
   },
   {
+    path: '/journal',
+    name: 'journal',
+    component: () => import('@/views/JournalView.vue'),
+    meta: { title: 'Journal' },
+  },
+  {
     path: '/history',
     name: 'history',
     component: () => import('@/views/HistoryView.vue'),

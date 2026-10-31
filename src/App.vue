@@ -4,6 +4,8 @@ import { useDisplay, useTheme } from 'vuetify'
 import { useRoute, useRouter } from 'vue-router'
 import { useSettingsStore } from '@/stores/settings'
 import { useShelfStore } from '@/stores/shelf'
+import { useJournalStore } from '@/stores/journal'
+import { usePhotosStore } from '@/stores/photos'
 import { useInstallPrompt } from '@/composables/useInstallPrompt'
 import { useHideOnScroll } from '@/composables/useHideOnScroll'
 import AppLogo from '@/components/common/AppLogo.vue'
@@ -17,10 +19,13 @@ import {
   mdiCellphoneArrowDown,
   mdiCogOutline,
   mdiHistory,
+  mdiNotebookOutline,
 } from '@/plugins/icons'
 
 const settings = useSettingsStore()
 const shelf = useShelfStore()
+const journal = useJournalStore()
+const photos = usePhotosStore()
 const theme = useTheme()
 const display = useDisplay()
 const route = useRoute()
@@ -30,6 +35,7 @@ const install = useInstallPrompt()
 const NAV = [
   { name: 'calculator', title: 'Calculator', icon: mdiCalculatorVariantOutline },
   { name: 'shelf', title: 'Shelf', icon: mdiBookshelf },
+  { name: 'journal', title: 'Journal', icon: mdiNotebookOutline },
   { name: 'history', title: 'History', icon: mdiHistory },
   { name: 'settings', title: 'Settings', icon: mdiCogOutline },
 ] as const
@@ -100,7 +106,7 @@ const showInstallBanner = computed(
 )
 
 onMounted(async () => {
-  await Promise.all([settings.load(), shelf.load()])
+  await Promise.all([settings.load(), shelf.load(), journal.load(), photos.load()])
   theme.change(settings.theme)
 })
 </script>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { niceTicks, periodStart, reportWindow, totalsByUnit } from '@/domain/report'
+import { niceRange, niceTicks, periodStart, reportWindow, totalsByUnit } from '@/domain/report'
 
 const DAY = 86_400_000
 const H = 3_600_000
@@ -86,5 +86,15 @@ describe('reportWindow for short-acting peptides', () => {
   it('never trims a long-acting peptide', () => {
     const w = reportWindow(daily, { halfLifeHours: 168, tmaxHours: 56 }, 95 * DAY, 0)
     expect(w.trimmed).toBe(false)
+  })
+})
+
+describe('niceRange', () => {
+  it('spans the values in round steps that need not start at zero', () => {
+    expect(niceRange(88.4, 101.2)).toEqual([85, 90, 95, 100, 105])
+    expect(niceRange(6.1, 7.4)).toEqual([6, 6.5, 7, 7.5])
+    const flat = niceRange(80, 80)
+    expect(flat[0]).toBeLessThanOrEqual(79)
+    expect(flat[flat.length - 1]).toBeGreaterThanOrEqual(81)
   })
 })

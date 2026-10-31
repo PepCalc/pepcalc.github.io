@@ -26,4 +26,12 @@ export {
   mdiSortCalendarDescending,
   mdiShareVariantOutline,
   mdiWaterPlusOutline,
+  mdiCameraOutline,
+  mdiCompare,
+  mdiImageOutline,
+  mdiNotebookOutline,
+  mdiScaleBathroom,
+  mdiStethoscope,
+  mdiViewGridOutline,
+  mdiWaterOutline,
 } from '@mdi/js'

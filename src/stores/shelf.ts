@@ -4,19 +4,21 @@ import { repository } from '@/db'
 import type { DrawRow, VialRow } from '@/db/database'
 import type { NewDraw, NewVial } from '@/db/repository'
 import { vialBalance, type VialBalance } from '@/domain/inventory'
-import { findPeptide } from '@/data'
+import { findPeptide, syringeCatalog } from '@/data'
 import { sortByTime, vialNumbers } from '@/domain/listing'
 import {
   groupLevelsByPeptide,
   levelKey,
   pooledDoses,
+  startingDose,
   type LevelDraw,
   type LevelVial,
   type PeptideLevels,
+  type StartingDose,
 } from '@/domain/levels'
 import type { PkParameters } from '@/domain/pk'
-import type { AmountUnit } from '@/domain/units'
-import { toEpochMs } from '@/services/time'
+import { roundTo, unitLabel, type AmountUnit, type Quantity } from '@/domain/units'
+import { daysBetween, formatRelativeDays, toEpochMs } from '@/services/time'
 
 /**
  * The shelf (vials) and the draw log. The whole dataset is small enough to hold in memory,
@@ -115,6 +117,42 @@ export const useShelfStore = defineStore('shelf', () => {
     return pooledDoses(levelVials.value, levelDraws.value, levelKey(vial), unit)
   }
 
+  const timedDraws = computed(() => draws.value.map((d) => ({ ...d, at: toEpochMs(d.takenAt) })))
+
+  function startingDoseFor(vial: VialRow): StartingDose<DrawRow & { at: number }> | null {
+    return startingDose(vial, vials.value, timedDraws.value)
+  }
+
+  /**
+   * What a new draw from `vial` is pre-filled with (see startingDose): the dose, and the syringe
+   * of the draw it came from while that syringe is still in the catalog; null where nothing is
+   * known, so the caller keeps its own default.
+   */
+  function drawDefaultsFor(vial: VialRow): { dose: Quantity | null; syringeId: string | null } {
+    const start = startingDoseFor(vial)
+    if (!start) return { dose: null, syringeId: null }
+    if (start.kind === 'usual') return { dose: start.dose, syringeId: null }
+    const { dose, syringeId } = start.draw
+    const known = syringeCatalog.syringes.some((s) => s.id === syringeId)
+    return { dose, syringeId: known ? syringeId : null }
+  }
+
+  /**
+   * "Last drawn: 300 mcg, 2 days ago" when a starting dose came from a logged draw, so a
+   * pre-filled dose is never mistaken for a suggestion; null for the vial's usual dose.
+   */
+  function startingDoseHint(vial: VialRow, now: number): string | null {
+    const start = startingDoseFor(vial)
+    if (!start || start.kind === 'usual') return null
+    const { dose, takenAt, vialId } = start.draw
+    const from = start.kind === 'other-vial' ? vialById(vialId) : undefined
+    const amount = `${roundTo(dose.value, 4)} ${unitLabel(dose.unit)}`
+    const when = formatRelativeDays(daysBetween(takenAt, now))
+    return from
+      ? `Last drawn from ${displayName(from)}: ${amount}, ${when}.`
+      : `Last drawn: ${amount}, ${when}.`
+  }
+
   async function addVial(input: NewVial): Promise<VialRow> {
     const row = await repository.addVial(input)
     await load()
@@ -157,6 +195,8 @@ export const useShelfStore = defineStore('shelf', () => {
     pkFor,
     levelGroups,
     pooledDosesFor,
+    drawDefaultsFor,
+    startingDoseHint,
     addVial,
     updateVial,
     deleteVial,

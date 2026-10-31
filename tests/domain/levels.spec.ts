@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { groupLevelsByPeptide, levelKey, pooledDoses, type LevelVial } from '@/domain/levels'
+import {
+  groupLevelsByPeptide,
+  levelKey,
+  pooledDoses,
+  startingDose,
+  type LevelVial,
+} from '@/domain/levels'
 import { anyDoseInEffect } from '@/domain/pk'
 
 const H = 3_600_000
@@ -118,5 +124,55 @@ describe('pooledDoses', () => {
       { vialId: 'y', at: 2 * H, dose: { value: 1, unit: 'mg' as const } },
     ]
     expect(pooledDoses(vials, draws, levelKey(vials[0]!), 'mg').doses).toHaveLength(1)
+  })
+})
+
+describe('startingDose', () => {
+  const shelf = [
+    { id: 'a', peptideId: 'bpc-157' },
+    { id: 'b', peptideId: 'bpc-157' },
+    { id: 'c', peptideId: null },
+  ]
+  const target = (extra: Partial<Parameters<typeof startingDose>[0]> = {}) => ({
+    id: 'b',
+    peptideId: 'bpc-157',
+    unit: 'mg' as const,
+    typicalDose: null,
+    ...extra,
+  })
+  const draw = (vialId: string, at: number, value: number, unit: 'mg' | 'mcg' | 'iu' = 'mcg') => ({
+    vialId,
+    at,
+    dose: { value, unit },
+  })
+
+  it('prefers the latest draw from this vial, whatever order draws arrive in', () => {
+    const draws = [draw('b', 1 * H, 250), draw('b', 3 * H, 300), draw('a', 5 * H, 500)]
+    const start = startingDose(target({ typicalDose: { value: 0.1, unit: 'mg' } }), shelf, draws)
+    expect(start).toEqual({ kind: 'this-vial', draw: draws[1] })
+  })
+
+  it("falls back to the vial's usual dose before another vial's draws", () => {
+    const usual = { value: 0.25, unit: 'mg' as const }
+    expect(startingDose(target({ typicalDose: usual }), shelf, [draw('a', H, 500)])).toEqual({
+      kind: 'usual',
+      dose: usual,
+    })
+  })
+
+  it('continues from the same peptide in another vial when this one has no draws or usual dose', () => {
+    const draws = [draw('a', 1 * H, 250), draw('a', 2 * H, 300), draw('c', 9 * H, 1, 'mg')]
+    expect(startingDose(target(), shelf, draws)).toEqual({ kind: 'other-vial', draw: draws[1] })
+  })
+
+  it('skips draws in a unit this vial cannot measure', () => {
+    const draws = [draw('b', 2 * H, 5, 'iu'), draw('b', 1 * H, 250)]
+    expect(startingDose(target(), shelf, draws)).toEqual({ kind: 'this-vial', draw: draws[1] })
+  })
+
+  it('never pools custom peptides with each other', () => {
+    const custom = target({ id: 'c', peptideId: null })
+    const vials = [...shelf, { id: 'd', peptideId: null }]
+    expect(startingDose(custom, vials, [draw('d', H, 1, 'mg')])).toBeNull()
   })
 })

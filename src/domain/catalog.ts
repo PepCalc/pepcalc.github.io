@@ -5,8 +5,8 @@ import type { SyringeSpec } from './syringe'
 
 /**
  * Where a number came from. `label` is a regulator-approved prescribing label, `trial` a
- * published clinical trial or review of trials, `standard` a pharmacopeia or accreditation
- * standard (USP), `preclinical` animal or in-vitro work, `community` vendor listings or user
+ * published clinical trial or review of trials, `standard` a pharmacopeia, accreditation or
+ * public-health standard (USP, the WHO BMI bands), `preclinical` animal or in-vitro work, `community` vendor listings or user
  * forums (shown with a caution), `model` an assumption made by pepcalc where sources give only a
  * range.
  */
@@ -16,7 +16,7 @@ export type SourceKind = 'label' | 'trial' | 'standard' | 'preclinical' | 'commu
 export const SOURCE_KIND_LABELS: Record<SourceKind, string> = {
   label: 'Prescribing label',
   trial: 'Clinical trial',
-  standard: 'Pharmacopeia standard',
+  standard: 'Published standard',
   preclinical: 'Animal data',
   community: 'Community-reported',
   model: 'Modelling choice',

@@ -45,13 +45,15 @@ const shelfVial = computed(() => {
 
 /*
  * Load the vial's values once per vial id. Logging a draw reloads the shelf and replaces the
- * vial object; reacting to that would reset the user's dose to the vial's typical dose.
+ * vial object; reacting to that would reset the dose the user is entering. The dose and syringe
+ * start from the last draw (see startingDose).
  */
 watch(
   () => shelfVial.value?.id,
   () => {
     const vial = shelfVial.value
     if (!vial) return
+    const { dose, syringeId } = shelf.drawDefaultsFor(vial)
     calc.actions.selectPeptide(vial.peptideId ?? CUSTOM_PEPTIDE)
     Object.assign(state, {
       customName: vial.peptideId ? '' : vial.name,
@@ -59,8 +61,9 @@ watch(
       vialUnit: vial.unit,
       diluentMl: vial.diluentMl,
       components: vial.components?.map((c) => ({ ...c })) ?? [],
-      doseValue: vial.typicalDose?.value ?? state.doseValue,
-      doseUnit: vial.typicalDose?.unit ?? state.doseUnit,
+      doseValue: dose?.value ?? state.doseValue,
+      doseUnit: dose?.unit ?? state.doseUnit,
+      syringeId: syringeId ?? state.syringeId,
     })
   },
   { immediate: true },
@@ -82,6 +85,8 @@ const mixContext = computed<MixContext>(() => ({
 }))
 
 const doseHint = computed(() => {
+  const lastDrawn = shelfVial.value ? shelf.startingDoseHint(shelfVial.value, now.value) : null
+  if (lastDrawn) return lastDrawn
   const doses = calc.peptide.value?.doses
   if (!doses) return 'No established dose. Enter your own.'
   return undefined

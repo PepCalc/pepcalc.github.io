@@ -68,6 +68,40 @@ export function pooledDoses(
   }
 }
 
+/** Where a new draw's starting dose came from, so the form can say so. */
+export type StartingDose<D extends LevelDraw> =
+  | { kind: 'this-vial'; draw: D }
+  | { kind: 'usual'; dose: Quantity }
+  | { kind: 'other-vial'; draw: D }
+
+/**
+ * The dose a new draw from `vial` starts at, which the user can change: the latest draw from
+ * this vial, else the vial's usual dose, else the latest draw of the same peptide from another
+ * of its vials (so a fresh vial continues where the last one stopped). The usual dose outranks
+ * other vials because saving a vial from the calculator sets it to the dose just entered.
+ * Draws in a unit this vial cannot measure (IU against mass) are skipped.
+ */
+export function startingDose<D extends LevelDraw>(
+  vial: { id: string; peptideId: string | null; unit: AmountUnit; typicalDose: Quantity | null },
+  vials: readonly { id: string; peptideId: string | null }[],
+  draws: readonly D[],
+): StartingDose<D> | null {
+  const latest = (pick: (d: D) => boolean) =>
+    draws
+      .filter((d) => pick(d) && areCompatible(d.dose.unit, vial.unit))
+      .reduce<D | null>((best, d) => (best === null || d.at > best.at ? d : best), null)
+
+  const own = latest((d) => d.vialId === vial.id)
+  if (own) return { kind: 'this-vial', draw: own }
+  if (vial.typicalDose) return { kind: 'usual', dose: vial.typicalDose }
+  const key = levelKey(vial)
+  const siblings = new Set(
+    vials.filter((v) => v.id !== vial.id && levelKey(v) === key).map((v) => v.id),
+  )
+  const other = latest((d) => siblings.has(d.vialId))
+  return other ? { kind: 'other-vial', draw: other } : null
+}
+
 /**
  * Pool every draw of the same peptide, across all of its vials, so the estimated level reflects
  * everything still in the body rather than one vial's share. Catalog peptides group by catalog

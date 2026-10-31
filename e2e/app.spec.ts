@@ -1,15 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-
-/**
- * Accept the first-run notice. The dialog closes only once the acceptance is on disk, so its
- * button disappearing is the point after which a reload keeps it accepted.
- */
-async function acceptDisclaimer(page: Page) {
-  const dialog = page.getByRole('dialog', { name: 'For research and education only' })
-  await expect(dialog).toBeVisible()
-  await dialog.getByRole('button', { name: 'I understand' }).click()
-  await expect(page.getByRole('button', { name: 'I understand' })).toBeHidden()
-}
+import { acceptDisclaimer, choose } from './helpers'
 
 /**
  * The first service worker activates without claiming the page that registered it, so wait for
@@ -21,13 +11,6 @@ async function waitForServiceWorker(page: Page) {
   await expect
     .poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null))
     .toBe(true)
-}
-
-async function choose(page: Page, group: string, value: string) {
-  await page
-    .getByRole('group', { name: group })
-    .getByRole('button', { name: value, exact: true })
-    .click()
 }
 
 test('calculates the standard check: 5 mg in 2 mL, 250 mcg is 10 units', async ({ page }) => {
@@ -84,6 +67,15 @@ test('saves a vial, logs a draw and tracks the balance', async ({ page }) => {
   await expect(page.getByText('1.5', { exact: false }).first()).toBeVisible()
   await expect(page.getByText('1 draw')).toBeVisible()
   await expect(page.locator('.pk-chart canvas')).toBeVisible()
+
+  // The next draw starts from the last one, not the vial's typical 0.25 mg.
+  await page.getByRole('button', { name: 'Log a draw' }).click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog.getByLabel('Dose', { exact: true })).toHaveValue('0.5')
+  await expect(dialog.getByText('Last drawn: 0.5 mg, today.')).toBeVisible()
+  await dialog.getByRole('button', { name: 'Cancel' }).click()
+  await page.getByRole('main').getByRole('link', { name: 'Calculator' }).click()
+  await expect(page.getByTestId('draw-headline')).toHaveText('75')
 })
 
 test('numbers twin vials, ages them, and pages the draw history', async ({ page }) => {

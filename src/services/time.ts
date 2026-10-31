@@ -32,8 +32,8 @@ export function formatDateTime(at: string | number): string {
   return dateTimeFormat.format(new Date(at))
 }
 
-export function formatDate(iso: string): string {
-  return dateFormat.format(new Date(iso))
+export function formatDate(at: string | number): string {
+  return dateFormat.format(new Date(at))
 }
 
 export function formatShort(epochMs: number): string {
@@ -52,10 +52,11 @@ export function fromLocalInputValue(value: string): string {
   return new Date(value).toISOString()
 }
 
-/** Whole days elapsed between two instants, for "reconstituted 9 days ago"; `to` may be epoch ms. */
-export function daysBetween(fromIso: string, to: Date | number): number {
+/** Whole days elapsed between two instants (ISO strings or epoch ms), for "mixed 9 days ago". */
+export function daysBetween(from: string | number, to: Date | number): number {
   const toMs = typeof to === 'number' ? to : to.getTime()
-  return Math.floor((toMs - Date.parse(fromIso)) / 86_400_000)
+  const fromMs = typeof from === 'number' ? from : Date.parse(from)
+  return Math.floor((toMs - fromMs) / 86_400_000)
 }
 
 const relative = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
@@ -87,6 +88,31 @@ export function formatAxisTick(epochMs: number, spanMs: number): string {
 /** "Sep 29 – Oct 29, 2026" in the device's locale. */
 export function formatDateRange(startMs: number, endMs: number): string {
   return dateFormat.formatRange(new Date(startMs), new Date(endMs))
+}
+
+/** The local calendar year and month (1 to 12) of an instant, for ages from a birth month. */
+export function calendarMonth(epochMs: number): { year: number; month: number } {
+  const d = new Date(epochMs)
+  return { year: d.getFullYear(), month: d.getMonth() + 1 }
+}
+
+const monthYearFormat = new Intl.DateTimeFormat(undefined, { month: 'long', year: 'numeric' })
+
+/** "March 1984" for a stored "1984-03"; the day is fixed mid-month so no time zone moves it. */
+export function formatBirthMonth(birthMonth: string): string {
+  const [y, m] = birthMonth.split('-').map(Number)
+  return monthYearFormat.format(new Date(y!, m! - 1, 15))
+}
+
+/** Month names in the device's language, January first, for a month picker. */
+export function monthNames(): string[] {
+  const f = new Intl.DateTimeFormat(undefined, { month: 'long' })
+  return Array.from({ length: 12 }, (_, i) => f.format(new Date(2000, i, 15)))
+}
+
+/** UTC ISO for an epoch, such as a chosen file's last-modified time. */
+export function toIso(epochMs: number): string {
+  return new Date(epochMs).toISOString()
 }
 
 /** Local calendar date as YYYY-MM-DD, for file names. */

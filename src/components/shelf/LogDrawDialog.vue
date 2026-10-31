@@ -7,12 +7,15 @@ import { concentrationOf, drawVolumeMl } from '@/domain/reconstitution'
 import { readSyringe } from '@/domain/syringe'
 import { doseUnitsFor, roundTo, unitLabel, type AmountUnit } from '@/domain/units'
 import { fromLocalInputValue, nowIso, toLocalInputValue } from '@/services/time'
+import { useNow } from '@/composables/useNow'
 import { useShelfStore } from '@/stores/shelf'
 
 const props = defineProps<{ vial: VialRow; defaultSyringeId: string }>()
 const open = defineModel<boolean>({ required: true })
 const emit = defineEmits<{ save: [draw: NewDraw] }>()
 const shelf = useShelfStore()
+const now = useNow()
+const lastDrawn = computed(() => shelf.startingDoseHint(props.vial, now.value))
 
 const form = reactive({
   dose: '',
@@ -26,11 +29,11 @@ watch(
   open,
   (isOpen) => {
     if (!isOpen) return
-    const typical = props.vial.typicalDose
+    const { dose, syringeId } = shelf.drawDefaultsFor(props.vial)
     Object.assign(form, {
-      dose: typical ? String(typical.value) : '',
-      unit: typical?.unit ?? doseUnitsFor(props.vial.unit)[0],
-      syringeId: props.defaultSyringeId,
+      dose: dose ? String(dose.value) : '',
+      unit: dose?.unit ?? doseUnitsFor(props.vial.unit)[0],
+      syringeId: syringeId ?? props.defaultSyringeId,
       takenAt: toLocalInputValue(nowIso()),
       notes: '',
     })
@@ -80,6 +83,8 @@ function save() {
               label="Dose"
               type="number"
               inputmode="decimal"
+              :hint="lastDrawn ?? undefined"
+              persistent-hint
               autofocus
             />
             <v-select
