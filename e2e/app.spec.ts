@@ -175,7 +175,7 @@ test('the disclaimer blocks scrolling the page behind it until accepted', async 
   isMobile,
 }) => {
   await page.goto('./')
-  await expect(page.getByRole('button', { name: 'I understand' })).toBeVisible()
+  await expect(page.getByRole('button', { name: "I'm 18 or older and understand" })).toBeVisible()
   await expect(page.locator('html')).toHaveCSS('overflow-y', 'hidden')
   // Playwright cannot wheel or swipe in mobile WebKit; there the root lock above is the check.
   if (!(browserName === 'webkit' && isMobile)) {

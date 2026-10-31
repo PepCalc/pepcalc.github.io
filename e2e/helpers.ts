@@ -7,8 +7,8 @@ import { expect, type Locator, type Page } from '@playwright/test'
 export async function acceptDisclaimer(page: Page) {
   const dialog = page.getByRole('dialog', { name: 'For research and education only' })
   await expect(dialog).toBeVisible()
-  await dialog.getByRole('button', { name: 'I understand' }).click()
-  await expect(page.getByRole('button', { name: 'I understand' })).toBeHidden()
+  await dialog.getByRole('button', { name: "I'm 18 or older and understand" }).click()
+  await expect(page.getByRole('button', { name: "I'm 18 or older and understand" })).toBeHidden()
 }
 
 /** Press the button named `value` in the toggle group named `group`. */

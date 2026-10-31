@@ -677,7 +677,10 @@ const formatMb = (bytes: number | null) =>
             A reconstitution and draw calculator for peptide research. It shows sourced reference
             values but doesn't recommend doses and isn't medical advice.
           </p>
-          <p>PepCalc is for adults {{ ADULT_AGE }} and over.</p>
+          <p>
+            You must be {{ ADULT_AGE }} or older to use PepCalc, or the age of majority where you
+            live if that is higher.
+          </p>
           <p>
             Presets come from prescribing labels, clinical trials or community reports. Community
             amounts aren't clinically established. Level charts are estimates.
