@@ -144,20 +144,13 @@ describe('collectReport sections', () => {
     expect(report.weight!.notes.join(' ')).toMatch(/WHO Technical Report Series 894/)
   })
 
-  it('leaves out BMI without a height, and its bands under 18', () => {
+  it('leaves out BMI without a height', () => {
     const noHeight = collectReport({
       ...sampleSource(),
-      profile: { heightCm: null, birthMonth: null },
+      profile: { heightCm: null },
     })
     expect(noHeight.weight!.bmi).toBeNull()
     expect(new Map(noHeight.weight!.stats).has('BMI')).toBe(false)
-    const teen = collectReport({
-      ...sampleSource(),
-      profile: { heightCm: 175, birthMonth: '2012-01' },
-    })
-    expect(new Map(teen.weight!.stats).get('BMI')).toBe('29.4')
-    expect(new Map(teen.weight!.stats).has('BMI band')).toBe(false)
-    expect(teen.weight!.bmi!.guides).toEqual([])
   })
 
   it('draws fasting glucose as the line and other readings as hollow points', () => {

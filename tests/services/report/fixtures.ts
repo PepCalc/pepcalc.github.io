@@ -179,7 +179,7 @@ export function sampleSource(period: ReportPeriod = '90d', locale = 'en-GB'): Re
     vialName: (v) => v.name,
     ...sampleJournal(),
     units: { weight: 'kg', a1c: '%', glucose: 'mg/dL' },
-    profile: { heightCm: 175, birthMonth: '1980-04' },
+    profile: { heightCm: 175 },
     sections: REPORT_SECTIONS,
     period,
     now: NOW,

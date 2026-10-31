@@ -80,8 +80,7 @@ const shareSource = computed(() => {
           :lookback-hours="lookbackHours"
         />
         <p class="text-body-small pc-muted">
-          An estimate of the amount remaining in the body, based on a simple model from the
-          half-life and peak time.
+          Estimated amount in your body, from the half-life and time to peak.
         </p>
         <div v-if="!userSupplied && peptide?.pk" class="pc-stack pc-stack--tight">
           <p class="text-body-small pc-muted">{{ peptide.pk.notes }}</p>

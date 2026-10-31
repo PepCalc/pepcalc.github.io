@@ -266,7 +266,7 @@ describe('journal', () => {
       context: null,
       notes: '',
     })
-    await repo.setSetting('profile', { heightCm: 170, birthMonth: '1985-04' })
+    await repo.setSetting('profile', { heightCm: 170 })
     return repo
   }
 

@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { repository } from '@/db'
 import { syringeCatalog } from '@/data'
-import { isBirthMonth, type BirthMonth } from '@/domain/body'
 import { HEIGHT_UNITS, WEIGHT_UNITS, type HeightUnit, type WeightUnit } from '@/domain/bodyUnits'
 import { A1C_UNITS, GLUCOSE_UNITS, type A1cUnit, type GlucoseUnit } from '@/domain/glucose'
 import { areValidLimits, type AgeLimits } from '@/domain/vialAge'
@@ -16,15 +15,14 @@ export type VialAgeMode = 'sourced' | 'custom'
 export const DEFAULT_CUSTOM_AGE_LIMITS: AgeLimits = { nearingDays: 45, pastDays: 90 }
 
 /**
- * What the journal needs to know about the person: height for BMI, birth month so the adult
- * BMI bands are not applied under 18. Both optional; nothing here is required to use the app.
+ * What the journal needs to know about the person: height for BMI. Optional; nothing here is
+ * required to use the app.
  */
 export interface Profile {
   heightCm: number | null
-  birthMonth: BirthMonth | null
 }
 
-const EMPTY_PROFILE: Profile = { heightCm: null, birthMonth: null }
+const EMPTY_PROFILE: Profile = { heightCm: null }
 
 /** A stored or restored profile is untrusted input; keep only fields that are valid. */
 export function sanitizeProfile(value: unknown): Profile {
@@ -33,7 +31,6 @@ export function sanitizeProfile(value: unknown): Profile {
   const height = v.heightCm
   return {
     heightCm: typeof height === 'number' && Number.isFinite(height) && height > 0 ? height : null,
-    birthMonth: isBirthMonth(v.birthMonth) ? v.birthMonth : null,
   }
 }
 

@@ -11,7 +11,7 @@ import {
   restoreBackup,
 } from '@/db/backup'
 import { catalog, syringeCatalog } from '@/data'
-import { ADULT_AGE, ageOn } from '@/domain/body'
+import { ADULT_AGE } from '@/domain/body'
 import {
   cmToFeetInches,
   feetInchesToCm,
@@ -40,14 +40,7 @@ import androidFirefoxShot from '@/assets/install/android-firefox.webp'
 import iosChromeShot from '@/assets/install/ios-chrome.webp'
 import iosSafariShot from '@/assets/install/ios-safari.webp'
 import { saveFile } from '@/services/fileTransfer'
-import {
-  calendarMonth,
-  daysBetween,
-  formatBirthMonth,
-  formatDateTime,
-  monthNames,
-  systemClock,
-} from '@/services/time'
+import { daysBetween, formatDateTime, systemClock } from '@/services/time'
 import {
   mdiCellphoneArrowDown,
   mdiCheckCircleOutline,
@@ -139,8 +132,6 @@ const a1cUnitModel = computed({
   set: (value: A1cUnit) => void settings.setA1cUnit(value),
 })
 
-const months = monthNames().map((title, i) => ({ title, value: i + 1 }))
-
 /*
  * The profile form holds what the user is typing; Save writes only valid values. It is filled
  * from the store whenever the store or the height unit changes.
@@ -149,8 +140,6 @@ const profileForm = reactive({
   cm: '',
   feet: '',
   inches: '',
-  birthMonth: null as number | null,
-  birthYear: '',
 })
 
 function fillProfileForm() {
@@ -159,15 +148,10 @@ function fillProfileForm() {
   const fi = p.heightCm ? cmToFeetInches(p.heightCm) : null
   profileForm.feet = fi ? String(fi.feet) : ''
   profileForm.inches = fi ? String(fi.inches) : ''
-  const [y, m] = p.birthMonth ? p.birthMonth.split('-') : []
-  profileForm.birthYear = y ?? ''
-  profileForm.birthMonth = m ? Number(m) : null
 }
 watch(() => [settings.profile, settings.heightUnit, settings.loaded], fillProfileForm, {
   immediate: true,
 })
-
-const thisYear = calendarMonth(systemClock().getTime()).year
 
 const parsedProfile = computed(() => {
   const num = (t: string) => (t.trim() === '' ? null : Number(t))
@@ -188,37 +172,14 @@ const parsedProfile = computed(() => {
       else heightError = 'Feet as a whole number, inches 0 to 11.9'
     }
   }
-  const year = num(profileForm.birthYear)
-  let birthMonth: string | null = null
-  let birthError: string | undefined
-  if (year !== null || profileForm.birthMonth !== null) {
-    if (
-      year !== null &&
-      Number.isInteger(year) &&
-      year >= 1900 &&
-      year <= thisYear &&
-      profileForm.birthMonth
-    )
-      birthMonth = `${year}-${String(profileForm.birthMonth).padStart(2, '0')}`
-    else birthError = 'Choose a month and a year'
-  }
-  return { heightCm, heightError, birthMonth, birthError }
+  return { heightCm, heightError }
 })
 
-const age = computed(() =>
-  parsedProfile.value.birthMonth
-    ? ageOn(parsedProfile.value.birthMonth, calendarMonth(systemClock().getTime()))
-    : null,
-)
-
-const profileValid = computed(
-  () => !parsedProfile.value.heightError && !parsedProfile.value.birthError,
-)
+const profileValid = computed(() => !parsedProfile.value.heightError)
 
 async function saveProfile() {
   if (!profileValid.value) return
-  const { heightCm, birthMonth } = parsedProfile.value
-  await settings.updateProfile({ heightCm, birthMonth })
+  await settings.updateProfile({ heightCm: parsedProfile.value.heightCm })
   notify.show('Profile saved', 'success')
 }
 
@@ -448,7 +409,7 @@ const formatMb = (bytes: number | null) =>
             </v-btn-toggle>
           </div>
           <p class="text-body-small pc-muted">
-            Switch units any time. Your entries convert automatically. Dose units are set per vial.
+            Entries convert when you switch. Dose units are set on each vial.
           </p>
         </v-card-text>
       </v-card>
@@ -459,10 +420,7 @@ const formatMb = (bytes: number | null) =>
           <v-card-title>Profile</v-card-title>
         </v-card-item>
         <v-card-text class="pc-stack">
-          <p class="text-body-small pc-muted">
-            Optional. Height gives your BMI in the Journal; birth month keeps adult BMI bands from
-            showing under {{ ADULT_AGE }}.
-          </p>
+          <p class="text-body-small pc-muted">Optional. Height gives your BMI.</p>
           <div v-if="settings.heightUnit === 'cm'">
             <v-text-field
               v-model="profileForm.cm"
@@ -491,31 +449,6 @@ const formatMb = (bytes: number | null) =>
               :error="!!parsedProfile.heightError"
             />
           </div>
-          <div class="birth-row">
-            <v-select
-              v-model="profileForm.birthMonth"
-              :items="months"
-              label="Birth month"
-              clearable
-              :error-messages="parsedProfile.birthError"
-            />
-            <v-text-field
-              v-model="profileForm.birthYear"
-              label="Year"
-              type="number"
-              inputmode="numeric"
-              :error="!!parsedProfile.birthError"
-            />
-          </div>
-          <p v-if="age !== null" class="text-body-small pc-muted">
-            Age {{ age
-            }}<template v-if="parsedProfile.birthMonth">
-              (born {{ formatBirthMonth(parsedProfile.birthMonth) }})</template
-            >.
-            <template v-if="age < ADULT_AGE">
-              Adult BMI bands don't apply under {{ ADULT_AGE }}, so PepCalc won't show one.
-            </template>
-          </p>
           <div class="pc-actions">
             <v-btn color="primary" variant="flat" :disabled="!profileValid" @click="saveProfile">
               Save profile
@@ -541,13 +474,13 @@ const formatMb = (bytes: number | null) =>
               density="comfortable"
               aria-labelledby="age-mode-label"
             >
-              <v-btn value="sourced">Cited limit</v-btn>
+              <v-btn value="sourced">Published limit</v-btn>
               <v-btn value="custom">My own days</v-btn>
             </v-btn-toggle>
           </div>
           <p v-if="settings.vialAgeMode === 'sourced'" class="text-body-medium pc-muted">
-            Each vial's cited limit ({{ catalog.storage.inUse.days }} days for bacteriostatic water,
-            or less if the label says so). Vials show <em>use soon</em> in the last quarter.
+            {{ catalog.storage.inUse.days }} days after mixing, or less if a label says so. Vials
+            show <em>use soon</em> near the end.
           </p>
           <template v-else>
             <div class="d-flex ga-3 align-start">
@@ -566,9 +499,7 @@ const formatMb = (bytes: number | null) =>
                 :error="!!ageFormError"
               />
             </div>
-            <p class="text-body-medium pc-muted">
-              Your own thresholds. Each vial still shows its cited limit.
-            </p>
+            <p class="text-body-medium pc-muted">Each vial still shows its published limit.</p>
             <div class="pc-actions">
               <v-btn variant="text" @click="resetAgeLimits">
                 Reset to {{ DEFAULT_CUSTOM_AGE_LIMITS.nearingDays }} and
@@ -746,6 +677,7 @@ const formatMb = (bytes: number | null) =>
             A reconstitution and draw calculator for peptide research. It shows sourced reference
             values but doesn't recommend doses and isn't medical advice.
           </p>
+          <p>PepCalc is for adults {{ ADULT_AGE }} and over.</p>
           <p>
             Presets come from prescribing labels, clinical trials or community reports. Community
             amounts aren't clinically established. Level charts are estimates.
@@ -761,14 +693,6 @@ const formatMb = (bytes: number | null) =>
   display: grid;
   gap: 16px;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
-  align-items: start;
-}
-
-/* The month gets the wider share so its label and the longest month name fit beside the year. */
-.birth-row {
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: 12px;
   align-items: start;
 }
 

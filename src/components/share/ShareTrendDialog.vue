@@ -36,7 +36,7 @@ const open = defineModel<boolean>({ required: true })
 
 const journal = useJournalStore()
 const settings = useSettingsStore()
-const body = useBodyMetrics(() => props.now)
+const body = useBodyMetrics()
 const { colors } = useChartColors()
 const showNumbers = ref(false)
 // Off by default: whoever receives the image sees the photos.
@@ -247,8 +247,7 @@ const NAMES = { weight: 'weight', bmi: 'bmi', a1c: 'hba1c', glucose: 'glucose' }
     <template v-if="measure === 'weight' && photos?.length">
       <v-switch v-model="showPhotos" label="Include my photos" hide-details />
       <p v-if="showPhotos" class="text-body-small pc-muted">
-        Small versions of your progress photos are pinned to the line. Anyone you send the image to
-        will see them.
+        Your photos appear on the line. Anyone you send this to will see them.
       </p>
     </template>
   </ShareImageDialog>

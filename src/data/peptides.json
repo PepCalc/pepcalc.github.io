@@ -4,7 +4,7 @@
   "storage": {
     "inUse": {
       "days": 28,
-      "note": "Discard 28 days after the first puncture, the period the water's preservative is tested for. How long a mixed peptide stays potent is unknown.",
+      "note": "Discard 28 days after the first puncture. That's how long the water's preservative is tested for, not how long the peptide lasts.",
       "sources": [
         {
           "kind": "standard",
@@ -18,7 +18,7 @@
         }
       ]
     },
-    "advice": "Refrigerate at 2 to 8 °C, away from light. Never freeze, and don't use a vial that has frozen. Your vial's own instructions take precedence.",
+    "advice": "Refrigerate at 2 to 8 °C, away from light. Don't freeze it, or use it if it has frozen. Your vial's own instructions come first.",
     "adviceSources": [
       {
         "kind": "label",
@@ -284,7 +284,7 @@
       },
       "inUse": {
         "days": 7,
-        "note": "Keep at room temperature, 20 to 25 °C; don't refrigerate or freeze. Discard 7 days after mixing. From the EGRIFTA WR label; research-grade tesamorelin has no label.",
+        "note": "Keep at room temperature (20 to 25 °C); don't refrigerate or freeze. Discard 7 days after mixing. From the EGRIFTA WR label; research tesamorelin has none.",
         "sources": [
           {
             "kind": "label",

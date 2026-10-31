@@ -30,7 +30,7 @@ const journal = useJournalStore()
 const settings = useSettingsStore()
 const shelf = useShelfStore()
 const now = useNow()
-const body = useBodyMetrics(() => now.value)
+const body = useBodyMetrics()
 
 const weightDialog = ref(false)
 const exporting = ref(false)
@@ -110,7 +110,7 @@ const hasAnything = computed(
             </div>
           </dl>
           <SourceList v-if="body.currentBmi.value !== null" :sources="[BMI_SOURCE]" />
-          <p v-if="latest && body.currentBmi.value === null" class="text-body-small pc-muted">
+          <p v-if="latest && !body.heightCm.value" class="text-body-small pc-muted">
             Add your height in Settings to see your BMI.
           </p>
           <div class="pc-actions">

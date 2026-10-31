@@ -5,8 +5,8 @@ import { LENGTH_UNITS, WEIGHT_UNITS, type LengthUnit, type WeightUnit } from './
  * stored in its dimension's canonical unit; a reading of several metrics at once (a smart scale)
  * is several measurements at the same time. Adding a metric is an entry in `METRICS`, never a
  * schema change. Body mass index is derived from weight and the profile's height and is never
- * stored. BMI is a population screening measure; the categories are the WHO adult cut-offs and
- * do not apply under 18.
+ * stored. BMI is a population screening measure; the categories are the WHO adult cut-offs.
+ * They fit because PepCalc is for adults only.
  */
 
 /**
@@ -59,34 +59,6 @@ export function isValidMeasurement(metric: unknown, value: unknown, unit: unknow
   )
 }
 
-/** A birth month as "YYYY-MM". Kept as a calendar string, never an instant, so no time zone shifts it. */
-export type BirthMonth = string
-
-const BIRTH_MONTH = /^(\d{4})-(0[1-9]|1[0-2])$/
-
-export function isBirthMonth(value: unknown): value is BirthMonth {
-  return typeof value === 'string' && BIRTH_MONTH.test(value)
-}
-
-export interface CalendarDate {
-  year: number
-  /** 1 to 12. */
-  month: number
-}
-
-/**
- * Completed years on `on`. Only the birth month is known, so a birthday month counts as
- * already reached: the age is never overstated by more than the days left in that month.
- */
-export function ageOn(birth: BirthMonth, on: CalendarDate): number | null {
-  const match = BIRTH_MONTH.exec(birth)
-  if (!match) return null
-  const year = Number(match[1])
-  const month = Number(match[2])
-  const age = on.year - year - (on.month < month ? 1 : 0)
-  return age >= 0 ? age : null
-}
-
 /** Weight over height squared (kg/m²). */
 export function bmi(weightKg: number, heightCm: number): number {
   if (!(weightKg > 0) || !(heightCm > 0))
@@ -122,11 +94,11 @@ export const BMI_SOURCE = {
   url: 'https://iris.who.int/handle/10665/42330',
 } as const
 
+/** PepCalc is for adults only, which is what lets it use the WHO adult BMI bands for everyone. */
 export const ADULT_AGE = 18
 
-/** The WHO band for an adult's BMI, or null under 18. An unknown age is treated as adult. */
-export function bmiBand(value: number, age: number | null): BmiBand | null {
-  if (age !== null && age < ADULT_AGE) return null
+/** The WHO adult band for a BMI. */
+export function bmiBand(value: number): BmiBand {
   let band = BMI_BANDS[0]!
   for (const b of BMI_BANDS) if (value >= b.from) band = b
   return band

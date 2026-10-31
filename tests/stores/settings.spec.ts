@@ -32,14 +32,10 @@ describe('settings.acceptDisclaimer', () => {
 
 describe('sanitizeProfile', () => {
   it('keeps valid fields and drops the rest, so a restored backup cannot break the app', () => {
-    expect(sanitizeProfile({ heightCm: -4, birthMonth: '1990-13', gender: 'x' })).toEqual({
+    expect(sanitizeProfile({ heightCm: -4, birthMonth: '1990-06', gender: 'x' })).toEqual({
       heightCm: null,
-      birthMonth: null,
     })
-    expect(sanitizeProfile('nonsense')).toEqual({ heightCm: null, birthMonth: null })
-    expect(sanitizeProfile({ heightCm: 172.5, birthMonth: '1990-06' })).toEqual({
-      heightCm: 172.5,
-      birthMonth: '1990-06',
-    })
+    expect(sanitizeProfile('nonsense')).toEqual({ heightCm: null })
+    expect(sanitizeProfile({ heightCm: 172.5 })).toEqual({ heightCm: 172.5 })
   })
 })
