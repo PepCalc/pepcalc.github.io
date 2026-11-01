@@ -1,0 +1,23 @@
+{
+  "name": "pepcalc-site",
+  "private": true,
+  "version": "0.1.0",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "description": "The PepCalc website at pepcalc.github.io: static, script-free.",
+  "engines": {
+    "node": ">=24.16.0 <25"
+  },
+  "scripts": {
+    "build": "node scripts/build-pages.mjs",
+    "check:pages": "node scripts/build-pages.mjs --check",
+    "check:site": "node scripts/check-site.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run format:check && npm run check:pages && npm run check:site",
+    "serve": "node scripts/serve.mjs"
+  },
+  "devDependencies": {
+    "prettier": "3.9.10"
+  }
+}

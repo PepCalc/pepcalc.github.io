@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--
+      Script-free by policy: this site shares an origin with the app at /app/, so any script here
+      could read the app's on-device data. No scripts, no third-party requests, and no service
+      worker beyond sw.js, which only retires the one the app registered when it lived here.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; script-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <meta name="referrer" content="no-referrer" />
+    <title>PepCalc: a private peptide reconstitution calculator</title>
+    <meta
+      name="description"
+      content="Work out how much water to add to a peptide vial, the concentration, and how far to draw on your syringe. Free, private, and offline: nothing leaves your device."
+    />
+    <link rel="canonical" href="https://pepcalc.github.io/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="PepCalc" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content="PepCalc: a private peptide reconstitution calculator" />
+    <meta
+      property="og:description"
+      content="Work out how much water to add to a peptide vial, the concentration, and how far to draw on your syringe. Free, private, and offline: nothing leaves your device."
+    />
+    <meta property="og:url" content="https://pepcalc.github.io/" />
+    <meta property="og:image" content="https://pepcalc.github.io/assets/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="PepCalc, a private peptide calculator" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fbf8f3" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#15120e" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="favicon.ico" sizes="48x48" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="./" aria-label="PepCalc home">
+          <img src="assets/favicon.svg" alt="" width="36" height="36" />
+          <span>Pep<span class="brand__accent">Calc</span></span>
+        </a>
+        <nav class="site-nav" aria-label="Site">
+          <a class="optional" href="#features">Features</a>
+          <a class="optional" href="#privacy">Privacy</a>
+          <a class="optional" href="#install">Install</a>
+          <a href="app/">Open app</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <div class="wrap">
+          <div class="stack--loose stack">
+            <p class="eyebrow">Free · Private · Offline</p>
+            <h1>Know exactly how far to draw</h1>
+            <p class="lead">
+              Pick a peptide, the amount in your vial, and the water you added. PepCalc shows the
+              concentration and the reading on your syringe, with a drawing of the barrel to check
+              against. Everything stays on your device.
+            </p>
+            <div class="actions">
+              <a class="button button--primary" href="app/">Open PepCalc</a>
+              <a class="button button--quiet" href="#install">Install on your phone</a>
+            </div>
+            <ul class="badges" aria-label="Works with">
+              <li>U-100 and U-40 insulin syringes</li>
+              <li>Doses in mg, mcg, or IU</li>
+            </ul>
+          </div>
+          <div class="phones">
+            <picture class="phone">
+              <img
+                src="assets/screens/draw.webp"
+                width="540"
+                height="1200"
+                alt="PepCalc's draw result: 37.5 units, which is 0.375 mL for a 0.25 mg dose on a U-100 syringe, drawn on a picture of the barrel"
+              />
+            </picture>
+            <picture class="phone">
+              <img
+                src="assets/screens/levels.webp"
+                width="540"
+                height="1200"
+                alt="PepCalc's level chart: an estimate of semaglutide in the body over time from logged draws"
+              />
+            </picture>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" class="section section--band">
+        <div class="wrap">
+          <div class="section-head stack">
+            <h2>Everything for the vial in your hand</h2>
+            <p class="muted">From mixing it to the last draw, with the arithmetic shown.</p>
+          </div>
+          <div class="grid">
+            <article class="card">
+              <h3>Draw calculator</h3>
+              <p class="muted">
+                A dose in mg, mcg, or IU becomes a volume and a syringe reading for U-100 (1, 0.5,
+                and 0.3 mL), U-40, and mL syringes. PepCalc warns when a draw is over capacity,
+                under one mark, or between marks.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Mixing advisor</h3>
+              <p class="muted">
+                Enter the doses you plan to draw and your vial size, and PepCalc ranks water volumes
+                so every dose fits one syringe and lands on a mark.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Presets with sources</h3>
+              <p class="muted">
+                Vial sizes, water volumes, and doses for each peptide, each marked as coming from a
+                prescribing label, a clinical trial, or community reports.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Blends</h3>
+              <p class="muted">
+                KLOW, GLOW, and your own mixes split each dose into the amount of every component.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Shelf</h3>
+              <p class="muted">
+                Save the vials you've mixed, log each draw, and see how much is left and how many
+                days since mixing.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Estimated levels</h3>
+              <p class="muted">
+                See an estimate of the amount in your body over time, from published human data, or
+                from a half-life you enter yourself, clearly marked as yours.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="wrap split">
+          <picture class="phone">
+            <img
+              src="assets/screens/shelf.webp"
+              width="540"
+              height="1200"
+              loading="lazy"
+              alt="PepCalc's shelf: two mixed vials, BPC-157 and semaglutide, each with the amount and volume left"
+            />
+          </picture>
+          <div class="stack">
+            <h2>Arithmetic you can check</h2>
+            <p class="muted">
+              PepCalc shows its working, and where every reference number comes from.
+            </p>
+            <ul class="checks">
+              <li>Concentration = amount in the vial ÷ water added.</li>
+              <li>Volume to draw = dose ÷ concentration.</li>
+              <li>Units on a U-100 syringe = mL × 100 (U-40: mL × 40).</li>
+              <li>PepCalc never recommends a dose. The amount is yours to enter.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="privacy" class="section section--band">
+        <div class="wrap split">
+          <div class="stack">
+            <h2>Private by design</h2>
+            <p class="muted">
+              No account, no server, and no analytics. PepCalc runs entirely on your device, even
+              offline, and the Android app doesn't request network access.
+            </p>
+            <p class="muted">
+              Your device holds the only copy of your vials, draws, and journal, so save a backup
+              from Settings from time to time.
+            </p>
+            <p><a href="privacy.html">Read the privacy policy</a></p>
+          </div>
+          <ul class="checks">
+            <li>No sign-up, email, or phone number needed</li>
+            <li>No tracking, ads, or third-party code</li>
+            <li>Works offline after the first visit</li>
+            <li>Free, with no paywall</li>
+            <li>Open source under the AGPL-3.0</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="peptides" class="section">
+        <div class="wrap">
+          <div class="section-head stack">
+            <h2>Peptides in the catalog</h2>
+            <p class="muted">
+              Semaglutide, tirzepatide, retatrutide, cagrilintide, tesamorelin, BPC-157, TB-500,
+              GHK-Cu, KPV, and the GLOW and KLOW blends, or any peptide you add yourself.
+            </p>
+          </div>
+          <p class="small muted">
+            Several of these peptides are investigational or not approved for human use. PepCalc
+            does arithmetic and shows sourced reference values; it is not medical advice.
+          </p>
+          <p class="muted spaced">
+            Using a GLP-1 medicine from a pharmacy? Try
+            <a href="https://gliplog.com/" rel="noopener noreferrer">Gliplog</a>, a free, private
+            journal for doses, weight, blood sugar, and side effects.
+          </p>
+        </div>
+      </section>
+
+      <section id="install" class="section section--band">
+        <div class="wrap">
+          <div class="section-head stack">
+            <h2>Install PepCalc</h2>
+            <p class="muted">
+              Open <a href="app/">pepcalc.github.io/app</a> on your phone or tablet, then add it to
+              your Home Screen. It opens full screen and works offline.
+            </p>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Phone or tablet</th>
+                  <th scope="col">Steps</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>iPhone or iPad, Safari</td>
+                  <td>Share, then Add to Home Screen</td>
+                </tr>
+                <tr>
+                  <td>iPhone or iPad, Chrome</td>
+                  <td>Share (in the address bar), then Add to Home Screen</td>
+                </tr>
+                <tr>
+                  <td>Android, Chrome or Edge</td>
+                  <td>Menu, then Install app (or Add to Home screen)</td>
+                </tr>
+                <tr>
+                  <td>Android, Firefox</td>
+                  <td>Menu, then Add app to Home screen</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="muted spaced">
+            An Android app for F-Droid is coming, built from the same open source code.
+          </p>
+        </div>
+      </section>
+
+      <section id="faq" class="section">
+        <div class="wrap">
+          <div class="section-head stack">
+            <h2>Questions</h2>
+          </div>
+          <details>
+            <summary>How much bacteriostatic water should I add?</summary>
+            <p>
+              PepCalc shows what each amount of water does: the concentration it makes and how many
+              units each draw takes on your syringe, so you can pick a volume that is easy to
+              measure. The mixing advisor ranks volumes for the doses you plan. It does not tell you
+              what to use.
+            </p>
+          </details>
+          <details>
+            <summary>How do I convert mg to units on an insulin syringe?</summary>
+            <p>
+              Divide the amount by the concentration to get millilitres, then multiply by 100 for a
+              U-100 syringe (or by 40 for U-40). A 10 mg vial with 2 mL of water is 5 mg per mL, and
+              0.1 mL of it is 10 units on a U-100 syringe.
+            </p>
+          </details>
+          <details>
+            <summary>Is PepCalc really free?</summary>
+            <p>
+              Yes. No subscription, no ads, and no premium tier. With no server, it costs almost
+              nothing to run.
+            </p>
+          </details>
+          <details>
+            <summary>Where is my data stored?</summary>
+            <p>
+              On your device: in your browser's storage, or inside the Android app. Nothing is sent
+              anywhere. Clearing this site's data or uninstalling the app deletes it, so keep a
+              backup.
+            </p>
+          </details>
+          <details>
+            <summary>I used PepCalc at pepcalc.github.io before. Where did it go?</summary>
+            <p>
+              It moved to <a href="app/">pepcalc.github.io/app</a>, on the same site, so your vials,
+              draws, and journal are still there. A Home Screen icon you added before the move keeps
+              working: it opens this page, and Open app takes you to your data. On iPhone and iPad,
+              a new icon starts empty, so if you add one, save a backup in the old icon first and
+              restore it in the new one.
+            </p>
+          </details>
+          <details>
+            <summary>Can I move my data to a new phone?</summary>
+            <p>
+              Save a backup in Settings, move the file to the new phone, and restore it there. On
+              iPhone, Safari and the home-screen app keep separate data, so use a backup to move
+              between them too.
+            </p>
+          </details>
+          <details>
+            <summary>Does PepCalc tell me what dose to take?</summary>
+            <p>
+              No. It does arithmetic and shows sourced reference values; the amount is yours to
+              enter. It is not medical advice and is for adults only.
+            </p>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap stack">
+        <nav aria-label="Footer">
+          <a href="app/">Open the app</a>
+          <a href="privacy.html">Privacy policy</a>
+          <a href="https://github.com/PepCalc/app" rel="noopener noreferrer">Source code</a>
+        </nav>
+        <p>
+          PepCalc is free software under the GNU AGPL-3.0. It is not medical advice and does not
+          recommend doses. Several listed peptides are investigational or not approved for human
+          use.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

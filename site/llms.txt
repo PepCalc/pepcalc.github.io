@@ -1,0 +1,35 @@
+# PepCalc
+
+> Work out how much water to add to a peptide vial, the concentration, and how far to draw on your syringe. Track vials and draws, see estimated levels from published data, and keep a private journal. Free, offline, and nothing leaves your device.
+
+PepCalc is a free, open source progressive web app (also an Android app). It runs entirely
+on the device: no account, no server, no analytics, and it works offline. It does arithmetic
+and shows sourced references; it is not medical advice and never recommends a dose.
+
+## Features
+
+- Reconstitution: the concentration from the amount in the vial and the water added (mg, mcg or IU per mL)
+- Draws: the volume in mL and the units on U-100 and U-40 insulin syringes, drawn on a picture of the syringe
+- Mixing advisor: ranks water volumes so every planned dose fits one syringe and lands on a mark
+- Blends: vials holding more than one peptide
+- A shelf of vials, with each draw logged and the amount left
+- Estimated levels in the body over time, only for peptides with published human data, each with its source
+- A journal of weight and BMI, blood sugar, side effects and progress photos, with trends to share
+- A PDF report of draws, levels and journal entries
+
+## Peptides in the catalog
+
+Semaglutide, Tirzepatide, Retatrutide, Cagrilintide, Tesamorelin, BPC-157, TB-500, GHK-Cu, KPV, GLOW, KLOW, or any peptide the user adds.
+
+## The arithmetic
+
+- Concentration = amount in the vial / water added
+- Volume to draw (mL) = amount / concentration
+- Units on a U-100 syringe = mL x 100 (U-40: mL x 40)
+
+## Links
+
+- [Open PepCalc](https://pepcalc.github.io/app/)
+- [About PepCalc](https://pepcalc.github.io/)
+- [Privacy policy](https://pepcalc.github.io/privacy.html)
+- [Source code](https://github.com/PepCalc/app)
