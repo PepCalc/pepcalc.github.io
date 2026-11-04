@@ -1,6 +1,6 @@
 # PepCalc
 
-> Work out how much water to add to a peptide vial, the concentration, and how far to draw on your syringe. Track vials and draws, see estimated levels from published data, and keep a private journal. Free, offline, and nothing leaves your device.
+> Work out how much water to add to a peptide vial, the concentration, and how far to draw on your syringe. Track any number of peptides, vials and protocols, see estimated levels from published data, and keep a private journal. Every feature is free forever: no paywall, no upsell, no subscription. Offline, and nothing leaves your device.
 
 PepCalc is a free, open source progressive web app (also an Android app). It runs entirely
 on the device: no account, no server, no analytics, and it works offline. It does arithmetic
@@ -13,6 +13,7 @@ and shows sourced references; it is not medical advice and never recommends a do
 - Mixing advisor: ranks water volumes so every planned dose fits one syringe and lands on a mark
 - Blends: vials holding more than one peptide
 - A shelf of vials, with each draw logged and the amount left
+- Protocols: how often each peptide is taken, with a countdown to the next dose, for any number of peptides
 - Estimated levels in the body over time, only for peptides with published human data, each with its source
 - A journal of weight and BMI, blood sugar, side effects and progress photos, with trends to share
 - A PDF report of draws, levels and journal entries

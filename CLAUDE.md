@@ -27,6 +27,9 @@ gate on every push and pull request.
 - Colours mirror the app's tokens (`site/styles.css` `:root`), light and dark from the device.
 - Copy follows the app's voice: warm, plain, inclusive, never recommending a dose, and clear
   that several listed peptides are investigational or not approved for human use.
+- Headlines and marketing copy follow the copy rule: bold, short, no AI slop. Fragments are fine:
+  "Always free. No paywalls. No subscriptions." No trailing ", so X" clauses, no filler subheads.
+  Punchy never overrides accuracy: every claim must be true of the app, and safety wording stays.
 - Markdown and HTML contain no em-dashes (U+2014).
 - Every indexable page has a description, a canonical URL on the origin in
   `scripts/origin.mjs` matching its path, Open Graph and Twitter card tags, and a `sitemap.xml`

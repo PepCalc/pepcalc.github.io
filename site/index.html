@@ -13,25 +13,28 @@
       content="default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; script-src 'none'; base-uri 'none'; form-action 'none'"
     />
     <meta name="referrer" content="no-referrer" />
-    <title>PepCalc: a private peptide reconstitution calculator</title>
+    <title>PepCalc: a free peptide calculator and tracker</title>
     <meta
       name="description"
-      content="Work out how much water to add to a peptide vial, the concentration, and how far to draw on your syringe. Free, private, and offline: nothing leaves your device."
+      content="Calculate draws. Mix vials. Track every peptide. Always free. No paywalls. No subscriptions. Private and open source."
     />
     <link rel="canonical" href="https://pepcalc.github.io/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="PepCalc" />
     <meta property="og:locale" content="en_US" />
-    <meta property="og:title" content="PepCalc: a private peptide reconstitution calculator" />
+    <meta property="og:title" content="PepCalc: a free peptide calculator and tracker" />
     <meta
       property="og:description"
-      content="Work out how much water to add to a peptide vial, the concentration, and how far to draw on your syringe. Free, private, and offline: nothing leaves your device."
+      content="Calculate draws. Mix vials. Track every peptide. Always free. No paywalls. No subscriptions. Private and open source."
     />
     <meta property="og:url" content="https://pepcalc.github.io/" />
     <meta property="og:image" content="https://pepcalc.github.io/assets/og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="PepCalc, a private peptide calculator" />
+    <meta
+      property="og:image:alt"
+      content="The peptide tracker that's always free. No paywalls. No subscriptions."
+    />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#fbf8f3" media="(prefers-color-scheme: light)" />
@@ -50,6 +53,7 @@
           <span>Pep<span class="brand__accent">Calc</span></span>
         </a>
         <nav class="site-nav" aria-label="Site">
+          <a class="optional" href="#free">Free</a>
           <a class="optional" href="#features">Features</a>
           <a class="optional" href="#privacy">Privacy</a>
           <a class="optional" href="#install">Install</a>
@@ -59,25 +63,48 @@
     </header>
 
     <main id="main">
-      <section class="hero">
+      <section class="hero hero--stage">
         <div class="wrap">
-          <div class="stack--loose stack">
-            <p class="eyebrow">Free · Private · Offline</p>
-            <h1>A private calculator for peptide vials</h1>
-            <p class="lead">
-              Enter what's in your vial and how much water you added. See the concentration and how
-              far to draw on your syringe. Everything stays on your device.
-            </p>
-            <div class="actions">
-              <a class="button button--primary" href="app/">Open PepCalc</a>
-              <a class="button button--quiet" href="#install">Install on your phone</a>
-            </div>
-            <ul class="badges" aria-label="Works with">
-              <li>U-100 and U-40 insulin syringes</li>
-              <li>Doses in mg, mcg, or IU</li>
-            </ul>
+          <h1>
+            <span class="sr-only"
+              >The peptide tracker that's always free, ad-free, paywall-free, subscription-free,
+              sign-up-free, stack-ready, offline-ready, open source, private.</span
+            >
+            <span aria-hidden="true"
+              >The peptide tracker that's
+              <span class="odo"
+                ><span class="odo__reel">
+                  <span>always free</span>
+                  <span>ad-free</span>
+                  <span>paywall-free</span>
+                  <span>subscription-free</span>
+                  <span>sign-up-free</span>
+                  <span>stack-ready</span>
+                  <span>offline-ready</span>
+                  <span>open source</span>
+                  <span>private</span>
+                  <span>always free</span>
+                </span></span
+              ></span
+            >
+          </h1>
+          <p class="lead">
+            Calculate draws. Mix vials. Track every peptide. No paywalls. No subscriptions. Ever.
+          </p>
+          <div class="actions">
+            <a class="button button--primary" href="app/">Open PepCalc</a>
+            <a class="button button--quiet" href="#install">Install on your phone</a>
           </div>
-          <div class="phones">
+          <p class="hero__note small">Works with U-100 and U-40 syringes, in mg, mcg, or IU.</p>
+          <div class="stage">
+            <picture class="phone">
+              <img
+                src="assets/screens/shelf.webp"
+                width="540"
+                height="1200"
+                alt="PepCalc's shelf: two mixed vials, BPC-157 and semaglutide, each with the amount and volume left"
+              />
+            </picture>
             <picture class="phone">
               <img
                 src="assets/screens/draw.webp"
@@ -98,121 +125,215 @@
         </div>
       </section>
 
-      <section id="features" class="section section--band">
+      <section id="free" class="ink">
         <div class="wrap">
-          <div class="section-head stack">
-            <h2>What it does</h2>
-            <p class="muted">Mixing a vial, drawing from it, and keeping track of what's left.</p>
+          <div class="stack--loose stack">
+            <p class="ink__zero" aria-hidden="true">$0</p>
+            <h2>Always free. No paywalls. No subscriptions.</h2>
+            <p class="ink__sub">Many apps charge for tracking. We don't.</p>
           </div>
-          <div class="grid">
-            <article class="card">
-              <h3>Draw calculator</h3>
-              <p class="muted">
-                Enter a dose in mg, mcg, or IU and see the volume and the reading on a U-100 (1,
-                0.5, or 0.3 mL), U-40, or mL syringe. You'll get a warning if a draw won't fit, is
-                under one mark, or falls between marks.
+          <div class="receipt-wrap">
+            <div class="receipt">
+              <div class="receipt__head">
+                <p class="receipt__name">PepCalc</p>
+                <p class="muted small">Everything included</p>
+              </div>
+              <ul class="receipt__lines">
+                <li><span>Any number of peptides</span><span class="receipt__price">$0</span></li>
+                <li><span>Protocol tracking</span><span class="receipt__price">$0</span></li>
+                <li><span>Draw calculator</span><span class="receipt__price">$0</span></li>
+                <li><span>Mixing advisor</span><span class="receipt__price">$0</span></li>
+                <li><span>Vial shelf and draw log</span><span class="receipt__price">$0</span></li>
+                <li><span>Estimated level charts</span><span class="receipt__price">$0</span></li>
+                <li>
+                  <span>Weight, blood sugar, and side effects</span
+                  ><span class="receipt__price">$0</span>
+                </li>
+                <li><span>PDF reports</span><span class="receipt__price">$0</span></li>
+                <li><span>Full data backup</span><span class="receipt__price">$0</span></li>
+                <li><span>No ads</span><span class="receipt__price">$0</span></li>
+              </ul>
+              <p class="receipt__total">
+                <span>Total</span><span class="receipt__sum">$0.00</span>
               </p>
-            </article>
-            <article class="card">
-              <h3>Mixing advisor</h3>
-              <p class="muted">
-                Enter your vial size and the doses you plan to draw. PepCalc ranks water volumes so
-                every dose fits one syringe and lands on a mark.
-              </p>
-            </article>
-            <article class="card">
-              <h3>Presets with sources</h3>
-              <p class="muted">
-                Vial sizes, water volumes, and doses for each peptide, each showing where it came
-                from: a prescribing label, a clinical trial, or community reports.
-              </p>
-            </article>
-            <article class="card">
-              <h3>Blends</h3>
-              <p class="muted">
-                For KLOW, GLOW, or a mix of your own, see how much of each peptide is in every dose.
-              </p>
-            </article>
-            <article class="card">
-              <h3>Shelf</h3>
-              <p class="muted">
-                Save the vials you've mixed and log each draw. See how much is left and how long ago
-                you mixed it.
-              </p>
-            </article>
-            <article class="card">
-              <h3>Estimated levels</h3>
-              <p class="muted">
-                See an estimate of how much is in your body over time, based on published human
-                data. You can also enter your own half-life.
-              </p>
-            </article>
+              <p class="receipt__renews small">Renews: never</p>
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="about" class="section">
+      <section id="features" class="section">
         <div class="wrap">
-          <div class="section-head stack">
-            <h2>Why PepCalc</h2>
-            <p class="muted">
-              Reconstitution arithmetic is easy to get wrong on a phone calculator. PepCalc does it
-              for you, shows each step, and draws the syringe so you can check the reading before
-              you draw.
-            </p>
+          <div class="section-title">
+            <h2>Track every peptide.</h2>
+          </div>
+          <div class="bento">
+            <article class="tile tile--4">
+              <div>
+                <h3>Draw calculator</h3>
+                <p>
+                  Enter a dose. Read your syringe. Get a warning if a draw won't fit or lands
+                  between marks.
+                </p>
+              </div>
+              <picture class="tile__shot">
+                <img
+                  src="assets/screens/dose.webp"
+                  width="540"
+                  height="1200"
+                  loading="lazy"
+                  alt="A 0.5 mg dose worked out as 30 units, with a drawing of the syringe barrel"
+                />
+              </picture>
+            </article>
+            <article class="tile tile--2 tile--text tile--tint">
+              <div>
+                <h3>Mixing advisor</h3>
+                <p>Ranks water volumes so every dose lands on a mark.</p>
+              </div>
+            </article>
+            <article class="tile tile--2">
+              <div>
+                <h3>Protocols</h3>
+                <p>A countdown to every next dose. As many peptides as you like.</p>
+              </div>
+              <picture class="tile__shot">
+                <img
+                  src="assets/screens/protocols.webp"
+                  width="540"
+                  height="1200"
+                  loading="lazy"
+                  alt="The Protocols tab: BPC-157 daily and semaglutide weekly, each with a countdown ring"
+                />
+              </picture>
+            </article>
+            <article class="tile tile--4">
+              <div>
+                <h3>Shelf</h3>
+                <p>Your mixed vials, every draw, and what's left.</p>
+              </div>
+              <picture class="tile__shot">
+                <img
+                  src="assets/screens/vials.webp"
+                  width="540"
+                  height="1200"
+                  loading="lazy"
+                  alt="The shelf: two mixed vials, each with its age and the amount left"
+                />
+              </picture>
+            </article>
+            <article class="tile tile--4">
+              <div>
+                <h3>Estimated levels</h3>
+                <p>
+                  From published human data. Overlay up to four peptides, or enter your own
+                  half-life.
+                </p>
+              </div>
+              <picture class="tile__shot">
+                <img
+                  src="assets/screens/levels-chart.webp"
+                  width="540"
+                  height="1200"
+                  loading="lazy"
+                  alt="A chart of estimated semaglutide in the body from logged draws, rising with each dose"
+                />
+              </picture>
+            </article>
+            <article class="tile tile--2">
+              <div>
+                <h3>Journal</h3>
+                <p>Weight, blood sugar, side effects, and private progress photos.</p>
+              </div>
+              <picture class="tile__shot">
+                <img
+                  src="assets/screens/journal-dark.webp"
+                  width="540"
+                  height="1200"
+                  loading="lazy"
+                  alt="The Journal tab: weight, blood sugar, and side effects"
+                />
+              </picture>
+            </article>
+            <article class="tile tile--2 tile--text">
+              <div>
+                <h3>Presets with sources</h3>
+                <p>
+                  Vials, water, and doses. Each one sourced: label, trial, or community reports.
+                </p>
+              </div>
+            </article>
+            <article class="tile tile--2 tile--text tile--tint">
+              <div>
+                <h3>Blends</h3>
+                <p>KLOW, GLOW, or your own mix. See what's in every dose.</p>
+              </div>
+            </article>
+            <article class="tile tile--2 tile--text">
+              <div>
+                <h3>PDF reports</h3>
+                <p>Draws, levels, and journal entries in one PDF.</p>
+              </div>
+            </article>
           </div>
         </div>
       </section>
 
-      <section class="section section--band">
-        <div class="wrap split">
-          <picture class="phone">
-            <img
-              src="assets/screens/shelf.webp"
-              width="540"
-              height="1200"
-              loading="lazy"
-              alt="PepCalc's shelf: two mixed vials, BPC-157 and semaglutide, each with the amount and volume left"
-            />
-          </picture>
-          <div class="stack">
-            <h2>Check the arithmetic</h2>
-            <p class="muted">
-              Every result shows how it was worked out. Every reference value shows its source.
-            </p>
-            <ul class="checks">
-              <li>Concentration = amount in the vial ÷ water added.</li>
-              <li>Volume to draw = dose ÷ concentration.</li>
-              <li>Units on a U-100 syringe = mL × 100 (U-40: mL × 40).</li>
-              <li>PepCalc never recommends a dose.</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section id="privacy" class="section">
-        <div class="wrap split">
-          <div class="stack">
-            <h2>Private by design</h2>
-            <p class="muted">
-              No account, no server, and no analytics. PepCalc runs entirely on your device, even
-              offline, and the Android app doesn't request network access.
-            </p>
-            <p class="muted">
-              Your device holds the only copy of your vials, draws, and journal. Save a backup in
-              Settings regularly.
-            </p>
-            <p><a href="privacy.html">Read the privacy policy</a></p>
-          </div>
+      <section id="about" class="statement section--band">
+        <div class="wrap">
+          <h2>Every step, shown.</h2>
+          <p>Phone calculators hide the math. PepCalc shows it.</p>
           <ul class="checks">
-            <li>No sign-up, email, or phone number needed</li>
-            <li>No tracking, ads, or third-party code</li>
-            <li>Works offline after the first visit</li>
-            <li>Free, with no paywall</li>
-            <li>Open source under the AGPL-3.0</li>
+            <li>Concentration = amount in the vial ÷ water added</li>
+            <li>Volume to draw = dose ÷ concentration</li>
+            <li>Units on a U-100 syringe = mL × 100 (U-40: mL × 40)</li>
+            <li>PepCalc never recommends a dose</li>
           </ul>
         </div>
       </section>
+
+      <figure class="photo">
+        <picture>
+          <source srcset="assets/photos/counter-tall.webp" media="(max-width: 719px)" />
+          <img
+            src="assets/photos/counter-wide.webp"
+            width="2000"
+            height="1116"
+            loading="lazy"
+            alt="A small unlabelled vial, an insulin syringe, and a swab packet on a stone counter"
+          />
+        </picture>
+      </figure>
+
+      <section id="privacy" class="statement">
+        <div class="wrap">
+          <h2>Your data. On your device.</h2>
+          <p>Not our server. Not our cloud.</p>
+          <ul class="checks">
+            <li>No account</li>
+            <li>No tracking</li>
+            <li>No third-party code</li>
+            <li>Works offline</li>
+            <li>Android app requests no network access</li>
+            <li>Open source under the AGPL-3.0</li>
+          </ul>
+          <p class="statement__more">Your device holds the only copy. Back it up in Settings.</p>
+          <p class="statement__more"><a href="privacy.html">Read the privacy policy</a></p>
+        </div>
+      </section>
+
+      <figure class="photo">
+        <picture>
+          <source srcset="assets/photos/phone-hand-tall.webp" media="(max-width: 719px)" />
+          <img
+            src="assets/photos/phone-hand-wide.webp"
+            width="2000"
+            height="1116"
+            loading="lazy"
+            alt="Hands holding a phone with a dark screen at a wooden counter, beside a small notebook and a pen"
+          />
+        </picture>
+      </figure>
 
       <section id="peptides" class="section section--band">
         <div class="wrap">
@@ -298,10 +419,17 @@
             </p>
           </details>
           <details>
+            <summary>Can I track more than one peptide?</summary>
+            <p>
+              Yes. Add as many vials and protocols as you like, for free. The level chart overlays
+              up to four peptides at once.
+            </p>
+          </details>
+          <details>
             <summary>Is PepCalc really free?</summary>
             <p>
-              Yes. No subscription, no ads, and no premium tier. With no server, it costs almost
-              nothing to run.
+              Yes. Forever. No paywall, no upsell, no subscription, no ads. With no server, it costs
+              almost nothing to run.
             </p>
           </details>
           <details>

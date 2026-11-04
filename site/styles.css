@@ -537,3 +537,527 @@ details p {
 .spaced {
   margin-top: 20px;
 }
+
+/* The receipt: every feature itemised at $0. The torn edge is a mask, so its shadow is a filter
+   on the wrapper. */
+.receipt-wrap {
+  filter: drop-shadow(0 10px 18px rgba(45, 38, 26, 0.14));
+  max-width: 440px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.receipt {
+  --tooth: 9px;
+  background: var(--pc-surface);
+  padding: 28px 28px calc(28px + var(--tooth));
+  mask:
+    conic-gradient(from -45deg at bottom, #000 90deg, #0000 0) bottom / calc(2 * var(--tooth))
+      var(--tooth) repeat-x,
+    linear-gradient(#000 0 0) top / 100% calc(100% - var(--tooth)) no-repeat;
+}
+
+.receipt__head {
+  text-align: center;
+  padding-bottom: 16px;
+  border-bottom: 2px dashed var(--pc-divider);
+}
+
+.receipt__name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.receipt__lines {
+  list-style: none;
+  margin: 0;
+  padding: 16px 0;
+  display: grid;
+  gap: 8px;
+}
+
+.receipt__lines li,
+.receipt__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* A dotted leader runs from the item to its price. */
+.receipt__lines li::after {
+  content: '';
+  order: 1;
+  flex: 1;
+  border-bottom: 2px dotted var(--pc-divider);
+}
+
+.receipt__price {
+  order: 2;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.receipt__total {
+  padding-top: 16px;
+  border-top: 2px dashed var(--pc-divider);
+  font-weight: 700;
+}
+
+.receipt__sum {
+  font-size: 2.5rem;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--pc-brand);
+  font-variant-numeric: tabular-nums;
+}
+
+.receipt__renews {
+  margin-top: 12px;
+  text-align: right;
+  color: var(--pc-text-2);
+}
+
+@media (min-width: 900px) {
+  .receipt-wrap {
+    transform: rotate(-1.2deg);
+  }
+}
+
+/* Home page: one idea per screen, large type, and the app itself as the imagery. */
+.hero--stage {
+  padding: 40px 0 0;
+  overflow: hidden;
+  text-align: center;
+}
+
+.hero.hero--stage .wrap {
+  display: block;
+}
+
+.hero--stage h1 {
+  font-size: clamp(2.1rem, 8.4vw, 6rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  max-width: 15em;
+  margin: 0 auto;
+}
+
+.hero--stage .lead {
+  max-width: 34em;
+  margin: 24px auto 0;
+}
+
+.hero--stage .actions {
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.hero__note {
+  margin-top: 16px;
+  color: var(--pc-text-2);
+}
+
+/* Three phones, the middle one forward. The stage clips them at the fold of the next section. */
+.stage {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin: 56px auto 0;
+  max-height: clamp(380px, 62vw, 640px);
+}
+
+.stage .phone {
+  flex: 0 0 auto;
+  width: clamp(170px, 34vw, 330px);
+  border-bottom: 0;
+  border-radius: var(--pc-radius-xl) var(--pc-radius-xl) 0 0;
+}
+
+.stage .phone:nth-child(1),
+.stage .phone:nth-child(3) {
+  width: clamp(140px, 28vw, 280px);
+  margin-top: 56px;
+  transform: none;
+}
+
+.stage .phone:nth-child(1) {
+  margin-right: -24px;
+}
+
+.stage .phone:nth-child(2) {
+  position: relative;
+  z-index: 1;
+  transform: none;
+}
+
+.stage .phone:nth-child(3) {
+  margin-left: -24px;
+}
+
+/* The full-bleed dark moment. It redefines the tokens, so everything inside just works. */
+.ink {
+  --pc-text-1: #f4ede2;
+  --pc-text-2: #d6c7af;
+  --pc-brand: #77c798;
+  background: #15120e;
+  color: var(--pc-text-1);
+  padding: 88px 0;
+}
+
+/* The page is this dark too in dark mode, so the band lifts to the surface colour. */
+@media (prefers-color-scheme: dark) {
+  .ink {
+    background: #221e18;
+  }
+}
+
+.ink .wrap {
+  display: grid;
+  gap: 48px;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .ink .wrap {
+    grid-template-columns: 1.15fr 0.85fr;
+  }
+}
+
+.ink__zero {
+  font-size: clamp(6rem, 21vw, 13rem);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  color: var(--pc-brand);
+  font-variant-numeric: tabular-nums;
+}
+
+.ink .checks {
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  gap: 12px 32px;
+}
+
+/* Paper stays paper in dark mode. */
+.receipt {
+  --pc-surface: #fffdf9;
+  --pc-text-1: #1d1a14;
+  --pc-text-2: #5f5544;
+  --pc-divider: #e8ddcc;
+  --pc-brand: #3f6b52;
+  color: var(--pc-text-1);
+}
+
+.receipt-wrap {
+  filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.45));
+}
+
+/* Feature tiles: spans and imagery carry the hierarchy, not borders or shadows. */
+.section-title {
+  text-align: center;
+  margin: 0 auto 48px;
+}
+
+.section-title h2,
+.statement h2 {
+  font-size: clamp(2.25rem, 6vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.section-title p {
+  margin-top: 16px;
+  font-size: clamp(1.1rem, 2.2vw, 1.3rem);
+  color: var(--pc-text-2);
+}
+
+.bento {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.tile {
+  grid-column: span 6;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 32px 32px 0;
+  border-radius: var(--pc-radius-xl);
+  background: var(--pc-surface-2);
+  overflow: hidden;
+}
+
+.tile--text {
+  padding-bottom: 32px;
+}
+
+.tile--tint {
+  background: var(--pc-brand-soft);
+}
+
+.tile h3 {
+  font-size: clamp(1.5rem, 2.8vw, 2rem);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.tile p {
+  margin-top: 8px;
+  color: var(--pc-text-2);
+  max-width: 34ch;
+}
+
+/* Words keep clear of a shot pinned to the tile's bottom edge. */
+.tile > div {
+  margin-bottom: 20px;
+}
+
+@media (min-width: 720px) {
+  .tile__shot {
+    max-height: 380px;
+  }
+}
+
+.ink h2 {
+  font-size: clamp(2rem, 4.6vw, 3.25rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.tile__shot {
+  display: block;
+  width: min(100%, 300px);
+  max-height: 320px;
+  margin: auto auto 0;
+  overflow: hidden;
+  border: 1px solid var(--pc-divider);
+  border-bottom: 0;
+  border-radius: var(--pc-radius-lg) var(--pc-radius-lg) 0 0;
+}
+
+@media (min-width: 720px) {
+  .tile--2 {
+    grid-column: span 3;
+  }
+
+  .tile--3 {
+    grid-column: span 3;
+  }
+
+  .tile--4 {
+    grid-column: span 6;
+  }
+}
+
+@media (min-width: 1000px) {
+  .tile--2 {
+    grid-column: span 2;
+  }
+
+  .tile--4 {
+    grid-column: span 4;
+  }
+
+  /* A wide tile sets its words beside a phone that runs off the tile's bottom edge, whatever
+     height its row settles on. */
+  .tile--4 {
+    position: relative;
+    min-height: 460px;
+    padding-bottom: 32px;
+    padding-right: 364px;
+  }
+
+  .tile--4 .tile__shot {
+    position: absolute;
+    top: 32px;
+    right: 32px;
+    bottom: 0;
+    width: 300px;
+    max-height: none;
+    margin: 0;
+  }
+}
+
+/* One sentence, full width. */
+.statement {
+  padding: 96px 0;
+  text-align: center;
+}
+
+.statement h2 {
+  max-width: 16em;
+  margin: 0 auto;
+}
+
+.statement > .wrap > p {
+  max-width: 34em;
+  margin: 20px auto 0;
+  font-size: clamp(1.1rem, 2.2vw, 1.3rem);
+  color: var(--pc-text-2);
+}
+
+.statement .checks {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 16px 32px;
+  max-width: 760px;
+  margin: 40px auto 0;
+  text-align: left;
+}
+
+.statement__more {
+  margin-top: 28px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The odometer: one reel of phrases behind a window, clicking over like a mechanical meter. CSS
+   only, because the CSP blocks scripts. The reel repeats its first phrase so the loop is seamless,
+   and with reduced motion it rests on that phrase. */
+.odo {
+  --odo-row: 1.24em;
+  position: relative;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  height: var(--odo-row);
+  margin: 0.14em auto 0;
+  padding: 0 0.32em;
+  overflow: hidden;
+  border-radius: 0.2em;
+  background: #15120e;
+  color: #77c798;
+  font-size: 0.92em;
+  line-height: var(--odo-row);
+  white-space: nowrap;
+}
+
+/* The drum curves away at the top and bottom of the window. */
+.odo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.6),
+    transparent 14%,
+    transparent 86%,
+    rgba(0, 0, 0, 0.6)
+  );
+}
+
+.odo__reel {
+  display: grid;
+  justify-items: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  .odo {
+    background: #2c2820;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .odo__reel {
+    animation: odo-roll 21.6s cubic-bezier(0.5, 0, 0.2, 1) infinite;
+  }
+}
+
+@keyframes odo-roll {
+  0%,
+  9.211% {
+    transform: translateY(calc(var(--odo-row) * 0));
+  }
+  10.661% {
+    transform: translateY(calc(var(--odo-row) * -1.09));
+  }
+  11.111%,
+  20.322% {
+    transform: translateY(calc(var(--odo-row) * -1));
+  }
+  21.772% {
+    transform: translateY(calc(var(--odo-row) * -2.09));
+  }
+  22.222%,
+  31.433% {
+    transform: translateY(calc(var(--odo-row) * -2));
+  }
+  32.883% {
+    transform: translateY(calc(var(--odo-row) * -3.09));
+  }
+  33.333%,
+  42.544% {
+    transform: translateY(calc(var(--odo-row) * -3));
+  }
+  43.994% {
+    transform: translateY(calc(var(--odo-row) * -4.09));
+  }
+  44.444%,
+  53.656% {
+    transform: translateY(calc(var(--odo-row) * -4));
+  }
+  55.106% {
+    transform: translateY(calc(var(--odo-row) * -5.09));
+  }
+  55.556%,
+  64.767% {
+    transform: translateY(calc(var(--odo-row) * -5));
+  }
+  66.217% {
+    transform: translateY(calc(var(--odo-row) * -6.09));
+  }
+  66.667%,
+  75.878% {
+    transform: translateY(calc(var(--odo-row) * -6));
+  }
+  77.328% {
+    transform: translateY(calc(var(--odo-row) * -7.09));
+  }
+  77.778%,
+  86.989% {
+    transform: translateY(calc(var(--odo-row) * -7));
+  }
+  88.439% {
+    transform: translateY(calc(var(--odo-row) * -8.09));
+  }
+  88.889%,
+  98.1% {
+    transform: translateY(calc(var(--odo-row) * -8));
+  }
+  99.55% {
+    transform: translateY(calc(var(--odo-row) * -9.09));
+  }
+  100% {
+    transform: translateY(calc(var(--odo-row) * -9));
+  }
+}
+
+.ink h2 {
+  max-width: 11em;
+}
+
+.ink__sub {
+  font-size: clamp(1.2rem, 2.6vw, 1.5rem);
+  color: var(--pc-text-2);
+}
+
+/* A full-bleed photo between statements. */
+.photo {
+  margin: 0;
+}
+
+.photo img {
+  width: 100%;
+  max-height: 86vh;
+  object-fit: cover;
+}
