@@ -20,7 +20,7 @@ and shows sourced references; it is not medical advice and never recommends a do
 
 ## Peptides in the catalog
 
-Semaglutide, Tirzepatide, Retatrutide, Cagrilintide, Tesamorelin, BPC-157, TB-500, GHK-Cu, KPV, GLOW, KLOW, or any peptide the user adds.
+BPC-157, GHK-Cu, Retatrutide, TB-500, Tesamorelin, Tirzepatide, Semaglutide, Cagrilintide, Eloralintide, KPV, MOTS-c, AHK-Cu, Semax, Selank, Sermorelin, Ipamorelin, NAD+, GLOW, KLOW, Wolverine Blend, plus custom peptides and custom blends.
 
 ## The arithmetic
 
